@@ -1,0 +1,1395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>flowix - Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet"/>
+<style>
+/* -- RESET --------------------------- */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+/* -- TOKENS -------------------------- */
+:root{
+  --bg:#f2f2f6;
+  --text:#09090e;
+  --muted:rgba(9,9,14,0.46);
+  --dim:rgba(9,9,14,0.26);
+  --border:rgba(9,9,14,0.08);
+  --border-hi:rgba(9,9,14,0.14);
+  --glass-bg:rgba(255,255,255,0.62);
+  --glass-b:rgba(255,255,255,0.92);
+  --glass-shadow:0 4px 32px rgba(0,0,0,0.07),0 1px 3px rgba(0,0,0,0.04);
+  --glass-inner:inset 0 1px 0 rgba(255,255,255,0.85);
+  --t-blue:rgba(88,152,255,0.10);
+  --t-purple:rgba(155,118,255,0.10);
+  --t-teal:rgba(32,196,182,0.09);
+  --t-amber:rgba(242,172,36,0.10);
+  --t-green:rgba(48,200,110,0.09);
+  --b-blue:rgba(88,152,255,0.22);
+  --b-purple:rgba(155,118,255,0.22);
+  --b-teal:rgba(32,196,182,0.20);
+  --b-amber:rgba(242,172,36,0.20);
+  --b-green:rgba(48,200,110,0.18);
+  --font-d:'Barlow Condensed',sans-serif;
+  --font-b:'Inter',sans-serif;
+  --font-m:'JetBrains Mono',monospace;
+  --nav-h:56px;
+  --sidebar-w:232px;
+}
+
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:var(--font-b);font-size:15px;line-height:1.6;
+  overflow-x:hidden;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns'http://www.w3.org/2000/svg' width'300' height'300'%3E%3Cfilter id'n'%3E%3CfeTurbulence type'fractalNoise' baseFrequency'0.65' numOctaves'3' stitchTiles'stitch'/%3E%3CfeColorMatrix type'saturate' values'0'/%3E%3C/filter%3E%3Crect width'300' height'300' filter'url(%23n)' opacity'0.03'/%3E%3C/svg%3E");
+  opacity:0;transition:opacity 0.22s ease;
+}
+body.ready{opacity:1}
+a{color:inherit;text-decoration:none}
+
+/* -- BLOBS --------------------------- */
+.blobs{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.blob{position:absolute;border-radius:50%;filter:blur(90px)}
+.blob-1{width:640px;height:640px;top:-8%;left:-6%;background:rgba(88,152,255,0.11)}
+.blob-2{width:540px;height:540px;bottom:5%;right:-4%;background:rgba(155,118,255,0.09)}
+.blob-3{width:380px;height:380px;top:38%;left:32%;background:rgba(32,196,182,0.07)}
+
+/* -- GLASS --------------------------- */
+.glass{background:var(--glass-bg);backdrop-filter:blur(24px) saturate(1.8);-webkit-backdrop-filter:blur(24px) saturate(1.8);border:1px solid var(--glass-b);box-shadow:var(--glass-shadow),var(--glass-inner)}
+.g-blue{background:linear-gradient(145deg,var(--t-blue),rgba(255,255,255,0.68));border:1px solid var(--b-blue);backdrop-filter:blur(24px) saturate(1.8);-webkit-backdrop-filter:blur(24px) saturate(1.8);box-shadow:var(--glass-shadow),var(--glass-inner)}
+.g-purple{background:linear-gradient(145deg,var(--t-purple),rgba(255,255,255,0.68));border:1px solid var(--b-purple);backdrop-filter:blur(24px) saturate(1.8);-webkit-backdrop-filter:blur(24px) saturate(1.8);box-shadow:var(--glass-shadow),var(--glass-inner)}
+.g-teal{background:linear-gradient(145deg,var(--t-teal),rgba(255,255,255,0.68));border:1px solid var(--b-teal);backdrop-filter:blur(24px) saturate(1.8);-webkit-backdrop-filter:blur(24px) saturate(1.8);box-shadow:var(--glass-shadow),var(--glass-inner)}
+.g-amber{background:linear-gradient(145deg,var(--t-amber),rgba(255,255,255,0.68));border:1px solid var(--b-amber);backdrop-filter:blur(24px) saturate(1.8);-webkit-backdrop-filter:blur(24px) saturate(1.8);box-shadow:var(--glass-shadow),var(--glass-inner)}
+.g-green{background:linear-gradient(145deg,var(--t-green),rgba(255,255,255,0.68));border:1px solid var(--b-green);backdrop-filter:blur(24px) saturate(1.8);-webkit-backdrop-filter:blur(24px) saturate(1.8);box-shadow:var(--glass-shadow),var(--glass-inner)}
+
+/* -- BUTTONS ------------------------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;font-family:var(--font-b);font-size:11px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;padding:10px 20px;cursor:pointer;border:none;transition:transform 0.22s cubic-bezier(0.34,1.56,0.64,1),box-shadow 0.22s ease,background 0.18s}
+.btn-dark{background:#09090e;color:#fff}
+.btn-dark:hover{transform:translateY(-3px) scale(1.01);box-shadow:0 14px 36px rgba(9,9,14,0.2)}
+.btn-out{background:rgba(255,255,255,0.55);color:var(--muted);border:1px solid var(--border-hi);backdrop-filter:blur(12px)}
+.btn-out:hover{transform:translateY(-3px) scale(1.01);color:var(--text);border-color:rgba(9,9,14,0.28);background:rgba(255,255,255,0.8);box-shadow:0 12px 32px rgba(9,9,14,0.09)}
+.btn-danger{background:rgba(192,57,43,0.08);color:#c0392b;border:1px solid rgba(192,57,43,0.2)}
+.btn-danger:hover{background:rgba(192,57,43,0.14);border-color:rgba(192,57,43,0.35);transform:translateY(-2px)}
+.btn-success{background:rgba(39,174,96,0.1);color:#1e8449;border:1px solid rgba(39,174,96,0.25)}
+.btn-success:hover{background:rgba(39,174,96,0.18);transform:translateY(-2px)}
+.btn-xs{padding:6px 12px;font-size:9px}
+.btn-sm{padding:9px 18px;font-size:10px}
+
+/* -- NAV ----------------------------- */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:var(--nav-h);background:rgba(242,242,246,0.82);backdrop-filter:blur(22px) saturate(1.8);-webkit-backdrop-filter:blur(22px) saturate(1.8);border-bottom:1px solid rgba(9,9,14,0.07);box-shadow:0 1px 0 rgba(255,255,255,0.8)}
+.nav-left{display:flex;align-items:center;gap:20px}
+.nav-logo{font-family:var(--font-d);font-size:18px;font-weight:900;letter-spacing:0.1em;text-transform:uppercase;color:var(--text)}
+.nav-logo a{color:inherit}
+.nav-back{font-size:10px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);transition:color 0.15s}
+.nav-back:hover{color:var(--text)}
+.nav-right{display:flex;align-items:center;gap:14px}
+.nav-email{font-size:11px;font-weight:400;color:var(--muted);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nav-signout{font-size:10px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;padding:7px 14px;background:none;border:1px solid var(--border-hi);color:var(--muted);cursor:pointer;transition:color 0.18s,border-color 0.18s}
+.nav-signout:hover{color:var(--text);border-color:rgba(9,9,14,0.28)}
+
+/* -- LAYOUT -------------------------- */
+.dash-layout{display:flex;padding-top:var(--nav-h);min-height:100vh;position:relative;z-index:1}
+
+/* -- SIDEBAR ------------------------- */
+.sidebar{width:var(--sidebar-w);position:fixed;top:var(--nav-h);bottom:0;left:0;display:flex;flex-direction:column;padding:20px 0;background:rgba(255,255,255,0.52);backdrop-filter:blur(20px) saturate(1.6);-webkit-backdrop-filter:blur(20px) saturate(1.6);border-right:1px solid rgba(9,9,14,0.07);overflow-y:auto;z-index:50}
+.snav{display:flex;flex-direction:column;gap:2px;padding:0 10px}
+.snav-label{font-size:9px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:var(--dim);padding:6px 12px 4px;margin-top:8px}
+.snav-item{display:flex;align-items:center;gap:11px;padding:10px 14px;cursor:pointer;border:none;background:none;text-align:left;width:100%;font-family:var(--font-b);font-size:12px;font-weight:500;color:var(--muted);letter-spacing:0.01em;border-radius:6px;transition:background 0.15s,color 0.15s}
+.snav-item:hover{background:rgba(9,9,14,0.05);color:var(--text)}
+.snav-item.active{background:#09090e;color:#fff}
+.snav-icon{font-family:var(--font-d);font-size:16px;font-weight:900;line-height:1;width:20px;text-align:center;flex-shrink:0}
+.snav-item.active .snav-icon{color:rgba(255,255,255,0.7)}
+.sidebar-footer{margin-top:auto;padding:16px 22px 4px;font-size:10px;color:var(--dim)}
+
+/* -- MAIN ---------------------------- */
+.dash-main{flex:1;margin-left:var(--sidebar-w);padding:44px 52px 80px;min-height:calc(100vh - var(--nav-h))}
+
+/* -- SECTION ------------------------- */
+.dash-section{display:none}
+.dash-section.active{display:block;animation:sectionIn 0.22s ease both}
+@keyframes sectionIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.ds-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:32px;gap:16px;flex-wrap:wrap}
+.ds-eyebrow{font-size:10px;font-weight:500;letter-spacing:0.22em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.ds-title{font-family:var(--font-d);font-size:clamp(28px,3vw,44px);font-weight:800;text-transform:uppercase;line-height:0.94;color:var(--text)}
+.ds-actions{display:flex;gap:10px;align-items:center;padding-top:4px;flex-shrink:0}
+
+/* -- AGENT CARDS --------------------- */
+.agents-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.agent-card{padding:24px 24px 20px;position:relative;transition:transform 0.22s cubic-bezier(0.34,1.56,0.64,1),box-shadow 0.22s ease}
+.agent-card:hover{transform:translateY(-4px);box-shadow:0 24px 56px rgba(0,0,0,0.11)!important}
+.ac-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.ac-status{display:inline-flex;align-items:center;gap:5px;font-size:9px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase}
+.ac-status-dot{width:6px;height:6px;border-radius:50%}
+.ac-status.on .ac-status-dot{background:#27ae60}
+.ac-status.on{color:#27ae60}
+.ac-status.off .ac-status-dot{background:var(--dim)}
+.ac-status.off{color:var(--dim)}
+.ac-btns{display:flex;gap:6px}
+.ac-name{font-family:var(--font-d);font-size:22px;font-weight:800;text-transform:uppercase;letter-spacing:0.03em;color:var(--text);margin-bottom:4px}
+.ac-model{font-size:11px;font-weight:400;color:var(--muted);margin-bottom:14px}
+.ac-row{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:6px}
+.ac-row-label{font-size:9px;font-weight:500;color:var(--dim);margin-bottom:4px;letter-spacing:0.08em;text-transform:uppercase}
+.ac-chip{font-size:9px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;padding:3px 8px;border:1px solid rgba(9,9,14,0.1);color:var(--dim);background:rgba(255,255,255,0.5)}
+.ac-api-badge{display:inline-flex;align-items:center;gap:5px;margin-top:10px;font-family:var(--font-m);font-size:9px;color:var(--muted);padding:4px 9px;border:1px solid rgba(9,9,14,0.1);background:rgba(255,255,255,0.5)}
+.ac-api-dot{width:5px;height:5px;border-radius:50%;background:#27ae60}
+
+/* -- EMPTY STATE --------------------- */
+.empty-state{text-align:center;padding:72px 32px}
+.empty-icon{font-family:var(--font-d);font-size:56px;font-weight:900;color:var(--dim);line-height:1;margin-bottom:16px}
+.empty-title{font-family:var(--font-d);font-size:22px;font-weight:700;text-transform:uppercase;color:var(--text);margin-bottom:8px}
+.empty-desc{font-size:13px;font-weight:300;color:var(--muted);margin-bottom:24px}
+
+/* -- FORM FIELDS --------------------- */
+.field-group{margin-bottom:18px}
+.field-label{display:block;font-size:10px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);margin-bottom:7px}
+.field-input,.field-select,.field-textarea{width:100%;padding:10px 14px;background:rgba(255,255,255,0.7);border:1px solid rgba(9,9,14,0.12);font-family:var(--font-b);font-size:14px;color:var(--text);outline:none;transition:border-color 0.18s,box-shadow 0.18s;appearance:none}
+.field-input::placeholder,.field-textarea::placeholder{color:var(--dim)}
+.field-input:focus,.field-select:focus,.field-textarea:focus{border-color:rgba(9,9,14,0.3);box-shadow:0 0 0 3px rgba(9,9,14,0.06)}
+.field-select{background-image:url("data:image/svg+xml,%3Csvg xmlns'http://www.w3.org/2000/svg' width'10' height'6'%3E%3Cpath d'M0 0l5 6 5-6z' fill'rgba(9,9,14,0.3)'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:calc(100% - 12px) 50%;padding-right:32px;cursor:pointer}
+.field-textarea{font-size:13px;line-height:1.65;resize:vertical}
+.field-hint{font-size:11px;color:var(--dim);margin-top:5px;font-weight:300}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.form-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+
+/* deploy targets */
+.deploy-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-top:8px}
+.deploy-check{display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(255,255,255,0.55);border:1px solid rgba(9,9,14,0.1);cursor:pointer;transition:border-color 0.15s,background 0.15s;user-select:none}
+.deploy-check:hover{background:rgba(255,255,255,0.8);border-color:rgba(9,9,14,0.2)}
+.deploy-check.checked{border-color:rgba(9,9,14,0.32);background:rgba(255,255,255,0.9)}
+.deploy-check-box{width:14px;height:14px;flex-shrink:0;border:1px solid rgba(9,9,14,0.22);display:flex;align-items:center;justify-content:center;transition:background 0.15s,border-color 0.15s}
+.deploy-check.checked .deploy-check-box{background:#09090e;border-color:#09090e}
+.deploy-check.checked .deploy-check-box::after{content:'';width:4px;height:7px;border-right:1px solid #fff;border-bottom:1px solid #fff;transform:rotate(45deg) translateY(-1px)}
+.deploy-check-label{font-size:12px;font-weight:500;color:var(--text)}
+
+/* form card wrapper */
+.form-card{padding:28px 30px 30px;margin-bottom:16px}
+.form-card-title{font-family:var(--font-d);font-size:18px;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;color:var(--text);margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid rgba(9,9,14,0.07)}
+.form-actions{display:flex;gap:10px;margin-top:24px;padding-top:20px;border-top:1px solid rgba(9,9,14,0.07);flex-wrap:wrap}
+
+/* agent selector bar */
+.section-selector{display:flex;align-items:center;gap:10px;padding:12px 16px;background:rgba(255,255,255,0.55);border:1px solid rgba(9,9,14,0.1);margin-bottom:28px;backdrop-filter:blur(12px)}
+.section-selector label{font-size:10px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);flex-shrink:0}
+.section-selector .field-select{border:none;background:transparent;box-shadow:none;padding:0;font-size:13px;font-weight:500;width:auto;min-width:200px}
+.section-selector .field-select:focus{box-shadow:none}
+
+/* -- SKILLS CONFIG ------------------- */
+.skills-config-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px}
+.skill-toggle-card{padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;transition:transform 0.18s ease,box-shadow 0.18s ease;cursor:pointer}
+.skill-toggle-card:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(0,0,0,0.1)!important}
+.stc-left{display:flex;align-items:center;gap:12px}
+.stc-acronym{font-family:var(--font-d);font-size:20px;font-weight:900;text-transform:uppercase;color:var(--text);line-height:1;width:44px;flex-shrink:0}
+.stc-name{font-size:12px;font-weight:500;color:var(--text);line-height:1.3}
+.stc-desc{font-size:10px;font-weight:300;color:var(--muted);margin-top:1px}
+.toggle-pill{width:36px;height:20px;border-radius:10px;flex-shrink:0;position:relative;cursor:pointer;transition:background 0.18s ease}
+.toggle-pill.on{background:#09090e}
+.toggle-pill.off{background:rgba(9,9,14,0.16)}
+.toggle-pill::after{content:'';position:absolute;top:3px;width:14px;height:14px;border-radius:50%;background:#fff;transition:left 0.18s ease,box-shadow 0.18s ease}
+.toggle-pill.on::after{left:19px;box-shadow:0 1px 4px rgba(0,0,0,0.3)}
+.toggle-pill.off::after{left:3px}
+
+/* -- BROWSER ACCESS ------------------ */
+.browser-control-card{padding:20px 24px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:20px}
+.bcc-info{}
+.bcc-title{font-family:var(--font-d);font-size:20px;font-weight:700;text-transform:uppercase;color:var(--text)}
+.bcc-desc{font-size:12px;font-weight:300;color:var(--muted);margin-top:3px;max-width:380px}
+.bcc-warning{display:flex;align-items:flex-start;gap:8px;margin-top:8px;padding:8px 12px;background:rgba(242,172,36,0.1);border:1px solid rgba(242,172,36,0.22);font-size:11px;color:rgba(150,100,0,0.85)}
+.bcc-warning-icon{font-size:13px;flex-shrink:0;margin-top:1px}
+
+.site-list{display:flex;flex-direction:column;gap:9px;margin-bottom:16px}
+.site-item{display:flex;align-items:center;gap:14px;padding:12px 16px;background:rgba(255,255,255,0.62);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.88);box-shadow:var(--glass-shadow),var(--glass-inner);transition:box-shadow 0.15s}
+.si-favicon{width:20px;height:20px;border-radius:3px;background:rgba(9,9,14,0.07);display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;overflow:hidden}
+.si-favicon img{width:100%;height:100%;object-fit:cover}
+.si-url{font-size:12px;font-weight:500;color:var(--text);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.si-label{font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);min-width:100px}
+.si-user{font-size:11px;color:var(--muted);min-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.si-pass{font-family:var(--font-m);font-size:12px;color:var(--dim);letter-spacing:0.1em;min-width:80px}
+
+.add-site-panel{padding:22px 24px;margin-bottom:16px}
+.add-site-panel .form-card-title{margin-bottom:16px;padding-bottom:12px}
+
+/* -- AGENT API ----------------------- */
+.agent-api-key-block{padding:20px 24px;margin-bottom:14px}
+.aak-label{font-size:10px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
+.aak-key-row{display:flex;align-items:center;gap:10px}
+.aak-key-display{
+  flex:1;padding:11px 14px;
+  background:rgba(255,255,255,0.5);
+  border:1px solid rgba(9,9,14,0.1);
+  font-family:var(--font-m);font-size:12px;color:var(--text);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.aak-actions{display:flex;gap:8px;flex-shrink:0}
+
+.api-endpoint-block{padding:22px 24px}
+.aeb-label{font-size:10px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.code-block{background:rgba(9,9,14,0.04);border:1px solid rgba(9,9,14,0.09);padding:16px 18px;font-family:var(--font-m);font-size:11px;line-height:1.85;color:var(--text);overflow-x:auto;white-space:pre}
+.code-comment{color:var(--dim)}
+
+/* -- LLM API KEYS -------------------- */
+.apikey-add-row{display:flex;gap:10px;align-items:flex-end}
+.apikey-add-row .field-group{margin-bottom:0;flex:1}
+.apikey-list{display:flex;flex-direction:column;gap:10px}
+.apikey-item{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 20px;background:rgba(255,255,255,0.62);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.88);box-shadow:var(--glass-shadow),var(--glass-inner)}
+.aki-left{display:flex;align-items:center;gap:14px}
+.aki-provider{font-family:var(--font-d);font-size:14px;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;color:var(--text);min-width:80px}
+.aki-key{font-family:var(--font-m);font-size:12px;color:var(--muted)}
+.aki-right{display:flex;gap:8px;align-items:center;flex-shrink:0}
+
+/* -- BILLING ------------------------- */
+.billing-current{padding:24px 28px;margin-bottom:28px}
+.bc-plan-label{font-size:10px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.bc-plan-name{font-family:var(--font-d);font-size:32px;font-weight:900;text-transform:uppercase;color:var(--text);margin-bottom:16px}
+.bc-stats{display:flex;gap:32px;flex-wrap:wrap}
+.bc-stat{border-left:2px solid rgba(9,9,14,0.12);padding-left:14px}
+.bc-stat-val{font-family:var(--font-d);font-size:24px;font-weight:800;color:var(--text);line-height:1}
+.bc-stat-label{font-size:10px;font-weight:400;color:var(--muted);margin-top:2px}
+.plans-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+
+/* -- WALLET / ADD FUNDS ------------ */
+.wallet-section{margin:20px 0}
+.amount-btn{min-width:60px}
+.amount-btn.active{background:var(--text);color:var(--surface);border-color:var(--text)}
+.plan-card{padding:28px 26px 32px}
+.plan-badge{font-size:9px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;padding:4px 10px;border:1px solid rgba(9,9,14,0.12);color:var(--dim);display:inline-block;margin-bottom:16px}
+.plan-name{font-family:var(--font-d);font-size:28px;font-weight:900;text-transform:uppercase;color:var(--text);line-height:1;margin-bottom:4px}
+.plan-price{font-family:var(--font-d);font-size:18px;font-weight:600;color:var(--muted);margin-bottom:18px}
+.plan-features{list-style:none;margin-bottom:20px}
+.plan-features li{font-size:12px;font-weight:300;color:var(--muted);padding:5px 0;border-bottom:1px solid rgba(9,9,14,0.06);display:flex;align-items:center;gap:7px}
+.plan-features li::before{content:'-';font-size:10px;color:var(--dim)}
+.plan-card.current .plan-features li::before{content:'✓';color:var(--text)}
+
+/* -- CONFIRM MODAL ------------------- */
+.modal-overlay{position:fixed;inset:0;z-index:200;display:none;align-items:center;justify-content:center;background:rgba(9,9,14,0.4);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);padding:24px}
+.modal-overlay.open{display:flex}
+.modal{width:100%;max-width:380px;background:rgba(255,255,255,0.88);backdrop-filter:blur(28px) saturate(1.8);-webkit-backdrop-filter:blur(28px) saturate(1.8);border:1px solid rgba(255,255,255,0.92);box-shadow:0 24px 72px rgba(9,9,14,0.16),inset 0 1px 0 rgba(255,255,255,0.95);padding:32px 28px 28px;position:relative;animation:modalIn 0.2s cubic-bezier(0.34,1.56,0.64,1) both}
+@keyframes modalIn{from{opacity:0;transform:translateY(12px) scale(0.97)}to{opacity:1;transform:none}}
+.modal-title{font-family:var(--font-d);font-size:22px;font-weight:800;text-transform:uppercase;color:var(--text);margin-bottom:8px}
+.modal-body{font-size:13px;font-weight:300;color:var(--muted);line-height:1.65;margin-bottom:24px}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end}
+
+/* -- TOAST --------------------------- */
+#toast-container{position:fixed;bottom:28px;right:28px;z-index:300;display:flex;flex-direction:column;gap:8px;align-items:flex-end}
+.toast{padding:11px 18px;background:rgba(9,9,14,0.88);color:#fff;font-size:12px;font-weight:500;letter-spacing:0.03em;backdrop-filter:blur(12px);box-shadow:0 8px 28px rgba(0,0,0,0.18);animation:toastIn 0.22s cubic-bezier(0.34,1.56,0.64,1) both;max-width:300px}
+.toast.success{background:rgba(39,174,96,0.92)}
+.toast.error{background:rgba(192,57,43,0.92)}
+@keyframes toastIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes toastOut{from{opacity:1}to{opacity:0;transform:translateY(4px)}}
+
+/* -- MISC ---------------------------- */
+.divider{height:1px;background:rgba(9,9,14,0.07);margin:24px 0}
+::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(9,9,14,0.12)}
+</style>
+</head>
+<body>
+
+<div class="blobs">
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+</div>
+
+<!-- === NAV === -->
+<nav>
+  <div class="nav-left">
+    <div class="nav-logo"><a href="neura_ui.html">flowix</a></div>
+    <a class="nav-back" href="neura_ui.html">← Back to site</a>
+  </div>
+  <div class="nav-right">
+    <span class="nav-email" id="nav-email"></span>
+    <button class="nav-signout" id="btn-signout">Sign out</button>
+  </div>
+</nav>
+
+<!-- === DASHBOARD LAYOUT === -->
+<div class="dash-layout">
+
+  <!-- -- SIDEBAR -->
+  <aside class="sidebar">
+    <nav class="snav">
+      <div class="snav-label">Workspace</div>
+      <button class="snav-item active" data-section="agents">
+        <span class="snav-icon">◆</span> My Agents
+      </button>
+      <button class="snav-item" data-section="skills">
+        <span class="snav-icon">◈</span> Skills
+      </button>
+      <button class="snav-item" data-section="edit">
+        <span class="snav-icon">◎</span> Edit Agent
+      </button>
+      <button class="snav-item" data-section="browser">
+        <span class="snav-icon">◆</span> Browser Access
+      </button>
+      <button class="snav-item" data-section="agentapi">
+        <span class="snav-icon">◇</span> Agent API
+      </button>
+      <div class="snav-label">Account</div>
+      <button class="snav-item" data-section="apikeys">
+        <span class="snav-icon">●</span> LLM Keys
+      </button>
+      <button class="snav-item" data-section="billing">
+        <span class="snav-icon">◇</span> Billing
+      </button>
+    </nav>
+    <div class="sidebar-footer">flowix v0.1</div>
+  </aside>
+
+  <!-- -- MAIN -->
+  <main class="dash-main">
+
+    <!-- === MY AGENTS === -->
+    <div id="section-agents" class="dash-section active">
+      <div class="ds-header">
+        <div>
+          <div class="ds-eyebrow">Dashboard</div>
+          <div class="ds-title">My Agents</div>
+        </div>
+        <div class="ds-actions">
+          <button class="btn btn-dark" id="btn-new-agent">+ New Agent</button>
+        </div>
+      </div>
+      <div id="agents-empty" class="empty-state" style="display:none">
+        <div class="empty-icon">◆</div>
+        <div class="empty-title">No agents yet</div>
+        <div class="empty-desc">Create your first agent, give it skills, and deploy it to Slack, Teams, Discord, or your browser.</div>
+        <button class="btn btn-dark" id="btn-new-agent-empty">Create First Agent</button>
+      </div>
+      <div id="agents-grid" class="agents-grid"></div>
+    </div>
+
+    <!-- === SKILLS === -->
+    <div id="section-skills" class="dash-section">
+      <div class="ds-header">
+        <div>
+          <div class="ds-eyebrow">Agent Configuration</div>
+          <div class="ds-title">Skills</div>
+        </div>
+      </div>
+      <div class="section-selector glass">
+        <label for="skills-agent-select">Agent</label>
+        <select id="skills-agent-select" class="field-select">
+          <option value="">- select an agent -</option>
+        </select>
+      </div>
+      <div id="skills-placeholder" class="empty-state" style="padding:40px 32px">
+        <div class="empty-icon">◈</div>
+        <div class="empty-title">Select an agent</div>
+        <div class="empty-desc">Choose an agent above to configure its skills.</div>
+      </div>
+      <div id="skills-config-grid" class="skills-config-grid" style="display:none"></div>
+      <div id="skills-save-row" style="display:none;margin-top:8px">
+        <button class="btn btn-dark" id="btn-save-skills">Save Skills</button>
+      </div>
+    </div>
+
+    <!-- === EDIT AGENT === -->
+    <div id="section-edit" class="dash-section">
+      <div class="ds-header">
+        <div>
+          <div class="ds-eyebrow">Agent Configuration</div>
+          <div class="ds-title">Edit Agent</div>
+        </div>
+      </div>
+      <div class="section-selector glass">
+        <label for="edit-agent-select">Agent</label>
+        <select id="edit-agent-select" class="field-select">
+          <option value="new">+ New agent</option>
+        </select>
+      </div>
+      <div id="edit-form">
+        <div class="form-card glass">
+          <div class="form-card-title">Identity &amp; Model</div>
+          <div class="form-grid">
+            <div class="field-group">
+              <label class="field-label" for="ef-name">Agent Name</label>
+              <input class="field-input" type="text" id="ef-name" placeholder="e.g. Research Assistant"/>
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="ef-model">Base Model</label>
+              <select class="field-select" id="ef-model"></select>
+            </div>
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="ef-prompt">Backend System Prompt</label>
+            <textarea class="field-textarea" id="ef-prompt" rows="7" placeholder="Describe how your agent should behave. This is sent as the system prompt on every request.&#10;&#10;e.g. You are a concise research assistant. Always cite sources. Refuse personal advice. When browsing, prefer recent sources from the last 12 months."></textarea>
+            <div class="field-hint">This is the core instruction set your model receives on every turn. Users never see it.</div>
+          </div>
+        </div>
+        <div class="form-card glass">
+          <div class="form-card-title">Deployment Targets</div>
+          <div id="edit-deploy-grid" class="deploy-grid"></div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-dark" id="btn-save-agent">Save Agent</button>
+          <button class="btn btn-danger" id="btn-delete-agent" style="display:none">Delete Agent</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- === BROWSER ACCESS === -->
+    <div id="section-browser" class="dash-section">
+      <div class="ds-header">
+        <div>
+          <div class="ds-eyebrow">Agent Configuration</div>
+          <div class="ds-title">Browser Access</div>
+        </div>
+      </div>
+      <div class="section-selector glass">
+        <label for="browser-agent-select">Agent</label>
+        <select id="browser-agent-select" class="field-select">
+          <option value="">- select an agent -</option>
+        </select>
+      </div>
+
+      <div id="browser-placeholder" class="empty-state" style="padding:40px 32px">
+        <div class="empty-icon">◆</div>
+        <div class="empty-title">Select an agent</div>
+        <div class="empty-desc">Choose an agent to configure its browser access and site credentials.</div>
+      </div>
+
+      <div id="browser-config" style="display:none">
+        <!-- Full control toggle -->
+        <div class="browser-control-card glass" style="margin-bottom:16px">
+          <div class="bcc-info">
+            <div class="bcc-title">Full Browser Control</div>
+            <div class="bcc-desc">When enabled, the agent can navigate to any URL on the web - not just the sites listed below.</div>
+            <div class="bcc-warning" id="browser-full-warning" style="display:none">
+              <span class="bcc-warning-icon">⚠</span>
+              Full control lets the agent browse any website. Make sure your system prompt restricts scope appropriately.
+            </div>
+          </div>
+          <div class="toggle-pill off" id="browser-full-toggle" style="width:44px;height:24px;flex-shrink:0"></div>
+        </div>
+
+        <!-- Add site button + form -->
+        <div class="ds-header" style="margin-bottom:16px">
+          <div style="font-family:var(--font-d);font-size:18px;font-weight:700;text-transform:uppercase;color:var(--text)">Site Credentials</div>
+          <button class="btn btn-dark btn-sm" id="btn-show-add-site">+ Add Website</button>
+        </div>
+
+        <div class="add-site-panel glass" id="add-site-panel" style="display:none">
+          <div class="form-card-title">Add Website</div>
+          <div class="form-grid">
+            <div class="field-group" style="margin-bottom:0">
+              <label class="field-label" for="site-url">Website URL</label>
+              <input class="field-input" type="url" id="site-url" placeholder="https://example.com"/>
+            </div>
+            <div class="field-group" style="margin-bottom:0">
+              <label class="field-label" for="site-label">Label</label>
+              <input class="field-input" type="text" id="site-label" placeholder="Work Email, GitHub, etc."/>
+            </div>
+          </div>
+          <div style="height:12px"></div>
+          <div class="form-grid">
+            <div class="field-group" style="margin-bottom:0">
+              <label class="field-label" for="site-username">Username / Email</label>
+              <input class="field-input" type="text" id="site-username" placeholder="you@example.com" autocomplete="off"/>
+            </div>
+            <div class="field-group" style="margin-bottom:0">
+              <label class="field-label" for="site-password">Password</label>
+              <input class="field-input" type="password" id="site-password" placeholder="••••••••" autocomplete="new-password"/>
+            </div>
+          </div>
+          <div class="field-hint" style="margin-top:10px">Credentials are stored locally in your browser. OAuth support coming soon.</div>
+          <div class="form-actions" style="margin-top:16px;padding-top:14px">
+            <button class="btn btn-dark btn-sm" id="btn-add-site">Add Site</button>
+            <button class="btn btn-out btn-sm" id="btn-cancel-site">Cancel</button>
+          </div>
+        </div>
+
+        <div id="site-list-empty" style="display:none;padding:28px 0;text-align:center">
+          <div style="font-size:12px;font-weight:300;color:var(--muted)">No sites added yet. The agent will use its web search skill without saved credentials.</div>
+        </div>
+        <div id="site-list" class="site-list"></div>
+      </div>
+    </div>
+
+    <!-- === AGENT API === -->
+    <div id="section-agentapi" class="dash-section">
+      <div class="ds-header">
+        <div>
+          <div class="ds-eyebrow">Deploy</div>
+          <div class="ds-title">Agent API</div>
+        </div>
+      </div>
+      <div class="section-selector glass">
+        <label for="agentapi-select">Agent</label>
+        <select id="agentapi-select" class="field-select">
+          <option value="">- select an agent -</option>
+        </select>
+      </div>
+
+      <div id="agentapi-placeholder" class="empty-state" style="padding:40px 32px">
+        <div class="empty-icon">◇</div>
+        <div class="empty-title">Select an agent</div>
+        <div class="empty-desc">Choose an agent to generate an API key and call it programmatically.</div>
+      </div>
+
+      <div id="agentapi-config" style="display:none">
+        <!-- Key display -->
+        <div class="agent-api-key-block glass" style="margin-bottom:14px">
+          <div class="aak-label">API Key</div>
+          <div id="agentapi-no-key" style="display:none">
+            <div style="font-size:13px;font-weight:300;color:var(--muted);margin-bottom:14px">No API key generated yet. Generate one to call this agent from your own code.</div>
+            <button class="btn btn-dark btn-sm" id="btn-gen-key">Generate API Key</button>
+          </div>
+          <div id="agentapi-has-key" style="display:none">
+            <div class="aak-key-row">
+              <div class="aak-key-display" id="aak-key-display"></div>
+              <div class="aak-actions">
+                <button class="btn btn-out btn-sm" id="btn-copy-key">Copy</button>
+                <button class="btn btn-out btn-sm" id="btn-regen-key">Regenerate</button>
+                <button class="btn btn-danger btn-sm" id="btn-revoke-key">Revoke</button>
+              </div>
+            </div>
+            <div class="field-hint" style="margin-top:8px">Store this key securely - it grants full access to invoke your agent.</div>
+          </div>
+        </div>
+
+        <!-- Endpoint info -->
+        <div class="api-endpoint-block glass" id="agentapi-endpoint" style="display:none">
+          <div class="aeb-label">Usage</div>
+          <pre class="code-block" id="agentapi-snippet"></pre>
+          <div style="height:16px"></div>
+          <div class="aeb-label">JavaScript / Fetch</div>
+          <pre class="code-block" id="agentapi-snippet-js"></pre>
+          <div class="field-hint" style="margin-top:12px">The endpoint is handled by a Supabase Edge Function. Deploy <code style="font-family:var(--font-m);font-size:10px">supabase/functions/agent-invoke</code> to activate it.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- === LLM API KEYS === -->
+    <div id="section-apikeys" class="dash-section">
+      <div class="ds-header">
+        <div>
+          <div class="ds-eyebrow">Account</div>
+          <div class="ds-title">LLM Keys</div>
+        </div>
+      </div>
+      <div class="form-card glass" style="margin-bottom:28px">
+        <div class="form-card-title">Add LLM Provider Key</div>
+        <div class="apikey-add-row">
+          <div class="field-group" style="max-width:200px">
+            <label class="field-label" for="ak-provider">Provider</label>
+            <select class="field-select" id="ak-provider">
+              <option value="Anthropic">Anthropic (Claude)</option>
+              <option value="OpenAI">OpenAI (GPT)</option>
+              <option value="Google">Google (Gemini)</option>
+              <option value="Meta">Meta (Llama)</option>
+              <option value="Mistral">Mistral</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="field-group" style="flex:1">
+            <label class="field-label" for="ak-key">API Key</label>
+            <input class="field-input" type="password" id="ak-key" placeholder="Paste your LLM provider API key" autocomplete="off"/>
+          </div>
+          <button class="btn btn-dark" id="btn-add-key" style="flex-shrink:0;align-self:flex-end">Add Key</button>
+        </div>
+        <div class="field-hint" style="margin-top:10px">Keys are stored locally in your browser and sent to your chosen LLM provider only. Never shared with flowix servers.</div>
+      </div>
+      <div id="apikeys-empty" class="empty-state" style="padding:40px 32px;display:none">
+        <div class="empty-icon">●</div>
+        <div class="empty-title">No keys added</div>
+        <div class="empty-desc">Add an API key above to connect your LLM provider.</div>
+      </div>
+      <div id="apikeys-list" class="apikey-list"></div>
+    </div>
+
+    <!-- === BILLING === -->
+    <div id="section-billing" class="dash-section">
+      <div class="ds-header">
+        <div>
+          <div class="ds-eyebrow">Account</div>
+          <div class="ds-title">Billing</div>
+        </div>
+      </div>
+      <div class="billing-current glass">
+        <div class="bc-plan-label">Current Plan</div>
+        <div class="bc-plan-name">Free</div>
+        <div class="bc-stats">
+          <div class="bc-stat">
+            <div class="bc-stat-val" id="billing-agent-count">0</div>
+            <div class="bc-stat-label">Agents created</div>
+          </div>
+          <div class="bc-stat">
+            <div class="bc-stat-val">3</div>
+            <div class="bc-stat-label">Agent limit</div>
+          </div>
+          <div class="bc-stat">
+            <div class="bc-stat-val" id="billing-site-count">0</div>
+            <div class="bc-stat-label">Browser credentials</div>
+          </div>
+          <div class="bc-stat">
+            <div class="bc-stat-val" id="billing-key-count">0</div>
+            <div class="bc-stat-label">LLM keys stored</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Wallet / Add Funds -->
+      <div class="wallet-section glass" style="margin:20px 0;padding:24px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+          <div>
+            <div style="font-family:var(--font-d);font-size:14px;font-weight:700;text-transform:uppercase;color:var(--muted)">Wallet Balance</div>
+            <div style="font-family:var(--font-d);font-size:32px;font-weight:800;color:var(--text);margin-top:4px">$<span id="wallet-balance">0.00</span></div>
+          </div>
+          <button class="btn btn-dark" id="btn-add-funds">+ Add Funds</button>
+        </div>
+        <div id="add-funds-panel" style="display:none;border-top:1px solid var(--line);padding-top:16px;margin-top:16px">
+          <div style="font-size:13px;color:var(--muted);margin-bottom:12px">Select amount to add ($1 - $10,000)</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
+            <button class="btn btn-out btn-sm amount-btn" data-amount="10">$10</button>
+            <button class="btn btn-out btn-sm amount-btn" data-amount="25">$25</button>
+            <button class="btn btn-out btn-sm amount-btn" data-amount="50">$50</button>
+            <button class="btn btn-out btn-sm amount-btn" data-amount="100">$100</button>
+            <button class="btn btn-out btn-sm amount-btn" data-amount="250">$250</button>
+            <button class="btn btn-out btn-sm amount-btn" data-amount="500">$500</button>
+          </div>
+          <div style="display:flex;gap:12px;align-items:center;margin-bottom:12px">
+            <span style="color:var(--muted);font-size:14px">Custom:</span>
+            <span style="color:var(--text);font-size:16px">$</span>
+            <input type="number" id="custom-amount" class="field-input" style="width:120px" min="1" max="10000" step="1" placeholder="Amount"/>
+            <button class="btn btn-dark btn-sm" id="btn-checkout">Proceed to Checkout</button>
+            <button class="btn btn-out btn-sm" id="btn-cancel-funds">Cancel</button>
+          </div>
+          <div class="field-hint">Funds are added instantly after payment. No subscriptions - you control when to add funds.</div>
+        </div>
+        <div id="transaction-history" style="margin-top:16px;border-top:1px solid var(--line);padding-top:16px;display:none">
+          <div style="font-family:var(--font-d);font-size:12px;font-weight:700;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Recent Transactions</div>
+          <div id="transactions-list"></div>
+        </div>
+      </div>
+
+      <div class="plans-grid">
+        <div class="plan-card glass current">
+          <div class="plan-badge">Current</div>
+          <div class="plan-name">Free</div>
+          <div class="plan-price">$0 / month</div>
+          <ul class="plan-features">
+            <li>Up to 3 agents</li>
+            <li>All 9 skills</li>
+            <li>5 site credentials</li>
+            <li>Agent API keys</li>
+            <li>Community support</li>
+          </ul>
+          <button class="btn btn-out btn-sm" style="width:100%" disabled>Current plan</button>
+        </div>
+        <div class="plan-card g-blue">
+          <div class="plan-badge">Most popular</div>
+          <div class="plan-name">Pro</div>
+          <div class="plan-price">$19 / month</div>
+          <ul class="plan-features">
+            <li>Unlimited agents</li>
+            <li>All 9 skills</li>
+            <li>Unlimited site credentials</li>
+            <li>Full browser control</li>
+            <li>Priority support</li>
+          </ul>
+          <button class="btn btn-dark btn-sm" style="width:100%">Upgrade to Pro</button>
+        </div>
+        <div class="plan-card g-purple">
+          <div class="plan-badge">For teams</div>
+          <div class="plan-name">Team</div>
+          <div class="plan-price">$49 / month</div>
+          <ul class="plan-features">
+            <li>Everything in Pro</li>
+            <li>Shared agent workspace</li>
+            <li>Team permissions</li>
+            <li>Audit logs</li>
+            <li>Dedicated support</li>
+          </ul>
+          <button class="btn btn-out btn-sm" style="width:100%">Contact Sales</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- === CONFIRM MODAL === -->
+<div class="modal-overlay" id="modal-confirm">
+  <div class="modal">
+    <div class="modal-title" id="confirm-title">Confirm</div>
+    <div class="modal-body" id="confirm-body">This action cannot be undone.</div>
+    <div class="modal-actions">
+      <button class="btn btn-out btn-sm" id="btn-confirm-cancel">Cancel</button>
+      <button class="btn btn-danger btn-sm" id="btn-confirm-ok">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+(function () {
+  /* -- Supabase client ---------------- */
+  const { createClient } = supabase;
+  const sb = createClient(
+    'https://utofnywijqsozjqmkhcn.supabase.co',
+    'sb_publishable_NFpInIt2anAJxn2slHZIuQ_BsEw4g1n'
+  );
+
+  /* -- Constants ---------------------- */
+  const SUPABASE_URL = 'https://utofnywijqsozjqmkhcn.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_NFpInIt2anAJxn2slHZIuQ_BsEw4g1n';
+
+  const MODELS = [
+    { id:'claude-sonnet-4-6',   label:'Claude Sonnet 4.6',  provider:'Anthropic' },
+    { id:'claude-opus-4-7',     label:'Claude Opus 4.7',    provider:'Anthropic' },
+    { id:'claude-haiku-4-5',    label:'Claude Haiku 4.5',   provider:'Anthropic' },
+    { id:'gpt-4o',              label:'GPT-4o',             provider:'OpenAI' },
+    { id:'gpt-4-turbo',         label:'GPT-4 Turbo',        provider:'OpenAI' },
+    { id:'gpt-3-5-turbo',       label:'GPT-3.5 Turbo',      provider:'OpenAI' },
+    { id:'gemini-1-5-pro',      label:'Gemini 1.5 Pro',     provider:'Google' },
+    { id:'gemini-1-5-flash',    label:'Gemini 1.5 Flash',   provider:'Google' },
+    { id:'llama-3-1-70b',       label:'Llama 3.1 70B',      provider:'Meta' },
+    { id:'llama-3-1-8b',        label:'Llama 3.1 8B',       provider:'Meta' },
+    { id:'mistral-large',       label:'Mistral Large',      provider:'Mistral' },
+    { id:'mistral-7b',          label:'Mistral 7B',         provider:'Mistral' },
+  ];
+
+  const SKILLS = [
+    { id:'web_browser',   acronym:'WEB',  name:'Web Browser',   desc:'Navigate and read live web pages' },
+    { id:'web_search',    acronym:'SRC',  name:'Web Search',    desc:'Real-time search results and sources' },
+    { id:'group_chat',    acronym:'GCH',  name:'Group Chat',    desc:'Read and post in Slack, Teams, Discord' },
+    { id:'memory',        acronym:'MEM',  name:'Memory',        desc:'Persistent context across sessions' },
+    { id:'code_runner',   acronym:'RUN',  name:'Code Runner',   desc:'Execute Python and JavaScript safely' },
+    { id:'file_analysis', acronym:'FILE', name:'File Analysis', desc:'Read PDFs, spreadsheets, and images' },
+    { id:'calendar',      acronym:'CAL',  name:'Calendar',      desc:'Read and schedule calendar events' },
+    { id:'email',         acronym:'MAIL', name:'Email',         desc:'Draft, send, and read emails' },
+    { id:'custom_api',    acronym:'API',  name:'Custom API',    desc:'Call any REST endpoint you configure' },
+  ];
+
+  const SKILL_COLORS = ['g-blue','g-purple','g-teal','g-amber','g-green','g-blue','g-purple','g-teal','g-amber'];
+
+  const DEPLOY_TARGETS = [
+    { id:'slack',   label:'Slack' },
+    { id:'teams',   label:'Microsoft Teams' },
+    { id:'discord', label:'Discord' },
+    { id:'chrome',  label:'Chrome Extension' },
+    { id:'firefox', label:'Firefox Extension' },
+  ];
+
+  /* -- State -------------------------- */
+  let STATE_KEY = 'flowix_state';
+  let state = { agents:[], apiKeys:[] };
+  let currentUser = null;
+  let pendingConfirmFn = null;
+
+  function loadState() {
+    try { const r = localStorage.getItem(STATE_KEY); if (r) state = JSON.parse(r); } catch(e){}
+    if (!Array.isArray(state.agents)) state.agents = [];
+    if (!Array.isArray(state.apiKeys)) state.apiKeys = [];
+  }
+  function saveState() {
+    try { localStorage.setItem(STATE_KEY, JSON.stringify(state)); } catch(e){}
+  }
+
+  /* -- Helpers ------------------------ */
+  function uid()   { return Date.now().toString(36) + Math.random().toString(36).slice(2,8); }
+  function nraKey(){ return 'nra_' + Array.from(crypto.getRandomValues(new Uint8Array(24))).map(b => b.toString(16).padStart(2,'0')).join(''); }
+  function maskKey(k){ if(!k||k.length<10) return '••••••••••••••••'; return k.slice(0,6)+'••••••••••••'+k.slice(-4); }
+  function maskPass(p){ return p ? '••••••••' : '-'; }
+
+  function getProviderPrefix(modelId){const m = MODELS.find(x => x.id === modelId);if(!m)return null;const map = {Anthropic:'anthropic',OpenAI:'openai',Google:'google',Meta:'meta',Mistral:'mistral'};return map[m.provider]||null;}
+  function getLlmKeyForAgent(agent){const m = MODELS.find(x => x.id === agent.model);if(!m)return null;const k = state.apiKeys.find(k => k.provider === m.provider);return k?k.key:null;}
+  async function createAgentToken(agent,apiKey){const prefix = getProviderPrefix(agent.model);const { data, error } = await sb.from('agent_tokens').insert({user_id:currentUser.id,agent_id:agent.id,api_key:apiKey,agent_config:{systemPrompt:agent.systemPrompt||'You are a helpful assistant.',model:agent.model,agentName:agent.name},llm_provider:`${prefix}/${agent.model}`,llm_key_encrypted:getLlmKeyForAgent(agent)||''}).select('id').single();if(error)throw error;return data.id;}
+  async function syncAgentToken(agent){if(!agent.supabaseTokenId)return;const prefix = getProviderPrefix(agent.model);await sb.from('agent_tokens').update({agent_config:{systemPrompt:agent.systemPrompt||'You are a helpful assistant.',model:agent.model,agentName:agent.name},llm_provider:`${prefix}/${agent.model}`,llm_key_encrypted:getLlmKeyForAgent(agent)||''}).eq('id',agent.supabaseTokenId);}
+  async function deleteAgentToken(tokenId){if(!tokenId)return;await sb.from('agent_tokens').delete().eq('id',tokenId);}
+
+  function getFavicon(url) {
+    try { return `https://www.google.com/s2/favicons?domain=${new URL(url).hostname}&sz=32`; }
+    catch(e){ return null; }
+  }
+
+  /* -- Toast -------------------------- */
+  function toast(msg, type) {
+    const el = document.createElement('div');
+    el.className = 'toast' + (type ? ' '+type : '');
+    el.textContent = msg;
+    document.getElementById('toast-container').appendChild(el);
+    setTimeout(() => { el.style.animation = 'toastOut 0.2s ease both'; setTimeout(() => el.remove(),220); }, 2800);
+  }
+
+  /* -- Confirm modal ------------------ */
+  const modalConfirm = document.getElementById('modal-confirm');
+  function confirm(title, body, onOk) {
+    document.getElementById('confirm-title').textContent = title;
+    document.getElementById('confirm-body').textContent = body;
+    pendingConfirmFn = onOk;
+    modalConfirm.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  document.getElementById('btn-confirm-cancel').addEventListener('click', () => {
+    modalConfirm.classList.remove('open'); document.body.style.overflow = ''; pendingConfirmFn = null;
+  });
+  document.getElementById('btn-confirm-ok').addEventListener('click', () => {
+    modalConfirm.classList.remove('open'); document.body.style.overflow = '';
+    if(pendingConfirmFn){ pendingConfirmFn(); pendingConfirmFn = null; }
+  });
+
+  /* -- Section switching -------------- */
+  document.querySelectorAll('.snav-item').forEach(b => {
+    b.addEventListener('click', () => switchSection(b.dataset.section));
+  });
+  function switchSection(id) {
+    document.querySelectorAll('.dash-section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.snav-item').forEach(b => b.classList.toggle('active', b.dataset.section === id));
+    const el = document.getElementById('section-'+id);
+    if(el) el.classList.add('active');
+  }
+
+  /* -- Model select builder ----------- */
+  function buildModelSelect(sel, selectedId) {
+    const providers = [...new Set(MODELS.map(m => m.provider))];
+    sel.innerHTML = '';
+    providers.forEach(p => {
+      const og = document.createElement('optgroup'); og.label = p;
+      MODELS.filter(m => m.provider === p).forEach(m => {
+        const opt = document.createElement('option');
+        opt.value = m.id; opt.textContent = m.label;
+        if(m.id === selectedId) opt.selected = true;
+        og.appendChild(opt);
+      });
+      sel.appendChild(og);
+    });
+  }
+
+  /* -- Populate agent selects --------- */
+  function populateAgentSelects() {
+    ['skills-agent-select','browser-agent-select','agentapi-select'].forEach(id => {
+      const sel = document.getElementById(id);
+      const cur = sel.value;
+      sel.innerHTML = '<option value="">- select an agent -</option>';
+      state.agents.forEach(a => {
+        const opt = document.createElement('option');
+        opt.value = a.id; opt.textContent = a.name||'Unnamed Agent';
+        if(a.id === cur) opt.selected = true;
+        sel.appendChild(opt);
+      });
+    });
+    const editSel = document.getElementById('edit-agent-select');
+    const editCur = editSel.value;
+    editSel.innerHTML = '<option value="new">+ New agent</option>';
+    state.agents.forEach(a => {
+      const opt = document.createElement('option');
+      opt.value = a.id; opt.textContent = a.name||'Unnamed Agent';
+      if(a.id === editCur) opt.selected = true;
+      editSel.appendChild(opt);
+    });
+  }
+
+  /* -- SECTION: My Agents ------------- */
+  function renderAgents() {
+    const grid = document.getElementById('agents-grid');
+    const empty = document.getElementById('agents-empty');
+    grid.innerHTML = '';
+    if(state.agents.length === 0){ empty.style.display = ''; return; }
+    empty.style.display = 'none';
+    const colors = ['g-blue','g-purple','g-teal','g-amber','g-green'];
+    state.agents.forEach((agent,i) => {
+      const color = colors[i%colors.length];
+      const model = MODELS.find(m => m.id === agent.model);
+      const skillChips = (agent.skills||[])
+        .map(sid => { const s = SKILLS.find(x => x.id === sid); return s?`<span class="ac-chip">${s.acronym}</span>`:''; }).join('');
+      const deployChips = (agent.deployTargets||[])
+        .map(did => { const d = DEPLOY_TARGETS.find(x => x.id === did); return d?`<span class="ac-chip">${d.label}</span>`:''; }).join('');
+      const siteCount = (agent.browserConfig?.sites||[]).length;
+      const hasFullBrowser = agent.browserConfig?.fullControl;
+      const hasApiKey = !!agent.apiKey;
+
+      const card = document.createElement('div');
+      card.className = `agent-card ${color}`;
+      card.innerHTML = `
+        <div class="ac-top">
+          <div class="ac-status on"><div class="ac-status-dot"></div>Active</div>
+          <div class="ac-btns">
+            <button class="btn btn-out btn-xs btn-edit">Edit</button>
+            <button class="btn btn-danger btn-xs btn-del">Ã—</button>
+          </div>
+        </div>
+        <div class="ac-name">${agent.name||'Unnamed Agent'}</div>
+        <div class="ac-model">${model?model.label:agent.model||'No model'}</div>
+        ${skillChips?`<div class="ac-row-label">Skills</div><div class="ac-row">${skillChips}</div>`:''}
+        ${deployChips?`<div class="ac-row-label" style="margin-top:8px">Deploy</div><div class="ac-row">${deployChips}</div>`:''}
+        ${siteCount||hasFullBrowser?`<div class="ac-row-label" style="margin-top:8px">Browser</div><div class="ac-row">${hasFullBrowser?'<span class="ac-chip">Full Control</span>':''}${siteCount?`<span class="ac-chip">${siteCount} site${siteCount !== 1?'s':''}</span>`:''}</div>`:''}
+        ${hasApiKey?`<div class="ac-api-badge"><div class="ac-api-dot"></div>API enabled</div>`:''}
+      `;
+      card.querySelector('.btn-edit').addEventListener('click', () => goToEditAgent(agent.id));
+      card.querySelector('.btn-del').addEventListener('click', () => {
+        confirm('Delete Agent', `Delete "${agent.name||'Unnamed Agent'}"? This cannot be undone.`, () => {
+          state.agents = state.agents.filter(a => a.id !== agent.id);
+          saveState(); renderAll(); toast('Agent deleted.');
+        });
+      });
+      grid.appendChild(card);
+    });
+  }
+
+  /* -- SECTION: Skills ---------------- */
+  function renderSkillsSection() {
+    const agentId = document.getElementById('skills-agent-select').value;
+    const agent = state.agents.find(a => a.id === agentId);
+    const grid = document.getElementById('skills-config-grid');
+    const ph = document.getElementById('skills-placeholder');
+    const saveRow = document.getElementById('skills-save-row');
+    if(!agent){ grid.style.display='none'; saveRow.style.display='none'; ph.style.display=''; return; }
+    ph.style.display='none'; grid.style.display=''; saveRow.style.display='';
+    grid.innerHTML = '';
+    const enabled = new Set(agent.skills||[]);
+    SKILLS.forEach((skill,i) => {
+      const on = enabled.has(skill.id);
+      const card = document.createElement('div');
+      card.className = `skill-toggle-card ${SKILL_COLORS[i]}`;
+      card.innerHTML = `
+        <div class="stc-left">
+          <div class="stc-acronym">${skill.acronym}</div>
+          <div><div class="stc-name">${skill.name}</div><div class="stc-desc">${skill.desc}</div></div>
+        </div>
+        <div class="toggle-pill ${on?'on':'off'}" data-skill="${skill.id}"></div>
+      `;
+      card.addEventListener('click', () => {
+        const pill = card.querySelector('.toggle-pill');
+        pill.classList.toggle('on'); pill.classList.toggle('off');
+      });
+      grid.appendChild(card);
+    });
+  }
+  document.getElementById('skills-agent-select').addEventListener('change', renderSkillsSection);
+  document.getElementById('btn-save-skills').addEventListener('click', () => {
+    const agentId = document.getElementById('skills-agent-select').value;
+    const agent = state.agents.find(a => a.id === agentId);
+    if(!agent) return;
+    agent.skills = [...document.querySelectorAll('#skills-config-grid .toggle-pill.on')].map(p => p.dataset.skill);
+    saveState(); renderAgents(); toast('Skills saved.','success');
+  });
+
+  /* -- SECTION: Edit Agent ------------ */
+  function populateEditForm(agent) {
+    buildModelSelect(document.getElementById('ef-model'), agent?.model||MODELS[0].id);
+    document.getElementById('ef-name').value = agent?.name||'';
+    document.getElementById('ef-prompt').value = agent?.systemPrompt||'';
+    document.getElementById('btn-delete-agent').style.display = agent?'':'none';
+    const deployGrid = document.getElementById('edit-deploy-grid');
+    deployGrid.innerHTML = '';
+    DEPLOY_TARGETS.forEach(t => {
+      const checked = agent&&(agent.deployTargets||[]).includes(t.id);
+      const wrap = document.createElement('label');
+      wrap.className = 'deploy-check'+(checked?' checked':'');
+      wrap.dataset.targetId = t.id;
+      wrap.innerHTML = `<div class="deploy-check-box"></div><span class="deploy-check-label">${t.label}</span>`;
+      wrap.addEventListener('click', () => wrap.classList.toggle('checked'));
+      deployGrid.appendChild(wrap);
+    });
+  }
+  function goToEditAgent(agentId) {
+    switchSection('edit'); populateAgentSelects();
+    document.getElementById('edit-agent-select').value = agentId||'new';
+    populateEditForm(agentId ? state.agents.find(a => a.id === agentId) : null);
+  }
+  document.getElementById('edit-agent-select').addEventListener('change', function(){
+    populateEditForm(this.value === 'new' ? null : state.agents.find(a => a.id === this.value));
+  });
+  document.getElementById('btn-save-agent').addEventListener('click', () => {
+    const agentId = document.getElementById('edit-agent-select').value;
+    const name = document.getElementById('ef-name').value.trim();
+    const model = document.getElementById('ef-model').value;
+    const prompt = document.getElementById('ef-prompt').value.trim();
+    const targets = [...document.querySelectorAll('#edit-deploy-grid .deploy-check.checked')].map(el => el.dataset.targetId);
+    if(!name){ toast('Agent name is required.','error'); return; }
+    if(agentId === 'new'){
+      const a = { id:uid(), name, model, systemPrompt:prompt, deployTargets:targets, skills:[], browserConfig:{fullControl:false,sites:[]}, apiKey:null, createdAt:new Date().toISOString() };
+      state.agents.push(a);
+      saveState(); populateAgentSelects();
+      document.getElementById('edit-agent-select').value = a.id;
+      document.getElementById('btn-delete-agent').style.display = '';
+      toast('Agent created.','success');
+    } else {
+      const agent = state.agents.find(a => a.id === agentId);
+      if(!agent) return;
+      Object.assign(agent,{name,model,systemPrompt:prompt,deployTargets:targets});
+      saveState(); toast('Agent saved.','success');
+    }
+    renderAgents(); populateAgentSelects();
+  });
+  document.getElementById('btn-delete-agent').addEventListener('click', () => {
+    const agentId = document.getElementById('edit-agent-select').value;
+    const agent = state.agents.find(a => a.id === agentId);
+    if(!agent) return;
+    confirm('Delete Agent',`Delete "${agent.name}"? This cannot be undone.`,() => {
+      state.agents = state.agents.filter(a => a.id !== agentId);
+      saveState(); renderAll(); switchSection('agents'); toast('Agent deleted.');
+    });
+  });
+  ['btn-new-agent','btn-new-agent-empty'].forEach(id => {
+    document.getElementById(id).addEventListener('click', () => goToEditAgent(null));
+  });
+
+  /* -- SECTION: Browser Access -------- */
+  let browserAgentId = null;
+
+  function renderBrowserSection() {
+    browserAgentId = document.getElementById('browser-agent-select').value;
+    const agent = state.agents.find(a => a.id === browserAgentId);
+    const cfg = document.getElementById('browser-config');
+    const ph = document.getElementById('browser-placeholder');
+    if(!agent){ cfg.style.display='none'; ph.style.display=''; return; }
+    ph.style.display='none'; cfg.style.display='';
+    if(!agent.browserConfig) agent.browserConfig = { fullControl:false, sites:[] };
+    const bc = agent.browserConfig;
+
+    /* full control toggle */
+    const pill = document.getElementById('browser-full-toggle');
+    const warning = document.getElementById('browser-full-warning');
+    pill.className = 'toggle-pill ' + (bc.fullControl?'on':'off');
+    warning.style.display = bc.fullControl?'':'none';
+    pill.style.cssText='width:44px;height:24px;flex-shrink:0';
+    pill.onclick = () => {
+      bc.fullControl = !bc.fullControl;
+      pill.className = 'toggle-pill '+(bc.fullControl?'on':'off');
+      warning.style.display = bc.fullControl?'':'none';
+      saveState(); renderAgents();
+      toast(bc.fullControl?'Full browser control enabled.':'Restricted to listed sites.', bc.fullControl?'':'success');
+    };
+
+    renderSiteList(agent);
+  }
+
+  function renderSiteList(agent) {
+    const list = document.getElementById('site-list');
+    const empty = document.getElementById('site-list-empty');
+    const sites = agent.browserConfig?.sites||[];
+    list.innerHTML = '';
+    empty.style.display = sites.length === 0?'':'none';
+    sites.forEach(site => {
+      const favicon = getFavicon(site.url);
+      const item = document.createElement('div');
+      item.className='site-item';
+      item.innerHTML = `
+        <div class="si-favicon">${favicon?`<img src="${favicon}" alt=""/>`:'🌐'}</div>
+        <div class="si-url">${site.url}</div>
+        <div class="si-label">${site.label||''}</div>
+        <div class="si-user">${site.username||'-'}</div>
+        <div class="si-pass">${maskPass(site.password)}</div>
+        <button class="btn btn-danger btn-xs btn-del-site" data-id="${site.id}">Remove</button>
+      `;
+      item.querySelector('.btn-del-site').addEventListener('click', () => {
+        confirm('Remove Site',`Remove credentials for ${site.url}?`,() => {
+          agent.browserConfig.sites = agent.browserConfig.sites.filter(s => s.id !== site.id);
+          saveState(); renderSiteList(agent); updateBillingStats(); toast('Site removed.');
+        });
+      });
+      list.appendChild(item);
+    });
+  }
+
+  document.getElementById('browser-agent-select').addEventListener('change', () => { renderBrowserSection(); resetAddSiteForm(); });
+
+  /* add site form */
+  const addSitePanel = document.getElementById('add-site-panel');
+  document.getElementById('btn-show-add-site').addEventListener('click', () => {
+    addSitePanel.style.display=''; document.getElementById('site-url').focus();
+  });
+  document.getElementById('btn-cancel-site').addEventListener('click', () => {
+    addSitePanel.style.display='none'; resetAddSiteForm();
+  });
+  function resetAddSiteForm(){
+    ['site-url','site-label','site-username','site-password'].forEach(id => { document.getElementById(id).value=''; });
+  }
+  document.getElementById('btn-add-site').addEventListener('click', () => {
+    const agent = state.agents.find(a => a.id === browserAgentId);
+    if(!agent) return;
+    const url = document.getElementById('site-url').value.trim();
+    const label = document.getElementById('site-label').value.trim();
+    const username = document.getElementById('site-username').value.trim();
+    const password = document.getElementById('site-password').value;
+    if(!url){ toast('Website URL is required.','error'); return; }
+    try { new URL(url); } catch(e){ toast('Enter a valid URL (include https://).','error'); return; }
+    if(!agent.browserConfig) agent.browserConfig = { fullControl:false, sites:[] };
+    agent.browserConfig.sites.push({ id:uid(), url, label, username, password, addedAt:new Date().toISOString() });
+    saveState(); resetAddSiteForm(); addSitePanel.style.display='none';
+    renderSiteList(agent); updateBillingStats(); renderAgents();
+    toast('Site added.','success');
+  });
+
+  /* -- SECTION: Agent API ------------- */
+  function renderAgentApiSection() {
+    const agentId = document.getElementById('agentapi-select').value;
+    const agent = state.agents.find(a => a.id === agentId);
+    const config = document.getElementById('agentapi-config');
+    const ph = document.getElementById('agentapi-placeholder');
+    if(!agent){ config.style.display='none'; ph.style.display=''; return; }
+    ph.style.display='none'; config.style.display='';
+
+    const noKey = document.getElementById('agentapi-no-key');
+    const hasKey = document.getElementById('agentapi-has-key');
+    const keyDisp = document.getElementById('aak-key-display');
+    const endpoint = document.getElementById('agentapi-endpoint');
+
+    if(agent.apiKey){
+      noKey.style.display='none'; hasKey.style.display=''; endpoint.style.display='';
+      keyDisp.textContent = agent.apiKey;
+      updateCodeSnippets(agent);
+    } else {
+      noKey.style.display=''; hasKey.style.display='none'; endpoint.style.display='none';
+    }
+  }
+
+  function updateCodeSnippets(agent) {
+    const endpoint = `${SUPABASE_URL}/functions/v1/agent-invoke`;
+    document.getElementById('agentapi-snippet').innerHTML =
+      `<span class="code-comment"># Call your agent from the terminal</span>
+curl -X POST ${endpoint} \
+  -H "Content-Type: application/json" \
+  -H "X-Agent-Key: ${agent.apiKey}" \
+  -d '{"message": "Hello, what can you help me with?"}'`;
+
+    document.getElementById('agentapi-snippet-js').innerHTML =
+      `<span class="code-comment">// Call your agent from JavaScript</span>
+const res = await fetch("${endpoint}", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    "X-Agent-Key": "${agent.apiKey}"
+  },
+  body: JSON.stringify({ message: "Hello!" })
+});
+const { reply } = await res.json();
+console.log(reply);`;
+  }
+
+  document.getElementById('agentapi-select').addEventListener('change', renderAgentApiSection);
+
+  document.getElementById('btn-gen-key').addEventListener('click', () => {
+    const agent = state.agents.find(a => a.id === document.getElementById('agentapi-select').value);
+    if(!agent) return;
+    agent.apiKey = nraKey();
+    saveState(); renderAgentApiSection(); renderAgents(); toast('API key generated.','success');
+  });
+  document.getElementById('btn-copy-key').addEventListener('click', () => {
+    const agent = state.agents.find(a => a.id === document.getElementById('agentapi-select').value);
+    if(!agent?.apiKey) return;
+    navigator.clipboard.writeText(agent.apiKey).then(() => toast('Copied to clipboard.','success'));
+  });
+  document.getElementById('btn-regen-key').addEventListener('click', () => {
+    confirm('Regenerate Key','The old key will stop working immediately.',() => {
+      const agent = state.agents.find(a => a.id === document.getElementById('agentapi-select').value);
+      if(!agent) return;
+      agent.apiKey = nraKey();
+      saveState(); renderAgentApiSection(); renderAgents(); toast('API key regenerated.','success');
+    });
+  });
+  document.getElementById('btn-revoke-key').addEventListener('click', () => {
+    confirm('Revoke Key','The key will stop working immediately and cannot be recovered.',() => {
+      const agent = state.agents.find(a => a.id === document.getElementById('agentapi-select').value);
+      if(!agent) return;
+      agent.apiKey = null;
+      saveState(); renderAgentApiSection(); renderAgents(); toast('API key revoked.');
+    });
+  });
+
+  /* -- SECTION: LLM API Keys ---------- */
+  function renderApiKeys() {
+    const list = document.getElementById('apikeys-list');
+    const empty = document.getElementById('apikeys-empty');
+    list.innerHTML = '';
+    if(state.apiKeys.length === 0){ empty.style.display = ''; return; }
+    empty.style.display = 'none';
+    state.apiKeys.forEach(k => {
+      const item = document.createElement('div');
+      item.className='apikey-item';
+      item.innerHTML = `
+        <div class="aki-left">
+          <div class="aki-provider">${k.provider}</div>
+          <div class="aki-key">${maskKey(k.key)}</div>
+        </div>
+        <div class="aki-right">
+          <button class="btn btn-danger btn-xs btn-del-key" data-id="${k.id}">Remove</button>
+        </div>
+      `;
+      item.querySelector('.btn-del-key').addEventListener('click', () => {
+        confirm('Remove Key',`Remove the ${k.provider} key? Agents using this provider will stop working.`,() => {
+          state.apiKeys = state.apiKeys.filter(x => x.id !== k.id);
+          saveState(); renderApiKeys(); updateBillingStats(); toast('Key removed.');
+        });
+      });
+      list.appendChild(item);
+    });
+  }
+  document.getElementById('btn-add-key').addEventListener('click', () => {
+    const provider = document.getElementById('ak-provider').value;
+    const key = document.getElementById('ak-key').value.trim();
+    if(!key){ toast('Please enter an API key.','error'); return; }
+    state.apiKeys.push({ id:uid(), provider, key, addedAt:new Date().toISOString() });
+    saveState(); document.getElementById('ak-key').value = '';
+    renderApiKeys(); updateBillingStats(); toast(`${provider} key added.`,'success');
+  });
+
+  /* -- Billing stats ------------------ */
+  function updateBillingStats() {
+    document.getElementById('billing-agent-count').textContent = state.agents.length;
+    document.getElementById('billing-key-count').textContent = state.apiKeys.length;
+    const totalSites = state.agents.reduce((n,a) => n +(a.browserConfig?.sites?.length||0), 0);
+    document.getElementById('billing-site-count').textContent = totalSites;
+  }
+
+  /* -- Render all --------------------- */
+  function renderAll() {
+    renderAgents(); populateAgentSelects(); renderApiKeys(); updateBillingStats();
+    renderSkillsSection(); renderBrowserSection(); renderAgentApiSection();
+    const editSel = document.getElementById('edit-agent-select');
+    populateEditForm(editSel.value === 'new' ? null : state.agents.find(a => a.id === editSel.value));
+  }
+
+  /* -- Auth + init -------------------- */
+  async function init() {
+    const { data:{ session } } = await sb.auth.getSession();
+    if(!session){ window.location.replace('neura_ui.html'); return; }
+    currentUser = session.user;
+    STATE_KEY = 'flowix_state_'+currentUser.id;
+    document.getElementById('nav-email').textContent = currentUser.email;
+    loadState();
+    populateEditForm(null);
+    renderAll();
+    loadWalletBalance();
+    loadTransactions();
+    document.body.classList.add('ready');
+  }
+
+  document.getElementById('btn-signout').addEventListener('click', async () => {
+    await sb.auth.signOut(); window.location.href = 'neura_ui.html';
+  });
+  sb.auth.onAuthStateChange((_e, session) =>{
+    if(!session) window.location.replace('neura_ui.html');
+  });
+
+  /* -- Wallet / Add Funds ------------- */
+  let selectedAmount = 0;
+  
+  async function loadWalletBalance() {
+    if (!currentUser) return;
+    try {
+      const { data, error } = await sb.from('user_balance').select('balance_usd').eq('user_id', currentUser.id).single();
+      if (!error && data) {
+        document.getElementById('wallet-balance').textContent = data.balance_usd.toFixed(2);
+      }
+    } catch (e) { console.error('Failed to load balance:', e); }
+  }
+  
+  async function loadTransactions() {
+    if (!currentUser) return;
+    try {
+      const { data, error } = await sb.from('transactions')
+        .select('*')
+        .eq('user_id', currentUser.id)
+        .order('created_at', { ascending: false })
+        .limit(10);
+      if (!error && data && data.length > 0) {
+        const list = document.getElementById('transactions-list');
+        list.innerHTML = data.map(t => `
+          <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line);font-size:13px">
+            <span style="color:var(--muted)">${new Date(t.created_at).toLocaleDateString()}</span>
+            <span style="color:var(--text)">${t.description}</span>
+            <span style="color:${t.type === 'deposit' ? '#22c55e' : '#ef4444'};font-weight:600">${t.type === 'deposit' ? '+' : '-'}$${t.amount_usd.toFixed(2)}</span>
+          </div>
+        `).join('');
+        document.getElementById('transaction-history').style.display = '';
+      }
+    } catch (e) { console.error('Failed to load transactions:', e); }
+  }
+  
+  document.getElementById('btn-add-funds').addEventListener('click', () => {
+    document.getElementById('add-funds-panel').style.display = '';
+  });
+  
+  document.getElementById('btn-cancel-funds').addEventListener('click', () => {
+    document.getElementById('add-funds-panel').style.display = 'none';
+    selectedAmount = 0;
+    document.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('custom-amount').value = '';
+  });
+  
+  document.querySelectorAll('.amount-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      selectedAmount = parseInt(btn.dataset.amount);
+      document.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('custom-amount').value = '';
+    });
+  });
+  
+  document.getElementById('custom-amount').addEventListener('input', (e) => {
+    selectedAmount = parseInt(e.target.value) || 0;
+    document.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('active'));
+  });
+  
+  document.getElementById('btn-checkout').addEventListener('click', async () => {
+    if (selectedAmount < 1 || selectedAmount > 10000) {
+      toast('Please enter an amount between $1 and $10,000', 'error');
+      return;
+    }
+    if (!currentUser) {
+      toast('Please sign in first', 'error');
+      return;
+    }
+    
+    try {
+      const returnUrl = window.location.origin + window.location.pathname;
+      const response = await fetch(`${SUPABASE_URL}/functions/v1/stripe-checkout`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+        },
+        body: JSON.stringify({
+          amount: selectedAmount,
+          userId: currentUser.id,
+          returnUrl: returnUrl
+        })
+      });
+      
+      const result = await response.json();
+      if (response.ok && result.url) {
+        window.location.href = result.url;
+      } else {
+        toast(result.error || 'Failed to create checkout', 'error');
+      }
+    } catch (e) {
+      toast('Failed to initiate checkout', 'error');
+      console.error(e);
+    }
+  });
+  
+  // Check for successful return from Stripe
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('success') === 'true') {
+    toast('Payment successful! Funds added to your wallet.', 'success');
+    loadWalletBalance();
+    loadTransactions();
+    // Clear params
+    window.history.replaceState({}, '', window.location.pathname);
+  } else if (urlParams.get('canceled') === 'true') {
+    toast('Payment canceled.', '');
+    window.history.replaceState({}, '', window.location.pathname);
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+

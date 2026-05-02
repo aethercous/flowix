@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/hudso/Downloads/**)",
+      "Bash(unzip -l \"2026-03-28-interactive-physics-based-dot-grid.zip\")",
+      "Bash(unzip *)",
+      "Bash(supabase *)",
+      "Bash(curl *)"
+    ]
+  }
+}

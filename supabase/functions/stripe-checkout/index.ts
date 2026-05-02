@@ -1,0 +1,89 @@
+// Stripe Checkout Edge Function - flowix
+// Creates a checkout session for adding funds to user wallet
+
+import { serve } from 'https://deno.land/std@0.177.0/http/server.ts';
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
+
+serve(async (req) => {
+  // Handle CORS preflight
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders });
+  }
+
+  try {
+    const { amount, userId, returnUrl } = await req.json();
+
+    // Validate amount ($1 - $10,000)
+    if (!amount || amount < 1 || amount > 10000) {
+      return new Response(
+        JSON.stringify({ error: 'Amount must be between $1 and $10,000' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    if (!userId) {
+      return new Response(
+        JSON.stringify({ error: 'User ID required' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Get Stripe secret key from Supabase secrets
+    const stripeSecretKey = Deno.env.get('STRIPE_RESTRICTEDAPIKEY');
+    if (!stripeSecretKey) {
+      return new Response(
+        JSON.stringify({ error: 'Stripe not configured' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Create Stripe checkout session
+    const session = await fetch('https://api.stripe.com/v1/checkout/sessions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${stripeSecretKey}`,
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        'mode': 'payment',
+        'payment_method_types[0]': 'card',
+        'line_items[0][price_data][currency]': 'usd',
+        'line_items[0][price_data][product_data][name]': `Add $${amount} to flowix wallet`,
+        'line_items[0][price_data][unit_amount]': String(Math.round(amount * 100)), // cents
+        'line_items[0][quantity]': '1',
+        'success_url': `${returnUrl}?success=true&session_id={CHECKOUT_SESSION_ID}`,
+        'cancel_url': `${returnUrl}?canceled=true`,
+        'metadata[user_id]': userId,
+        'metadata[amount]': String(amount),
+        'metadata[type]': 'wallet_deposit',
+      }),
+    });
+
+    const sessionData = await session.json();
+
+    if (!session.ok) {
+      return new Response(
+        JSON.stringify({ error: sessionData.error?.message || 'Failed to create checkout' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    return new Response(
+      JSON.stringify({ 
+        sessionId: sessionData.id, 
+        url: sessionData.url 
+      }),
+      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+
+  } catch (error) {
+    return new Response(
+      JSON.stringify({ error: error.message }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+  }
+});
