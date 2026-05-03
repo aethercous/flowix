@@ -37,7 +37,7 @@ serve(async (req) => {
   try {
     const payload = await req.text();
     const signature = req.headers.get('stripe-signature') || '';
-    const webhookSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET');
+    const webhookSecret = Deno.env.get('STRIPE_WEBHOOK');
 
     // For production, verify the webhook signature
     // if (webhookSecret && !await verifyWebhook(payload, signature, webhookSecret)) {

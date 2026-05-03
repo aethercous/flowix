@@ -9,13 +9,18 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
+  console.log('Function called with method:', req.method);
+  
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
+    console.log('Handling CORS preflight');
     return new Response('ok', { headers: corsHeaders });
   }
 
   try {
+    console.log('Parsing request body...');
     const { amount, userId, returnUrl } = await req.json();
+    console.log('Request parsed:', { amount, userId, returnUrl: returnUrl ? 'present' : 'missing' });
 
     // Validate amount ($1 - $10,000)
     if (!amount || amount < 1 || amount > 10000) {
@@ -34,7 +39,9 @@ serve(async (req) => {
 
     // Get Stripe secret key from Supabase secrets
     const stripeSecretKey = Deno.env.get('STRIPE_SECRET_KEY');
+    console.log('Stripe secret key present:', !!stripeSecretKey);
     if (!stripeSecretKey) {
+      console.error('STRIPE_SECRET_KEY not found in environment');
       return new Response(
         JSON.stringify({ error: 'Stripe not configured' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -81,8 +88,9 @@ serve(async (req) => {
     );
 
   } catch (error) {
+    console.error('Error in stripe-checkout:', error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: error.message || 'Internal server error' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
