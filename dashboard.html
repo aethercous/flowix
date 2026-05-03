@@ -609,24 +609,23 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
         </div>
       </div>
       <div class="billing-current glass">
-        <div class="bc-plan-label">Current Plan</div>
-        <div class="bc-plan-name">Free</div>
+        <div class="bc-plan-label">Account Overview</div>
         <div class="bc-stats">
           <div class="bc-stat">
             <div class="bc-stat-val" id="billing-agent-count">0</div>
             <div class="bc-stat-label">Agents created</div>
           </div>
           <div class="bc-stat">
-            <div class="bc-stat-val">3</div>
-            <div class="bc-stat-label">Agent limit</div>
-          </div>
-          <div class="bc-stat">
             <div class="bc-stat-val" id="billing-site-count">0</div>
-            <div class="bc-stat-label">Browser credentials</div>
+            <div class="bc-stat-label">Site credentials</div>
           </div>
           <div class="bc-stat">
             <div class="bc-stat-val" id="billing-key-count">0</div>
             <div class="bc-stat-label">LLM keys stored</div>
+          </div>
+          <div class="bc-stat">
+            <div class="bc-stat-val" id="billing-transactions-count">0</div>
+            <div class="bc-stat-label">Transactions</div>
           </div>
         </div>
       </div>
@@ -665,45 +664,26 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
         </div>
       </div>
 
-      <div class="plans-grid">
-        <div class="plan-card glass current">
-          <div class="plan-badge">Current</div>
-          <div class="plan-name">Free</div>
-          <div class="plan-price">$0 / month</div>
-          <ul class="plan-features">
-            <li>Up to 3 agents</li>
-            <li>All 9 skills</li>
-            <li>5 site credentials</li>
-            <li>Agent API keys</li>
-            <li>Community support</li>
-          </ul>
-          <button class="btn btn-out btn-sm" style="width:100%" disabled>Current plan</button>
-        </div>
-        <div class="plan-card g-blue">
-          <div class="plan-badge">Most popular</div>
-          <div class="plan-name">Pro</div>
-          <div class="plan-price">$19 / month</div>
-          <ul class="plan-features">
-            <li>Unlimited agents</li>
-            <li>All 9 skills</li>
-            <li>Unlimited site credentials</li>
-            <li>Full browser control</li>
-            <li>Priority support</li>
-          </ul>
-          <button class="btn btn-dark btn-sm" style="width:100%">Upgrade to Pro</button>
-        </div>
-        <div class="plan-card g-purple">
-          <div class="plan-badge">For teams</div>
-          <div class="plan-name">Team</div>
-          <div class="plan-price">$49 / month</div>
-          <ul class="plan-features">
-            <li>Everything in Pro</li>
-            <li>Shared agent workspace</li>
-            <li>Team permissions</li>
-            <li>Audit logs</li>
-            <li>Dedicated support</li>
-          </ul>
-          <button class="btn btn-out btn-sm" style="width:100%">Contact Sales</button>
+      <!-- Usage Stats -->
+      <div class="usage-stats glass" style="margin-top:20px;padding:24px">
+        <div style="font-family:var(--font-d);font-size:14px;font-weight:700;text-transform:uppercase;color:var(--muted);margin-bottom:16px">Usage</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px">
+          <div>
+            <div style="font-size:24px;font-weight:800;color:var(--text)" id="usage-agents">0</div>
+            <div style="font-size:12px;color:var(--muted)">Agents</div>
+          </div>
+          <div>
+            <div style="font-size:24px;font-weight:800;color:var(--text)" id="usage-sites">0</div>
+            <div style="font-size:12px;color:var(--muted)">Site Credentials</div>
+          </div>
+          <div>
+            <div style="font-size:24px;font-weight:800;color:var(--text)" id="usage-keys">0</div>
+            <div style="font-size:12px;color:var(--muted)">API Keys</div>
+          </div>
+          <div>
+            <div style="font-size:24px;font-weight:800;color:var(--text)" id="usage-transactions">0</div>
+            <div style="font-size:12px;color:var(--muted)">Transactions</div>
+          </div>
         </div>
       </div>
     </div>
@@ -1259,7 +1239,37 @@ console.log(reply);`;
     renderAll();
     loadWalletBalance();
     loadTransactions();
+    updateUsageStats();
     document.body.classList.add('ready');
+  }
+
+  function updateUsageStats() {
+    // Update billing stats
+    document.getElementById('billing-agent-count').textContent = state.agents.length;
+    document.getElementById('billing-site-count').textContent = state.agents.reduce((sum, a) => sum + (a.browserConfig?.sites?.length || 0), 0);
+    document.getElementById('billing-key-count').textContent = state.apiKeys.length;
+    
+    // Update usage stats
+    document.getElementById('usage-agents').textContent = state.agents.length;
+    document.getElementById('usage-sites').textContent = state.agents.reduce((sum, a) => sum + (a.browserConfig?.sites?.length || 0), 0);
+    document.getElementById('usage-keys').textContent = state.apiKeys.length;
+    
+    // Load transaction count
+    loadTransactionCount();
+  }
+  
+  async function loadTransactionCount() {
+    if (!currentUser) return;
+    try {
+      const { data, error } = await sb.from('transactions')
+        .select('id', { count: 'exact' })
+        .eq('user_id', currentUser.id);
+      if (!error) {
+        const count = data?.length || 0;
+        document.getElementById('usage-transactions').textContent = count;
+        document.getElementById('billing-transactions-count').textContent = count;
+      }
+    } catch (e) { console.error('Failed to load transaction count:', e); }
   }
 
   document.getElementById('btn-signout').addEventListener('click', async () => {
@@ -1372,6 +1382,7 @@ console.log(reply);`;
     toast('Payment successful! Funds added to your wallet.', 'success');
     loadWalletBalance();
     loadTransactions();
+    updateUsageStats();
     // Clear params
     window.history.replaceState({}, '', window.location.pathname);
   } else if (urlParams.get('canceled') === 'true') {
