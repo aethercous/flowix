@@ -33,7 +33,7 @@ serve(async (req) => {
     }
 
     // Get Stripe secret key from Supabase secrets
-    const stripeSecretKey = Deno.env.get('STRIPE_RESTRICTEDAPIKEY');
+    const stripeSecretKey = Deno.env.get('STRIPE_SECRET_KEY');
     if (!stripeSecretKey) {
       return new Response(
         JSON.stringify({ error: 'Stripe not configured' }),
