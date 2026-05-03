@@ -2,10 +2,13 @@
 // Creates a checkout session for adding funds to user wallet
 
 import { serve } from 'https://deno.land/std@0.177.0/http/server.ts';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-requested-with',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS, GET',
+  'Access-Control-Max-Age': '86400',
 };
 
 serve(async (req) => {
@@ -30,13 +33,6 @@ serve(async (req) => {
       );
     }
 
-    if (!userId) {
-      return new Response(
-        JSON.stringify({ error: 'User ID required' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
     // Get Stripe secret key from Supabase secrets
     const stripeSecretKey = Deno.env.get('STRIPE_SECRET_KEY');
     console.log('Stripe secret key present:', !!stripeSecretKey);
@@ -49,6 +45,7 @@ serve(async (req) => {
     }
 
     // Create Stripe checkout session
+    console.log('Creating Stripe checkout session...');
     const session = await fetch('https://api.stripe.com/v1/checkout/sessions', {
       method: 'POST',
       headers: {
@@ -71,8 +68,11 @@ serve(async (req) => {
     });
 
     const sessionData = await session.json();
+    console.log('Stripe response status:', session.status);
+    console.log('Stripe response data:', sessionData);
 
     if (!session.ok) {
+      console.error('Stripe API error:', sessionData);
       return new Response(
         JSON.stringify({ error: sessionData.error?.message || 'Failed to create checkout' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
