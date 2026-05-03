@@ -2,8 +2,7 @@
   "version": 2,
   "routes": [
     { "src": "/dashboard", "dest": "/dashboard.html" },
-    { "src": "/", "dest": "/neura_ui.html" },
-    { "src": "/(.*)", "dest": "/$1.html" }
+    { "src": "/", "dest": "/neura_ui.html" }
   ],
-  "cleanUrls": true
+  "cleanUrls": false
 }
