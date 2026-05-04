@@ -289,6 +289,50 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 ::-webkit-scrollbar{width:3px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:rgba(9,9,14,0.12)}
+
+/* -- TUTORIAL SYSTEM ----------------- */
+#tutorial-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  display: none;
+}
+#tutorial-overlay.active {
+  display: block;
+  opacity: 1;
+  pointer-events: all;
+}
+#tutorial-aura {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, transparent 30%, rgba(88, 152, 255, 0.15) 100%);
+  box-shadow: inset 0 0 150px rgba(88, 152, 255, 0.2);
+  pointer-events: none;
+}
+.tutorial-highlight {
+  position: relative;
+  z-index: 10000 !important;
+  box-shadow: 0 0 0 9999px rgba(9, 9, 14, 0.4), 0 0 40px rgba(88, 152, 255, 0.8) !important;
+  pointer-events: all !important;
+  border-radius: 4px;
+}
+#tutorial-bubble {
+  position: absolute;
+  z-index: 10001;
+  width: 280px;
+  padding: 20px;
+  background: #fff;
+  border: 1px solid var(--b-blue);
+  box-shadow: 0 12px 48px rgba(0,0,0,0.15);
+  animation: bubbleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+@keyframes bubbleIn { from { opacity:0; transform: translateY(10px) scale(0.95); } to { opacity:1; transform: none; } }
+.tb-title { font-family: var(--font-d); font-size: 16px; font-weight: 800; text-transform: uppercase; color: var(--text); margin-bottom: 8px; }
+.tb-text { font-size: 13px; color: var(--muted); line-height: 1.5; margin-bottom: 16px; }
+.tb-actions { display: flex; gap: 8px; justify-content: flex-end; }
 </style>
 </head>
 <body>
@@ -318,19 +362,19 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
   <aside class="sidebar">
     <nav class="snav">
       <div class="snav-label">Workspace</div>
-      <button class="snav-item active" data-section="agents">
+      <button class="snav-item active" data-section="agents" id="nav-agents">
         <span class="snav-icon">◆</span> My Agents
       </button>
-      <button class="snav-item" data-section="skills">
+      <button class="snav-item" data-section="skills" id="nav-skills">
         <span class="snav-icon">◈</span> Skills
       </button>
-      <button class="snav-item" data-section="edit">
+      <button class="snav-item" data-section="edit" id="nav-edit">
         <span class="snav-icon">◎</span> Edit Agent
       </button>
-      <button class="snav-item" data-section="browser">
+      <button class="snav-item" data-section="browser" id="nav-browser">
         <span class="snav-icon">◆</span> Browser Access
       </button>
-      <button class="snav-item" data-section="agentapi">
+      <button class="snav-item" data-section="agentapi" id="nav-agentapi">
         <span class="snav-icon">◇</span> Agent API
       </button>
       <div class="snav-label">Account</div>
@@ -689,6 +733,19 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
   </main>
 </div>
 
+<!-- === TUTORIAL OVERLAY === -->
+<div id="tutorial-overlay">
+  <div id="tutorial-aura"></div>
+  <div id="tutorial-bubble">
+    <div class="tb-title" id="tb-title">Tutorial</div>
+    <div class="tb-text" id="tb-text">Welcome! Let's get started.</div>
+    <div class="tb-actions">
+      <button class="btn btn-out btn-xs" id="btn-tutorial-skip">Skip</button>
+      <button class="btn btn-dark btn-xs" id="btn-tutorial-next">Next</button>
+    </div>
+  </div>
+</div>
+
 <!-- === CONFIRM MODAL === -->
 <div class="modal-overlay" id="modal-confirm">
   <div class="modal">
@@ -798,9 +855,11 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 
   /* -- Confirm modal ------------------ */
   const modalConfirm = document.getElementById('modal-confirm');
-  function confirm(title, body, onOk) {
+  function confirm(title, body, onOk, okLabel, cancelLabel) {
     document.getElementById('confirm-title').textContent = title;
     document.getElementById('confirm-body').textContent = body;
+    document.getElementById('btn-confirm-ok').textContent = okLabel || 'Confirm';
+    document.getElementById('btn-confirm-cancel').textContent = cancelLabel || 'Cancel';
     pendingConfirmFn = onOk;
     modalConfirm.classList.add('open');
     document.body.style.overflow = 'hidden';
@@ -1228,7 +1287,94 @@ console.log(reply);`;
     loadTransactions();
     updateUsageStats();
     document.body.classList.add('ready');
+
+    // Tutorial check
+    if (!localStorage.getItem('flowix_tutorial_done')) {
+      setTimeout(() => {
+        confirm('Welcome to flowix!', 'Would you like a quick tutorial to help you get started?', () => {
+          startTutorial();
+        }, 'Yes, show me', 'No, I\'m good');
+      }, 1000);
+    }
   }
+
+  /* -- Tutorial Manager --------------- */
+  let currentStep = 0;
+  const tutorialSteps = [
+    { title: 'Your Control Center', text: 'This is your main dashboard where all your active agents appear.', target: '#nav-agents', section: 'agents' },
+    { title: 'Building Agents', text: 'Click here to create a new agent or modify its core logic and identity.', target: '#nav-edit', section: 'edit' },
+    { title: 'Agent Identity', text: 'Give your agent a clear name and define its specific mission.', target: '#ef-name', section: 'edit' },
+    { title: 'The Backend Brain', text: 'Use the system prompt to set rules, goals, and personality for your agent.', target: '#ef-prompt', section: 'edit' },
+    { title: 'API Key Source', text: 'You can use our platform-provided keys or bring your own for full control.', target: '.key-source-options', section: 'edit' },
+    { title: 'Web Access', text: 'Configure how your agent interacts with the web and manage site credentials.', target: '#nav-browser', section: 'browser' },
+    { title: 'Wallet Balance', text: 'Your wallet fuels platform services and automated tasks.', target: '#wallet-balance', section: 'agents' },
+    { title: 'Ready to launch!', text: 'You are now ready to build your automation empire with flowix.', target: null, section: 'agents' }
+  ];
+
+  function startTutorial() {
+    currentStep = 0;
+    document.getElementById('tutorial-overlay').classList.add('active');
+    showStep(0);
+  }
+
+  function showStep(idx) {
+    const step = tutorialSteps[idx];
+    if (!step) {
+      finishTutorial();
+      return;
+    }
+
+    // Switch section if needed
+    if (step.section) switchSection(step.section);
+
+    // Clear previous highlight
+    document.querySelectorAll('.tutorial-highlight').forEach(el => el.classList.remove('tutorial-highlight'));
+
+    const bubble = document.getElementById('tutorial-bubble');
+    document.getElementById('tb-title').textContent = step.title;
+    document.getElementById('tb-text').textContent = step.text;
+    document.getElementById('btn-tutorial-next').textContent = idx === tutorialSteps.length - 1 ? 'Finish' : 'Next';
+
+    if (step.target) {
+      const el = document.querySelector(step.target);
+      if (el) {
+        el.classList.add('tutorial-highlight');
+        const rect = el.getBoundingClientRect();
+        
+        // Position bubble
+        let top = rect.bottom + window.scrollY + 20;
+        let left = rect.left + (rect.width / 2) - 140;
+
+        // Keep on screen
+        if (left < 20) left = 20;
+        if (left + 280 > window.innerWidth - 20) left = window.innerWidth - 300;
+        if (top + 150 > window.innerHeight + window.scrollY - 20) top = rect.top + window.scrollY - 180;
+
+        bubble.style.top = top + 'px';
+        bubble.style.left = left + 'px';
+        bubble.style.transform = 'none';
+      }
+    } else {
+      // Center bubble
+      bubble.style.top = '50%';
+      bubble.style.left = '50%';
+      bubble.style.transform = 'translate(-50%, -50%)';
+    }
+  }
+
+  function finishTutorial() {
+    document.getElementById('tutorial-overlay').classList.remove('active');
+    document.querySelectorAll('.tutorial-highlight').forEach(el => el.classList.remove('tutorial-highlight'));
+    localStorage.setItem('flowix_tutorial_done', 'true');
+  }
+
+  document.getElementById('btn-tutorial-next').onclick = () => {
+    currentStep++;
+    showStep(currentStep);
+  };
+
+  document.getElementById('btn-tutorial-skip').onclick = finishTutorial;
+
 
   function updateUsageStats() {
     // Update billing stats
