@@ -60,14 +60,14 @@ a{color:inherit;text-decoration:none}
 .g-green{background:var(--surface);border-left:4px solid #10b981;box-shadow:var(--glass-shadow)}
 
 /* -- BUTTONS ------------------------- */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;font-family:var(--font-b);font-size:12px;font-weight:600;padding:10px 20px;cursor:pointer;border:none;border-radius:6px;transition:all 0.2s ease}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;font-family:var(--font-b);font-size:12px;font-weight:600;padding:10px 20px;cursor:pointer;border:none;border-radius:0;transition:all 0.2s ease}
 .btn-dark{background:var(--primary);color:#fff}
 .btn-dark:hover{background:var(--primary-dark);transform:translateY(-1px);box-shadow:0 4px 12px rgba(37, 99, 235, 0.2)}
 .btn-out{background:#fff;color:var(--text);border:1px solid var(--border);box-shadow:sm}
 .btn-out:hover{background:var(--bg);border-color:var(--border-hi)}
-.btn-danger{background:#fef2f2;color:#dc2626;border:1px solid #fecaca}
+.btn-danger{background:#fef2f2;color:#dc2626;border:1px solid #fecaca;border-radius:0}
 .btn-danger:hover{background:#fee2e2;border-color:#fca5a5}
-.btn-success{background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0}
+.btn-success{background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;border-radius:0}
 .btn-success:hover{background:#dcfce7}
 .btn-xs{padding:6px 12px;font-size:11px}
 .btn-sm{padding:8px 16px;font-size:12px}
@@ -81,17 +81,17 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .nav-back:hover{color:var(--text)}
 .nav-right{display:flex;align-items:center;gap:16px}
 .nav-email{font-size:13px;font-weight:500;color:var(--text)}
-.nav-signout{font-size:12px;font-weight:600;padding:8px 16px;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);cursor:pointer;transition:all 0.2s}
+.nav-signout{font-size:12px;font-weight:600;padding:8px 16px;background:var(--bg);border:1px solid var(--border);border-radius:0;color:var(--text);cursor:pointer;transition:all 0.2s}
 .nav-signout:hover{background:var(--border);border-color:var(--border-hi)}
 
 /* -- LAYOUT -------------------------- */
-.dash-layout{display:flex;padding-top:var(--nav-h);min-height:100vh;position:relative;z-index:1}
+.dash-layout{display:block;min-height:100vh;position:relative;z-index:1}
 
 /* -- SIDEBAR ------------------------- */
 .sidebar{width:var(--sidebar-w);position:fixed;top:var(--nav-h);bottom:0;left:0;display:flex;flex-direction:column;padding:24px 12px;background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;z-index:50}
 .snav{display:flex;flex-direction:column;gap:4px}
 .snav-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--dim);padding:0 12px;margin-bottom:8px;margin-top:24px}
-.snav-item{display:flex;align-items:center;gap:12px;padding:10px 12px;cursor:pointer;border:none;background:none;text-align:left;width:100%;font-size:14px;font-weight:500;color:var(--muted);border-radius:8px;transition:all 0.2s}
+.snav-item{display:flex;align-items:center;gap:12px;padding:10px 12px;cursor:pointer;border:none;background:none;text-align:left;width:100%;font-size:14px;font-weight:500;color:var(--muted);border-radius:0;transition:all 0.2s}
 .snav-item:hover{background:var(--bg);color:var(--text)}
 .snav-item.active{background:var(--primary);color:#fff}
 .snav-icon{font-size:16px;width:20px;display:inline-flex;justify-content:center}
@@ -99,7 +99,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .sidebar-footer{margin-top:auto;padding:16px 22px 4px;font-size:10px;color:var(--dim)}
 
 /* -- MAIN ---------------------------- */
-.dash-main{flex:1;margin-left:var(--sidebar-w);padding:44px 52px 80px;min-height:calc(100vh - var(--nav-h))}
+.dash-main{margin-left:var(--sidebar-w);padding:calc(var(--nav-h) + 40px) 40px 80px;min-height:100vh}
 
 /* -- SECTION ------------------------- */
 .dash-section{display:none;animation:fadeUp 0.3s ease-out}
@@ -112,7 +112,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 
 /* -- AGENT CARDS --------------------- */
 .agents-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:24px}
-.agent-card{background:var(--surface);border:1px solid var(--border);padding:28px;border-radius:12px;transition:all 0.2s ease;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.agent-card{background:var(--surface);border:1px solid var(--border);padding:28px;border-radius:0;transition:all 0.2s ease;display:flex;flex-direction:column;position:relative;overflow:hidden}
 .agent-card:hover{border-color:var(--primary);box-shadow:0 10px 15px -3px rgba(0, 0, 0, 0.1)}
 .agent-card.blue{border-top:4px solid var(--primary)}
 .agent-card.purple{border-top:4px solid #8b5cf6}
@@ -125,10 +125,10 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .ac-status.on{color:#16a34a}
 .ac-status-dot{width:8px;height:8px;border-radius:50%;background:currentColor}
 .ac-name{font-size:20px;font-weight:700;color:var(--text);margin-bottom:4px}
-.ac-model{font-family:var(--font-m);font-size:12px;color:var(--muted);margin-bottom:20px;padding:4px 8px;background:var(--bg);border-radius:4px;display:inline-block}
+.ac-model{font-family:var(--font-m);font-size:12px;color:var(--muted);margin-bottom:20px;padding:4px 8px;background:var(--bg);border-radius:0;display:inline-block}
 .ac-row-label{font-size:11px;font-weight:700;text-transform:uppercase;color:var(--dim);margin-bottom:8px}
 .ac-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px}
-.ac-chip{font-size:11px;font-weight:600;padding:4px 10px;background:var(--bg);border:1px solid var(--border);border-radius:4px;color:var(--muted)}
+.ac-chip{font-size:11px;font-weight:600;padding:4px 10px;background:var(--bg);border:1px solid var(--border);border-radius:0;color:var(--muted)}
 .ac-api-badge{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:var(--primary);margin-top:auto;padding-top:16px;border-top:1px solid var(--border)}
 .ac-api-dot{width:6px;height:6px;border-radius:50%;background:currentColor}
 
@@ -139,12 +139,12 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .empty-desc{font-size:13px;font-weight:300;color:var(--muted);margin-bottom:24px}
 
 /* -- FORM FIELDS --------------------- */
-.form-card{background:var(--surface);border:1px solid var(--border);padding:32px;border-radius:12px;margin-bottom:24px}
+.form-card{background:var(--surface);border:1px solid var(--border);padding:32px;border-radius:0;margin-bottom:24px}
 .form-card-title{font-size:16px;font-weight:700;color:var(--text);margin-bottom:24px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);padding-bottom:16px}
 .form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:24px;margin-bottom:24px}
 .field-group{margin-bottom:24px}
 .field-label{display:block;font-size:13px;font-weight:600;color:var(--text);margin-bottom:8px}
-.field-input,.field-select,.field-textarea{width:100%;background:#fff;border:1px solid var(--border);padding:10px 14px;font-family:inherit;font-size:14px;color:var(--text);border-radius:6px;transition:all 0.2s}
+.field-input,.field-select,.field-textarea{width:100%;background:#fff;border:1px solid var(--border);padding:10px 14px;font-family:inherit;font-size:14px;color:var(--text);border-radius:0;transition:all 0.2s}
 .field-input:focus,.field-select:focus,.field-textarea:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(37, 99, 235, 0.1)}
 .field-input::placeholder{color:var(--dim)}
 .field-hint{font-size:12px;color:var(--muted);margin-top:6px}
@@ -237,8 +237,8 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .custom-key-input.visible{display:block}
 
 /* -- BILLING ------------------------- */
-.wallet-section{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:32px;margin-bottom:24px}
-.usage-stats{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:32px;margin-bottom:24px}
+.wallet-section{background:var(--surface);border:1px solid var(--border);border-radius:0;padding:32px;margin-bottom:24px}
+.usage-stats{background:var(--surface);border:1px solid var(--border);border-radius:0;padding:32px;margin-bottom:24px}
 .transaction-item{display:flex;align-items:center;justify-content:space-between;padding:16px 0;border-bottom:1px solid var(--border)}
 .transaction-item:last-child{border-bottom:none}
 .tr-info{display:flex;flex-direction:column}
@@ -252,7 +252,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .bc-stat-val{font-size:32px;font-weight:800;color:var(--text);line-height:1}
 .bc-stat-label{font-size:13px;color:var(--muted);margin-top:4px}
 .plans-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-.plan-card{padding:28px 26px 32px;background:#fff;border:1px solid var(--border);border-radius:12px}
+.plan-card{padding:28px 26px 32px;background:#fff;border:1px solid var(--border);border-radius:0}
 .plan-badge{font-size:9px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;padding:4px 10px;border:1px solid rgba(9,9,14,0.12);color:var(--dim);display:inline-block;margin-bottom:16px}
 .plan-name{font-family:var(--font-d);font-size:28px;font-weight:900;text-transform:uppercase;color:var(--text);line-height:1;margin-bottom:4px}
 .plan-price{font-family:var(--font-d);font-size:18px;font-weight:600;color:var(--muted);margin-bottom:18px}
@@ -263,7 +263,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 
 /* -- CONFIRM MODAL ------------------- */
 .modal-overlay{position:fixed;inset:0;z-index:2000;background:rgba(15, 23, 42, 0.4);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:24px}
-.modal{background:#fff;border-radius:16px;width:100%;max-width:480px;padding:40px;box-shadow:0 25px 50px -12px rgba(0, 0, 0, 0.25);transform:scale(0.95);opacity:0;transition:all 0.25s cubic-bezier(0.16, 1, 0.3, 1)}
+.modal{background:#fff;border-radius:0;width:100%;max-width:480px;padding:40px;box-shadow:0 25px 50px -12px rgba(0, 0, 0, 0.25);transform:scale(0.95);opacity:0;transition:all 0.25s cubic-bezier(0.16, 1, 0.3, 1)}
 .modal-overlay.open{display:flex}
 .modal-overlay.open .modal{transform:scale(1);opacity:1}
 .modal-title{font-size:24px;font-weight:800;color:var(--text);margin-bottom:12px;letter-spacing:-0.02em}
@@ -311,7 +311,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
   z-index: 10000 !important;
   box-shadow: 0 0 0 9999px rgba(9, 9, 14, 0.4), 0 0 40px rgba(88, 152, 255, 0.8) !important;
   pointer-events: all !important;
-  border-radius: 4px;
+  border-radius: 0;
 }
 #tutorial-bubble {
   position: absolute;
@@ -322,6 +322,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
   border: 1px solid var(--b-blue);
   box-shadow: 0 12px 48px rgba(0,0,0,0.15);
   animation: bubbleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  border-radius: 0;
 }
 @keyframes bubbleIn { from { opacity:0; transform: translateY(10px) scale(0.95); } to { opacity:1; transform: none; } }
 .tb-title { font-family: var(--font-d); font-size: 16px; font-weight: 800; text-transform: uppercase; color: var(--text); margin-bottom: 8px; }
@@ -332,6 +333,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 <body>
 
 <div class="dash-layout">
+
 <nav>
   <div class="nav-left">
     <div class="nav-logo"><a href="neura_ui.html">flowix</a></div>
@@ -343,11 +345,8 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
   </div>
 </nav>
 
-<!-- === DASHBOARD LAYOUT === -->
-<div class="dash-layout">
-
-  <!-- -- SIDEBAR -->
-  <aside class="sidebar">
+<!-- -- SIDEBAR -->
+<aside class="sidebar">
     <nav class="snav">
       <div class="snav-label">Workspace</div>
       <button class="snav-item active" data-section="agents" id="nav-agents">
