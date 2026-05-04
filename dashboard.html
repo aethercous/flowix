@@ -476,8 +476,24 @@ a{color:inherit;text-decoration:none}
           </div>
           <div class="field-group">
             <label class="field-label" for="ef-prompt">Backend System Prompt</label>
-            <textarea class="field-textarea" id="ef-prompt" rows="7" placeholder="Describe how your agent should behave. This is sent as the system prompt on every request.&#10;&#10;e.g. You are a concise research assistant. Always cite sources. Refuse personal advice. When browsing, prefer recent sources from the last 12 months."></textarea>
-            <div class="field-hint">This is the core instruction set your model receives on every turn. Users never see it.</div>
+            <textarea class="field-textarea" id="ef-prompt" rows="7" placeholder="Describe how your agent should behave..."></textarea>
+            <div class="field-hint">This is the core instruction set your model receives on every turn.</div>
+          </div>
+        </div>
+
+        <div class="form-card glass">
+          <div class="form-card-title">Agent Capabilities</div>
+          <div class="capability-options">
+            <div class="key-source-opt selected" id="cap-safe" data-cap="readonly">
+              <span class="kso-radio"></span>
+              <span class="kso-title">Safety Mode (Read-Only)</span>
+              <div class="kso-desc">Agent can only browse websites and analyze data. It is restricted from sending messages or editing any information.</div>
+            </div>
+            <div class="key-source-opt" id="cap-full" data-cap="full">
+              <span class="kso-radio"></span>
+              <span class="kso-title">Full Access (Interactive)</span>
+              <div class="kso-desc">Agent can send messages, edit information, and perform all actions across your connected applications.</div>
+            </div>
           </div>
         </div>
         <div class="form-card glass">
@@ -1084,6 +1100,11 @@ a{color:inherit;text-decoration:none}
     document.getElementById('ef-custom-key-wrap').classList.toggle('visible', src === 'custom');
     document.getElementById('ef-custom-provider').value = agent?.customProvider || 'Anthropic';
     document.getElementById('ef-custom-key').value = agent?.customLlmKey || '';
+    
+    // Capability Mode
+    const cap = agent?.capability || 'readonly';
+    document.getElementById('cap-safe').classList.toggle('selected', cap === 'readonly');
+    document.getElementById('cap-full').classList.toggle('selected', cap === 'full');
   }
   function goToEditAgent(agentId) {
     switchSection('edit'); populateAgentSelects();
@@ -1105,6 +1126,16 @@ a{color:inherit;text-decoration:none}
     document.getElementById('ef-custom-key-wrap').classList.add('visible');
   });
 
+  // Capability Toggles
+  document.getElementById('cap-safe').addEventListener('click', () => {
+    document.getElementById('cap-safe').classList.add('selected');
+    document.getElementById('cap-full').classList.remove('selected');
+  });
+  document.getElementById('cap-full').addEventListener('click', () => {
+    document.getElementById('cap-full').classList.add('selected');
+    document.getElementById('cap-safe').classList.remove('selected');
+  });
+
   document.getElementById('btn-save-agent').addEventListener('click', () => {
     const agentId = document.getElementById('edit-agent-select').value;
     const name = document.getElementById('ef-name').value.trim();
@@ -1112,12 +1143,13 @@ a{color:inherit;text-decoration:none}
     const prompt = document.getElementById('ef-prompt').value.trim();
     const targets = [...document.querySelectorAll('#edit-deploy-grid .deploy-check.checked')].map(el => el.dataset.targetId);
     const keySource = document.getElementById('kso-custom').classList.contains('selected') ? 'custom' : 'platform';
+    const capability = document.getElementById('cap-full').classList.contains('selected') ? 'full' : 'readonly';
     const customProvider = document.getElementById('ef-custom-provider').value;
     const customLlmKey = document.getElementById('ef-custom-key').value.trim();
     if(!name){ toast('Agent name is required.','error'); return; }
     if(keySource === 'custom' && !customLlmKey){ toast('Please enter your API key or switch to Platform Keys.','error'); return; }
     if(agentId === 'new'){
-      const a = { id:uid(), name, model, systemPrompt:prompt, deployTargets:targets, skills:[], browserConfig:{fullControl:false,sites:[]}, apiKey:null, keySource, customProvider: keySource === 'custom' ? customProvider : null, customLlmKey: keySource === 'custom' ? customLlmKey : null, createdAt:new Date().toISOString() };
+      const a = { id:uid(), name, model, systemPrompt:prompt, deployTargets:targets, skills:[], browserConfig:{fullControl:false,sites:[]}, apiKey:null, keySource, capability, customProvider: keySource === 'custom' ? customProvider : null, customLlmKey: keySource === 'custom' ? customLlmKey : null, createdAt:new Date().toISOString() };
       state.agents.push(a);
       saveState(); populateAgentSelects();
       document.getElementById('edit-agent-select').value = a.id;
@@ -1126,7 +1158,7 @@ a{color:inherit;text-decoration:none}
     } else {
       const agent = state.agents.find(a => a.id === agentId);
       if(!agent) return;
-      Object.assign(agent,{name,model,systemPrompt:prompt,deployTargets:targets, keySource, customProvider: keySource === 'custom' ? customProvider : null, customLlmKey: keySource === 'custom' ? customLlmKey : null});
+      Object.assign(agent,{name,model,systemPrompt:prompt,deployTargets:targets, keySource, capability, customProvider: keySource === 'custom' ? customProvider : null, customLlmKey: keySource === 'custom' ? customLlmKey : null});
       saveState(); toast('Agent saved.','success');
     }
     renderAgents(); populateAgentSelects();
