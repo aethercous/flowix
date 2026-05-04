@@ -228,6 +228,20 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .code-block{background:rgba(9,9,14,0.04);border:1px solid rgba(9,9,14,0.09);padding:16px 18px;font-family:var(--font-m);font-size:11px;line-height:1.85;color:var(--text);overflow-x:auto;white-space:pre}
 .code-comment{color:var(--dim)}
 
+/* -- API KEY SOURCE ------------------- */
+.key-source-options{display:flex;gap:10px;margin-bottom:16px}
+.key-source-opt{flex:1;padding:16px 18px;background:rgba(255,255,255,0.55);border:1px solid rgba(9,9,14,0.1);cursor:pointer;transition:border-color 0.18s,background 0.18s,box-shadow 0.18s;position:relative}
+.key-source-opt:hover{background:rgba(255,255,255,0.8);border-color:rgba(9,9,14,0.2)}
+.key-source-opt.selected{border-color:#09090e;background:rgba(255,255,255,0.9);box-shadow:0 0 0 1px #09090e}
+.key-source-opt .kso-radio{width:16px;height:16px;border-radius:50%;border:2px solid rgba(9,9,14,0.2);display:inline-flex;align-items:center;justify-content:center;margin-right:10px;vertical-align:middle;transition:border-color 0.15s}
+.key-source-opt.selected .kso-radio{border-color:#09090e}
+.key-source-opt.selected .kso-radio::after{content:'';width:8px;height:8px;border-radius:50%;background:#09090e}
+.kso-title{font-size:13px;font-weight:600;color:var(--text);display:inline;vertical-align:middle}
+.kso-desc{font-size:11px;font-weight:300;color:var(--muted);margin-top:6px;line-height:1.5}
+.kso-badge{display:inline-block;font-size:8px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:2px 6px;background:rgba(39,174,96,0.12);color:#1e8449;border:1px solid rgba(39,174,96,0.2);margin-left:8px;vertical-align:middle}
+.custom-key-input{margin-top:12px;display:none}
+.custom-key-input.visible{display:block}
+
 
 
 /* -- BILLING ------------------------- */
@@ -412,6 +426,42 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
         <div class="form-card glass">
           <div class="form-card-title">Deployment Targets</div>
           <div id="edit-deploy-grid" class="deploy-grid"></div>
+        </div>
+        <div class="form-card glass">
+          <div class="form-card-title">API Key Source</div>
+          <div class="key-source-options">
+            <div class="key-source-opt selected" id="kso-platform" data-source="platform">
+              <span class="kso-radio"></span>
+              <span class="kso-title">Platform Keys</span>
+              <span class="kso-badge">Default</span>
+              <div class="kso-desc">Use flowix-provided API keys. No setup needed — charges deducted from your wallet balance.</div>
+            </div>
+            <div class="key-source-opt" id="kso-custom" data-source="custom">
+              <span class="kso-radio"></span>
+              <span class="kso-title">Your Own Key</span>
+              <div class="kso-desc">Bring your own LLM provider API key. No wallet charges for LLM usage.</div>
+            </div>
+          </div>
+          <div class="custom-key-input" id="ef-custom-key-wrap">
+            <div class="form-grid">
+              <div class="field-group" style="margin-bottom:0">
+                <label class="field-label" for="ef-custom-provider">Provider</label>
+                <select class="field-select" id="ef-custom-provider">
+                  <option value="Anthropic">Anthropic (Claude)</option>
+                  <option value="OpenAI">OpenAI (GPT)</option>
+                  <option value="Google">Google (Gemini)</option>
+                  <option value="Meta">Meta (Llama)</option>
+                  <option value="Mistral">Mistral</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+              <div class="field-group" style="margin-bottom:0">
+                <label class="field-label" for="ef-custom-key">API Key</label>
+                <input class="field-input" type="password" id="ef-custom-key" placeholder="Paste your LLM provider API key" autocomplete="off"/>
+              </div>
+            </div>
+            <div class="field-hint" style="margin-top:8px">Your key is stored locally in your browser and sent directly to the LLM provider. Never stored on flowix servers.</div>
+          </div>
         </div>
         <div class="form-actions">
           <button class="btn btn-dark" id="btn-save-agent">Save Agent</button>
@@ -727,8 +777,9 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
   function maskPass(p){ return p ? '••••••••' : '-'; }
 
   function getProviderPrefix(modelId){const m = MODELS.find(x => x.id === modelId);if(!m)return null;const map = {Anthropic:'anthropic',OpenAI:'openai',Google:'google',Meta:'meta',Mistral:'mistral'};return map[m.provider]||null;}
-  async function createAgentToken(agent,apiKey){const prefix = getProviderPrefix(agent.model);const { data, error } = await sb.from('agent_tokens').insert({user_id:currentUser.id,agent_id:agent.id,api_key:apiKey,agent_config:{systemPrompt:agent.systemPrompt||'You are a helpful assistant.',model:agent.model,agentName:agent.name},llm_provider:`${prefix}/${agent.model}`,llm_key_encrypted:''}).select('id').single();if(error)throw error;return data.id;}
-  async function syncAgentToken(agent){if(!agent.supabaseTokenId)return;const prefix = getProviderPrefix(agent.model);await sb.from('agent_tokens').update({agent_config:{systemPrompt:agent.systemPrompt||'You are a helpful assistant.',model:agent.model,agentName:agent.name},llm_provider:`${prefix}/${agent.model}`,llm_key_encrypted:''}).eq('id',agent.supabaseTokenId);}
+  function getAgentLlmKey(agent){ return (agent.keySource === 'custom' && agent.customLlmKey) ? agent.customLlmKey : ''; }
+  async function createAgentToken(agent,apiKey){const prefix = getProviderPrefix(agent.model);const { data, error } = await sb.from('agent_tokens').insert({user_id:currentUser.id,agent_id:agent.id,api_key:apiKey,agent_config:{systemPrompt:agent.systemPrompt||'You are a helpful assistant.',model:agent.model,agentName:agent.name,keySource:agent.keySource||'platform'},llm_provider:`${prefix}/${agent.model}`,llm_key_encrypted:getAgentLlmKey(agent)}).select('id').single();if(error)throw error;return data.id;}
+  async function syncAgentToken(agent){if(!agent.supabaseTokenId)return;const prefix = getProviderPrefix(agent.model);await sb.from('agent_tokens').update({agent_config:{systemPrompt:agent.systemPrompt||'You are a helpful assistant.',model:agent.model,agentName:agent.name,keySource:agent.keySource||'platform'},llm_provider:`${prefix}/${agent.model}`,llm_key_encrypted:getAgentLlmKey(agent)}).eq('id',agent.supabaseTokenId);}
   async function deleteAgentToken(tokenId){if(!tokenId)return;await sb.from('agent_tokens').delete().eq('id',tokenId);}
 
   function getFavicon(url) {
@@ -915,6 +966,13 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
       wrap.addEventListener('click', () => wrap.classList.toggle('checked'));
       deployGrid.appendChild(wrap);
     });
+    // API Key Source
+    const src = agent?.keySource || 'platform';
+    document.getElementById('kso-platform').classList.toggle('selected', src === 'platform');
+    document.getElementById('kso-custom').classList.toggle('selected', src === 'custom');
+    document.getElementById('ef-custom-key-wrap').classList.toggle('visible', src === 'custom');
+    document.getElementById('ef-custom-provider').value = agent?.customProvider || 'Anthropic';
+    document.getElementById('ef-custom-key').value = agent?.customLlmKey || '';
   }
   function goToEditAgent(agentId) {
     switchSection('edit'); populateAgentSelects();
@@ -924,15 +982,31 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
   document.getElementById('edit-agent-select').addEventListener('change', function(){
     populateEditForm(this.value === 'new' ? null : state.agents.find(a => a.id === this.value));
   });
+  // API Key Source toggle handlers
+  document.getElementById('kso-platform').addEventListener('click', () => {
+    document.getElementById('kso-platform').classList.add('selected');
+    document.getElementById('kso-custom').classList.remove('selected');
+    document.getElementById('ef-custom-key-wrap').classList.remove('visible');
+  });
+  document.getElementById('kso-custom').addEventListener('click', () => {
+    document.getElementById('kso-custom').classList.add('selected');
+    document.getElementById('kso-platform').classList.remove('selected');
+    document.getElementById('ef-custom-key-wrap').classList.add('visible');
+  });
+
   document.getElementById('btn-save-agent').addEventListener('click', () => {
     const agentId = document.getElementById('edit-agent-select').value;
     const name = document.getElementById('ef-name').value.trim();
     const model = document.getElementById('ef-model').value;
     const prompt = document.getElementById('ef-prompt').value.trim();
     const targets = [...document.querySelectorAll('#edit-deploy-grid .deploy-check.checked')].map(el => el.dataset.targetId);
+    const keySource = document.getElementById('kso-custom').classList.contains('selected') ? 'custom' : 'platform';
+    const customProvider = document.getElementById('ef-custom-provider').value;
+    const customLlmKey = document.getElementById('ef-custom-key').value.trim();
     if(!name){ toast('Agent name is required.','error'); return; }
+    if(keySource === 'custom' && !customLlmKey){ toast('Please enter your API key or switch to Platform Keys.','error'); return; }
     if(agentId === 'new'){
-      const a = { id:uid(), name, model, systemPrompt:prompt, deployTargets:targets, skills:[], browserConfig:{fullControl:false,sites:[]}, apiKey:null, createdAt:new Date().toISOString() };
+      const a = { id:uid(), name, model, systemPrompt:prompt, deployTargets:targets, skills:[], browserConfig:{fullControl:false,sites:[]}, apiKey:null, keySource, customProvider: keySource === 'custom' ? customProvider : null, customLlmKey: keySource === 'custom' ? customLlmKey : null, createdAt:new Date().toISOString() };
       state.agents.push(a);
       saveState(); populateAgentSelects();
       document.getElementById('edit-agent-select').value = a.id;
@@ -941,7 +1015,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
     } else {
       const agent = state.agents.find(a => a.id === agentId);
       if(!agent) return;
-      Object.assign(agent,{name,model,systemPrompt:prompt,deployTargets:targets});
+      Object.assign(agent,{name,model,systemPrompt:prompt,deployTargets:targets, keySource, customProvider: keySource === 'custom' ? customProvider : null, customLlmKey: keySource === 'custom' ? customLlmKey : null});
       saveState(); toast('Agent saved.','success');
     }
     renderAgents(); populateAgentSelects();
