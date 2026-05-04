@@ -117,9 +117,6 @@ body.ready{opacity:1}
       <a href="connections.html" class="snav-item active">
         <span class="snav-icon">◈</span> Connections
       </a>
-      <a href="dashboard.html#browser" class="snav-item">
-        <span class="snav-icon">✦</span> Browser Access
-      </a>
       <a href="dashboard.html#api" class="snav-item">
         <span class="snav-icon">◇</span> Agent API
       </a>
@@ -145,9 +142,21 @@ body.ready{opacity:1}
         <div class="ds-eyebrow">OAuth Apps</div>
         <div class="ds-title">Connections</div>
       </div>
+      <div style="width:300px">
+        <label class="ds-eyebrow">Select Agent</label>
+        <select id="conn-agent-select" class="btn btn-out" style="width:100%;text-align:left;justify-content:flex-start;font-size:13px;padding:12px">
+          <option value="">Choose an agent...</option>
+        </select>
+      </div>
     </header>
 
-    <div class="conn-grid">
+    <div id="conn-empty-state" style="padding:100px 0;text-align:center">
+      <div style="font-size:48px;margin-bottom:16px;color:var(--dim)">◈</div>
+      <div style="font-size:18px;font-weight:700;color:var(--text)">Select an agent to manage connections</div>
+      <div style="font-size:13px;color:var(--muted);margin-top:8px">Connections are linked to specific agents. Choose one to continue.</div>
+    </div>
+
+    <div class="conn-grid" id="conn-grid" style="display:none">
       <!-- Slack -->
       <div class="conn-card">
         <div class="conn-top">
@@ -228,6 +237,7 @@ body.ready{opacity:1}
   );
 
   let currentUser = null;
+  let state = { agents:[] };
 
   async function init() {
     const { data: { session } } = await sb.auth.getSession();
@@ -237,13 +247,91 @@ body.ready{opacity:1}
     }
     currentUser = session.user;
     document.getElementById('nav-email').textContent = currentUser.email;
+    
+    // Load State
+    const saved = localStorage.getItem('flowix_state');
+    if (saved) state = JSON.parse(saved);
+
+    populateAgentSelect();
     document.body.classList.add('ready');
 
     // Handle sidebar state
     const isCollapsed = localStorage.getItem('flowix_sidebar_collapsed') === 'true';
     if (isCollapsed) toggleSidebar(true);
+  }
+
+  function populateAgentSelect() {
+    const sel = document.getElementById('conn-agent-select');
+    sel.innerHTML = '<option value="">Choose an agent...</option>';
+    state.agents.forEach(a => {
+      const opt = document.createElement('option');
+      opt.value = a.id;
+      opt.textContent = a.name;
+      sel.appendChild(opt);
+    });
+  }
+
+  document.getElementById('conn-agent-select').onchange = function() {
+    const aid = this.value;
+    const grid = document.getElementById('conn-grid');
+    const empty = document.getElementById('conn-empty-state');
     
-    loadConnections();
+    if (!aid) {
+      grid.style.display = 'none';
+      empty.style.display = 'block';
+    } else {
+      grid.style.display = 'grid';
+      empty.style.display = 'none';
+      loadConnections(aid);
+    }
+  };
+
+  function loadConnections(agentId) {
+    const agent = state.agents.find(a => a.id === agentId);
+    if (!agent) return;
+    
+    // Check for connected apps in agent metadata
+    const apps = ['slack', 'google', 'discord', 'github', 'notion', 'teams'];
+    apps.forEach(app => {
+      const statusEl = document.getElementById(`status-${app}`);
+      const btn = document.getElementById(`btn-conn-${app}`);
+      const isConn = agent.connections && agent.connections[app];
+      
+      if (isConn) {
+        statusEl.textContent = 'Connected';
+        statusEl.classList.add('connected');
+        btn.textContent = 'Disconnect';
+        btn.classList.remove('btn-primary');
+        btn.classList.add('btn-out');
+      } else {
+        statusEl.textContent = 'Not Connected';
+        statusEl.classList.remove('connected');
+        btn.textContent = `Connect ${app.charAt(0).toUpperCase() + app.slice(1)}`;
+        btn.classList.add('btn-primary');
+        btn.classList.remove('btn-out');
+      }
+    });
+  }
+
+  function toggleConnection(app) {
+    const aid = document.getElementById('conn-agent-select').value;
+    if (!aid) return;
+    const agent = state.agents.find(a => a.id === aid);
+    if (!agent) return;
+
+    if (!agent.connections) agent.connections = {};
+    
+    if (agent.connections[app]) {
+      delete agent.connections[app];
+      toast(`Disconnected ${app} from ${agent.name}`);
+    } else {
+      agent.connections[app] = { connectedAt: Date.now() };
+      toast(`Connected ${app} to ${agent.name}!`, 'success');
+    }
+    
+    // Save State
+    localStorage.setItem('flowix_state', JSON.stringify(state));
+    loadConnections(aid);
   }
 
   function toggleSidebar(force) {
@@ -259,13 +347,10 @@ body.ready{opacity:1}
   }
   document.getElementById('btn-sidebar-toggle').addEventListener('click', () => toggleSidebar());
 
-  function loadConnections() {
-    console.log('Loading connections for:', currentUser.id);
-  }
-
-  function toast(msg) {
+  function toast(msg, type='info') {
     const el = document.createElement('div');
     el.className = 'toast';
+    if (type === 'success') el.style.borderLeft = '4px solid #16a34a';
     el.textContent = msg;
     document.getElementById('toast-container').appendChild(el);
     setTimeout(() => el.remove(), 3000);
@@ -280,9 +365,7 @@ body.ready{opacity:1}
   apps.forEach(app => {
     const btn = document.getElementById(`btn-conn-${app}`);
     if (btn) {
-      btn.onclick = () => {
-        toast(`Connecting to ${app.charAt(0).toUpperCase() + app.slice(1)}...`);
-      };
+      btn.onclick = () => toggleConnection(app);
     }
   });
 
