@@ -46,25 +46,29 @@ serve(async (req) => {
 
     // Create Stripe checkout session
     console.log('Creating Stripe checkout session...');
+    const params = new URLSearchParams({
+      'mode': 'payment',
+      'line_items[0][price_data][currency]': 'usd',
+      'line_items[0][price_data][product_data][name]': `Add $${amount} to flowix wallet`,
+      'line_items[0][price_data][unit_amount]': String(Math.round(amount * 100)), // cents
+      'line_items[0][quantity]': '1',
+      'success_url': `${returnUrl}?success=true&session_id={CHECKOUT_SESSION_ID}`,
+      'cancel_url': `${returnUrl}?canceled=true`,
+      'metadata[user_id]': userId,
+      'metadata[amount]': String(amount),
+      'metadata[type]': 'wallet_deposit',
+    });
+    
+    // Enable automatic payment methods for compatibility
+    params.append('automatic_payment_methods[enabled]', 'true');
+    
     const session = await fetch('https://api.stripe.com/v1/checkout/sessions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${stripeSecretKey}`,
         'Content-Type': 'application/x-www-form-urlencoded',
       },
-      body: new URLSearchParams({
-        'mode': 'payment',
-        'payment_method_types[0]': 'card',
-        'line_items[0][price_data][currency]': 'usd',
-        'line_items[0][price_data][product_data][name]': `Add $${amount} to flowix wallet`,
-        'line_items[0][price_data][unit_amount]': String(Math.round(amount * 100)), // cents
-        'line_items[0][quantity]': '1',
-        'success_url': `${returnUrl}?success=true&session_id={CHECKOUT_SESSION_ID}`,
-        'cancel_url': `${returnUrl}?canceled=true`,
-        'metadata[user_id]': userId,
-        'metadata[amount]': String(amount),
-        'metadata[type]': 'wallet_deposit',
-      }),
+      body: params,
     });
 
     const sessionData = await session.json();

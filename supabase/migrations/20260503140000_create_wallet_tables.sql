@@ -2,8 +2,9 @@
 
 -- User balance table
 create table if not exists public.user_balance (
-  user_id uuid primary key,
-  balance_usd decimal(10,2) not null default 0.00,
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null unique references auth.users(id) on delete cascade,
+  balance_usd decimal(12,2) not null default 0.00,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -11,10 +12,10 @@ create table if not exists public.user_balance (
 -- Transactions table
 create table if not exists public.transactions (
   id uuid primary key default gen_random_uuid(),
-  user_id uuid not null,
-  type text not null check (type in ('wallet_deposit', 'usage')),
-  amount_usd decimal(10,2) not null,
-  description text,
+  user_id uuid not null references auth.users(id) on delete cascade,
+  type text not null check (type in ('deposit', 'spend', 'refund')),
+  amount_usd decimal(12,2) not null,
+  description text not null default '',
   stripe_checkout_session_id text,
   created_at timestamptz not null default now()
 );
