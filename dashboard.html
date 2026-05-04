@@ -31,7 +31,7 @@
   --font-m:'JetBrains Mono',monospace;
   --nav-h:64px;
   --sidebar-w:260px;
-  --sidebar-collapsed-w:72px;
+  --sidebar-collapsed-w:0px;
 }
 
 html{scroll-behavior:smooth}
@@ -89,25 +89,26 @@ a{color:inherit;text-decoration:none}
 .dash-layout{display:flex;min-height:100vh;position:relative;z-index:1}
 
 /* -- SIDEBAR ------------------------- */
-.sidebar{width:var(--sidebar-w);position:fixed;top:var(--nav-h);bottom:0;left:0;display:flex;flex-direction:column;padding:24px 0;background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;overflow-x:hidden;z-index:50;transition:width 0.22s cubic-bezier(0.4, 0, 0.2, 1)}
-.sidebar.collapsed{width:var(--sidebar-collapsed-w)}
-.snav{display:flex;flex-direction:column;gap:2px;padding:0 8px;width:100%}
+.sidebar{width:var(--sidebar-w);position:fixed;top:var(--nav-h);bottom:0;left:0;display:flex;flex-direction:column;padding:24px 0;background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;overflow-x:hidden;z-index:50;transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1)}
+.sidebar.collapsed{width:0;padding:0;border-right:none}
+.snav{display:flex;flex-direction:column;gap:4px;padding:0 8px;width:100%}
 .snav-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--dim);padding:0 12px;margin-bottom:8px;margin-top:24px;width:100%}
-.sidebar.collapsed .snav-label{display:none}
+.sidebar.collapsed .snav-label, .sidebar.collapsed .snav-item{display:none}
 
-.snav-item{display:flex;align-items:center;gap:12px;padding:12px 14px;cursor:pointer;border:none;background:none;text-align:left;width:calc(var(--sidebar-w) - 16px);font-size:14px;font-weight:500;color:var(--muted);border-radius:0;transition:all 0.2s;white-space:nowrap;flex-shrink:0}
-.sidebar.collapsed .snav-item{width:40px;margin:0 auto;padding:12px;justify-content:center}
-.sidebar.collapsed .snav-item span:not(.snav-icon){display:none}
-.sidebar.collapsed .snav-item .snav-icon{margin:0}
-.snav-item.active .snav-icon{color:#fff}
+.snav-item{display:flex;align-items:center;gap:12px;padding:12px 14px;cursor:pointer;border:none;background:none;text-align:left;width:calc(var(--sidebar-w) - 16px);font-size:14px;font-weight:500;color:var(--muted);border-radius:0;transition:all 0.2s ease;white-space:nowrap;flex-shrink:0}
+.snav-item:hover{background:var(--bg);color:var(--text);transform:translateX(4px)}
+.snav-item.active{background:var(--primary);color:#fff;box-shadow:0 4px 12px rgba(37, 99, 235, 0.3);transform:scale(1.02);z-index:2}
+.snav-icon{font-size:16px;width:20px;display:inline-flex;justify-content:center;flex-shrink:0;transition:all 0.2s}
+.snav-item.active .snav-icon{color:#fff;transform:scale(1.1)}
 
-.sidebar-collapse-btn{margin-top:auto;padding:16px;display:flex;justify-content:center;border-top:1px solid var(--border)}
-.btn-collapse{background:none;border:none;color:var(--dim);cursor:pointer;font-size:18px;transition:color 0.2s}
-.btn-collapse:hover{color:var(--text)}
+.sidebar-collapse-btn{position:fixed;bottom:24px;left:24px;z-index:60;transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1)}
+.btn-collapse{width:40px;height:40px;background:var(--surface);border:1px solid var(--border);color:var(--text);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.05);transition:all 0.2s}
+.btn-collapse:hover{background:var(--bg);border-color:var(--dim)}
+.sidebar.collapsed ~ .sidebar-collapse-btn, .sidebar-collapse-btn.sidebar-gone{left:16px}
 
 /* -- MAIN ---------------------------- */
-.dash-main{flex:1;margin-left:var(--sidebar-w);padding:calc(var(--nav-h) + 40px) 40px 80px;min-height:100vh;transition:margin-left 0.22s cubic-bezier(0.4, 0, 0.2, 1)}
-.dash-main.collapsed{margin-left:var(--sidebar-collapsed-w)}
+.dash-main{flex:1;margin-left:var(--sidebar-w);padding:calc(var(--nav-h) + 40px) 40px 80px;min-height:100vh;transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1)}
+.dash-main.collapsed{margin-left:0}
 
 /* -- SECTION ------------------------- */
 .dash-section{display:none;animation:fadeUp 0.3s ease-out}
@@ -392,10 +393,10 @@ a{color:inherit;text-decoration:none}
         <span class="snav-icon">◇</span> Billing
       </button>
     </nav>
-    <div class="sidebar-collapse-btn">
-      <button class="btn-collapse" id="btn-sidebar-toggle" title="Toggle Sidebar">«</button>
-    </div>
   </aside>
+  <div class="sidebar-collapse-btn">
+    <button class="btn-collapse" id="btn-sidebar-toggle" title="Toggle Sidebar">«</button>
+  </div>
 
   <!-- -- MAIN -->
   <main class="dash-main">
