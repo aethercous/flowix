@@ -59,8 +59,8 @@ serve(async (req) => {
       'metadata[type]': 'wallet_deposit',
     });
     
-    // Enable automatic payment methods for compatibility
-    params.append('automatic_payment_methods[enabled]', 'true');
+    // Stripe Checkout handles payment method types automatically
+    // (no need for automatic_payment_methods - that's for PaymentIntents API only)
     
     const session = await fetch('https://api.stripe.com/v1/checkout/sessions', {
       method: 'POST',
