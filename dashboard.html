@@ -228,15 +228,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .code-block{background:rgba(9,9,14,0.04);border:1px solid rgba(9,9,14,0.09);padding:16px 18px;font-family:var(--font-m);font-size:11px;line-height:1.85;color:var(--text);overflow-x:auto;white-space:pre}
 .code-comment{color:var(--dim)}
 
-/* -- LLM API KEYS -------------------- */
-.apikey-add-row{display:flex;gap:10px;align-items:flex-end}
-.apikey-add-row .field-group{margin-bottom:0;flex:1}
-.apikey-list{display:flex;flex-direction:column;gap:10px}
-.apikey-item{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 20px;background:rgba(255,255,255,0.62);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.88);box-shadow:var(--glass-shadow),var(--glass-inner)}
-.aki-left{display:flex;align-items:center;gap:14px}
-.aki-provider{font-family:var(--font-d);font-size:14px;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;color:var(--text);min-width:80px}
-.aki-key{font-family:var(--font-m);font-size:12px;color:var(--muted)}
-.aki-right{display:flex;gap:8px;align-items:center;flex-shrink:0}
+
 
 /* -- BILLING ------------------------- */
 .billing-current{padding:24px 28px;margin-bottom:28px}
@@ -328,9 +320,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
         <span class="snav-icon">◇</span> Agent API
       </button>
       <div class="snav-label">Account</div>
-      <button class="snav-item" data-section="apikeys">
-        <span class="snav-icon">●</span> LLM Keys
-      </button>
+
       <button class="snav-item" data-section="billing">
         <span class="snav-icon">◇</span> Billing
       </button>
@@ -562,43 +552,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
       </div>
     </div>
 
-    <!-- === LLM API KEYS === -->
-    <div id="section-apikeys" class="dash-section">
-      <div class="ds-header">
-        <div>
-          <div class="ds-eyebrow">Account</div>
-          <div class="ds-title">LLM Keys</div>
-        </div>
-      </div>
-      <div class="form-card glass" style="margin-bottom:28px">
-        <div class="form-card-title">Add LLM Provider Key</div>
-        <div class="apikey-add-row">
-          <div class="field-group" style="max-width:200px">
-            <label class="field-label" for="ak-provider">Provider</label>
-            <select class="field-select" id="ak-provider">
-              <option value="Anthropic">Anthropic (Claude)</option>
-              <option value="OpenAI">OpenAI (GPT)</option>
-              <option value="Google">Google (Gemini)</option>
-              <option value="Meta">Meta (Llama)</option>
-              <option value="Mistral">Mistral</option>
-              <option value="Other">Other</option>
-            </select>
-          </div>
-          <div class="field-group" style="flex:1">
-            <label class="field-label" for="ak-key">API Key</label>
-            <input class="field-input" type="password" id="ak-key" placeholder="Paste your LLM provider API key" autocomplete="off"/>
-          </div>
-          <button class="btn btn-dark" id="btn-add-key" style="flex-shrink:0;align-self:flex-end">Add Key</button>
-        </div>
-        <div class="field-hint" style="margin-top:10px">Keys are stored locally in your browser and sent to your chosen LLM provider only. Never shared with flowix servers.</div>
-      </div>
-      <div id="apikeys-empty" class="empty-state" style="padding:40px 32px;display:none">
-        <div class="empty-icon">●</div>
-        <div class="empty-title">No keys added</div>
-        <div class="empty-desc">Add an API key above to connect your LLM provider.</div>
-      </div>
-      <div id="apikeys-list" class="apikey-list"></div>
-    </div>
+
 
     <!-- === BILLING === -->
     <div id="section-billing" class="dash-section">
@@ -619,10 +573,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
             <div class="bc-stat-val" id="billing-site-count">0</div>
             <div class="bc-stat-label">Site credentials</div>
           </div>
-          <div class="bc-stat">
-            <div class="bc-stat-val" id="billing-key-count">0</div>
-            <div class="bc-stat-label">LLM keys stored</div>
-          </div>
+
           <div class="bc-stat">
             <div class="bc-stat-val" id="billing-transactions-count">0</div>
             <div class="bc-stat-label">Transactions</div>
@@ -676,10 +627,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
             <div style="font-size:24px;font-weight:800;color:var(--text)" id="usage-sites">0</div>
             <div style="font-size:12px;color:var(--muted)">Site Credentials</div>
           </div>
-          <div>
-            <div style="font-size:24px;font-weight:800;color:var(--text)" id="usage-keys">0</div>
-            <div style="font-size:12px;color:var(--muted)">API Keys</div>
-          </div>
+
           <div>
             <div style="font-size:24px;font-weight:800;color:var(--text)" id="usage-transactions">0</div>
             <div style="font-size:12px;color:var(--muted)">Transactions</div>
@@ -758,7 +706,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 
   /* -- State -------------------------- */
   let STATE_KEY = 'flowix_state';
-  let state = { agents:[], apiKeys:[] };
+  let state = { agents:[] };
   let currentUser = null;
   let accessToken = null;
   let pendingConfirmFn = null;
@@ -766,7 +714,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
   function loadState() {
     try { const r = localStorage.getItem(STATE_KEY); if (r) state = JSON.parse(r); } catch(e){}
     if (!Array.isArray(state.agents)) state.agents = [];
-    if (!Array.isArray(state.apiKeys)) state.apiKeys = [];
+
   }
   function saveState() {
     try { localStorage.setItem(STATE_KEY, JSON.stringify(state)); } catch(e){}
@@ -775,13 +723,12 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
   /* -- Helpers ------------------------ */
   function uid()   { return Date.now().toString(36) + Math.random().toString(36).slice(2,8); }
   function nraKey(){ return 'nra_' + Array.from(crypto.getRandomValues(new Uint8Array(24))).map(b => b.toString(16).padStart(2,'0')).join(''); }
-  function maskKey(k){ if(!k||k.length<10) return '••••••••••••••••'; return k.slice(0,6)+'••••••••••••'+k.slice(-4); }
+
   function maskPass(p){ return p ? '••••••••' : '-'; }
 
   function getProviderPrefix(modelId){const m = MODELS.find(x => x.id === modelId);if(!m)return null;const map = {Anthropic:'anthropic',OpenAI:'openai',Google:'google',Meta:'meta',Mistral:'mistral'};return map[m.provider]||null;}
-  function getLlmKeyForAgent(agent){const m = MODELS.find(x => x.id === agent.model);if(!m)return null;const k = state.apiKeys.find(k => k.provider === m.provider);return k?k.key:null;}
-  async function createAgentToken(agent,apiKey){const prefix = getProviderPrefix(agent.model);const { data, error } = await sb.from('agent_tokens').insert({user_id:currentUser.id,agent_id:agent.id,api_key:apiKey,agent_config:{systemPrompt:agent.systemPrompt||'You are a helpful assistant.',model:agent.model,agentName:agent.name},llm_provider:`${prefix}/${agent.model}`,llm_key_encrypted:getLlmKeyForAgent(agent)||''}).select('id').single();if(error)throw error;return data.id;}
-  async function syncAgentToken(agent){if(!agent.supabaseTokenId)return;const prefix = getProviderPrefix(agent.model);await sb.from('agent_tokens').update({agent_config:{systemPrompt:agent.systemPrompt||'You are a helpful assistant.',model:agent.model,agentName:agent.name},llm_provider:`${prefix}/${agent.model}`,llm_key_encrypted:getLlmKeyForAgent(agent)||''}).eq('id',agent.supabaseTokenId);}
+  async function createAgentToken(agent,apiKey){const prefix = getProviderPrefix(agent.model);const { data, error } = await sb.from('agent_tokens').insert({user_id:currentUser.id,agent_id:agent.id,api_key:apiKey,agent_config:{systemPrompt:agent.systemPrompt||'You are a helpful assistant.',model:agent.model,agentName:agent.name},llm_provider:`${prefix}/${agent.model}`,llm_key_encrypted:''}).select('id').single();if(error)throw error;return data.id;}
+  async function syncAgentToken(agent){if(!agent.supabaseTokenId)return;const prefix = getProviderPrefix(agent.model);await sb.from('agent_tokens').update({agent_config:{systemPrompt:agent.systemPrompt||'You are a helpful assistant.',model:agent.model,agentName:agent.name},llm_provider:`${prefix}/${agent.model}`,llm_key_encrypted:''}).eq('id',agent.supabaseTokenId);}
   async function deleteAgentToken(tokenId){if(!tokenId)return;await sb.from('agent_tokens').delete().eq('id',tokenId);}
 
   function getFavicon(url) {
@@ -1175,54 +1122,18 @@ console.log(reply);`;
     });
   });
 
-  /* -- SECTION: LLM API Keys ---------- */
-  function renderApiKeys() {
-    const list = document.getElementById('apikeys-list');
-    const empty = document.getElementById('apikeys-empty');
-    list.innerHTML = '';
-    if(state.apiKeys.length === 0){ empty.style.display = ''; return; }
-    empty.style.display = 'none';
-    state.apiKeys.forEach(k => {
-      const item = document.createElement('div');
-      item.className='apikey-item';
-      item.innerHTML = `
-        <div class="aki-left">
-          <div class="aki-provider">${k.provider}</div>
-          <div class="aki-key">${maskKey(k.key)}</div>
-        </div>
-        <div class="aki-right">
-          <button class="btn btn-danger btn-xs btn-del-key" data-id="${k.id}">Remove</button>
-        </div>
-      `;
-      item.querySelector('.btn-del-key').addEventListener('click', () => {
-        confirm('Remove Key',`Remove the ${k.provider} key? Agents using this provider will stop working.`,() => {
-          state.apiKeys = state.apiKeys.filter(x => x.id !== k.id);
-          saveState(); renderApiKeys(); updateBillingStats(); toast('Key removed.');
-        });
-      });
-      list.appendChild(item);
-    });
-  }
-  document.getElementById('btn-add-key').addEventListener('click', () => {
-    const provider = document.getElementById('ak-provider').value;
-    const key = document.getElementById('ak-key').value.trim();
-    if(!key){ toast('Please enter an API key.','error'); return; }
-    state.apiKeys.push({ id:uid(), provider, key, addedAt:new Date().toISOString() });
-    saveState(); document.getElementById('ak-key').value = '';
-    renderApiKeys(); updateBillingStats(); toast(`${provider} key added.`,'success');
-  });
+
 
   /* -- Billing stats ------------------ */
   function updateBillingStats() {
     document.getElementById('billing-agent-count').textContent = state.agents.length;
-    document.getElementById('billing-key-count').textContent = state.apiKeys.length;
     const totalSites = state.agents.reduce((n,a) => n +(a.browserConfig?.sites?.length||0), 0);
     document.getElementById('billing-site-count').textContent = totalSites;
   }
 
   /* -- Render all --------------------- */
   function renderAll() {
-    renderAgents(); populateAgentSelects(); renderApiKeys(); updateBillingStats();
+    renderAgents(); populateAgentSelects(); updateBillingStats();
     renderSkillsSection(); renderBrowserSection(); renderAgentApiSection();
     const editSel = document.getElementById('edit-agent-select');
     populateEditForm(editSel.value === 'new' ? null : state.agents.find(a => a.id === editSel.value));
@@ -1249,12 +1160,11 @@ console.log(reply);`;
     // Update billing stats
     document.getElementById('billing-agent-count').textContent = state.agents.length;
     document.getElementById('billing-site-count').textContent = state.agents.reduce((sum, a) => sum + (a.browserConfig?.sites?.length || 0), 0);
-    document.getElementById('billing-key-count').textContent = state.apiKeys.length;
     
     // Update usage stats
     document.getElementById('usage-agents').textContent = state.agents.length;
     document.getElementById('usage-sites').textContent = state.agents.reduce((sum, a) => sum + (a.browserConfig?.sites?.length || 0), 0);
-    document.getElementById('usage-keys').textContent = state.apiKeys.length;
+
     
     // Load transaction count
     loadTransactionCount();
