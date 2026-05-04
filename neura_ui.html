@@ -914,7 +914,10 @@ footer{
     if (session?.user) {
       showLoggedIn(session.user.email);
       closeAll();
-      if (_event === 'SIGNED_IN') window.location.href = 'dashboard.html';
+      const urlParams = new URLSearchParams(window.location.search);
+      if (_event === 'SIGNED_IN' && !urlParams.get('from_dash')) {
+        window.location.href = 'dashboard.html';
+      }
     } else {
       showLoggedOut();
     }
