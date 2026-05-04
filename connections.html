@@ -18,9 +18,10 @@
   --surface:#ffffff;
   --nav-h:64px;
   --sidebar-w:260px;
+  --sidebar-collapsed-w:72px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:14px;line-height:1.5;opacity:0;transition:opacity 0.2s ease}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:14px;line-height:1.5;overflow-x:hidden;opacity:0;transition:opacity 0.15s ease}
 body.ready{opacity:1}
 
 /* -- NAV ----------------------------- */
@@ -39,16 +40,27 @@ body.ready{opacity:1}
 .dash-layout{display:flex;min-height:100vh;position:relative;z-index:1}
 
 /* -- SIDEBAR ------------------------- */
-.sidebar{width:var(--sidebar-w);position:fixed;top:var(--nav-h);bottom:0;left:0;display:flex;flex-direction:column;padding:24px 0;background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;overflow-x:hidden;z-index:50}
+.sidebar{width:var(--sidebar-w);position:fixed;top:var(--nav-h);bottom:0;left:0;display:flex;flex-direction:column;padding:24px 0;background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;overflow-x:hidden;z-index:50;transition:width 0.22s cubic-bezier(0.4, 0, 0.2, 1)}
+.sidebar.collapsed{width:var(--sidebar-collapsed-w)}
 .snav{display:flex;flex-direction:column;gap:2px;padding:0 8px;width:100%}
-.snav-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--dim);padding:0 12px;margin-bottom:8px;margin-top:24px;width:100%}
-.snav-item{display:flex;align-items:center;gap:12px;padding:12px 14px;cursor:pointer;border:none;background:none;text-align:left;width:calc(var(--sidebar-w) - 16px);font-size:14px;font-weight:500;color:var(--muted);transition:all 0.2s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-decoration:none}
+.snav-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--dim);padding:0 12px;margin-bottom:8px;margin-top:24px;width:100%;transition:opacity 0.15s}
+.sidebar.collapsed .snav-label{opacity:0;pointer-events:none}
+.snav-item{display:flex;align-items:center;gap:12px;padding:12px 14px;cursor:pointer;border:none;background:none;text-align:left;width:calc(var(--sidebar-w) - 16px);font-size:14px;font-weight:500;color:var(--muted);transition:all 0.2s;white-space:nowrap;text-decoration:none}
+.sidebar.collapsed .snav-item{width:40px;margin:0 auto;padding:12px;justify-content:center}
+.sidebar.collapsed .snav-item span:not(.snav-icon){display:none}
 .snav-item:hover{background:var(--bg);color:var(--text)}
 .snav-item.active{background:var(--primary);color:#fff}
-.snav-icon{font-size:16px;width:20px;display:inline-flex;justify-content:center;flex-shrink:0}
+.snav-icon{font-size:16px;width:20px;display:inline-flex;justify-content:center;flex-shrink:0;transition:margin 0.15s}
+.sidebar.collapsed .snav-icon{margin:0}
+
+.sidebar-collapse-btn{margin-top:auto;padding:16px;display:flex;justify-content:center;border-top:1px solid var(--border)}
+.btn-collapse{background:none;border:none;color:var(--dim);cursor:pointer;font-size:18px;transition:color 0.2s}
+.btn-collapse:hover{color:var(--text)}
 
 /* -- MAIN ---------------------------- */
-.dash-main{flex:1;margin-left:var(--sidebar-w);padding:calc(var(--nav-h) + 40px) 40px 80px;min-height:100vh}
+.dash-main{flex:1;margin-left:var(--sidebar-w);padding:calc(var(--nav-h) + 40px) 40px 80px;min-height:100vh;transition:margin-left 0.22s cubic-bezier(0.4, 0, 0.2, 1)}
+.dash-main.collapsed{margin-left:var(--sidebar-collapsed-w)}
+
 .ds-header{margin-bottom:40px;display:flex;align-items:flex-end;justify-content:space-between}
 .ds-eyebrow{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:6px}
 .ds-title{font-size:32px;font-weight:800;letter-spacing:-0.02em;color:var(--text)}
@@ -91,17 +103,20 @@ body.ready{opacity:1}
 <div class="dash-layout">
   <aside class="sidebar">
     <nav class="snav">
-      <div class="snav-label">Main</div>
+      <div class="snav-label">Workspace</div>
       <a href="dashboard.html" class="snav-item">
         <span class="snav-icon">◆</span> My Agents
       </a>
       <a href="dashboard.html#skills" class="snav-item">
         <span class="snav-icon">◈</span> Skills
       </a>
+      <a href="dashboard.html#edit" class="snav-item">
+        <span class="snav-icon">◎</span> Edit Agent
+      </a>
       
       <div class="snav-label">Configuration</div>
       <a href="connections.html" class="snav-item active">
-        <span class="snav-icon">◎</span> Connections
+        <span class="snav-icon">◈</span> Connections
       </a>
       <a href="dashboard.html#browser" class="snav-item">
         <span class="snav-icon">✦</span> Browser Access
@@ -109,12 +124,20 @@ body.ready{opacity:1}
       <a href="dashboard.html#api" class="snav-item">
         <span class="snav-icon">◇</span> Agent API
       </a>
+
+      <div class="snav-label">Team</div>
+      <a href="dashboard.html#teams" class="snav-item">
+        <span class="snav-icon">⬢</span> Teams
+      </a>
       
       <div class="snav-label">Account</div>
       <a href="dashboard.html#billing" class="snav-item">
-        <span class="snav-icon">⬡</span> Billing
+        <span class="snav-icon">◇</span> Billing
       </a>
     </nav>
+    <div class="sidebar-collapse-btn">
+      <button class="btn-collapse" id="btn-sidebar-toggle" title="Toggle Sidebar">«</button>
+    </div>
   </aside>
 
   <main class="dash-main">
@@ -216,13 +239,28 @@ body.ready{opacity:1}
     currentUser = session.user;
     document.getElementById('nav-email').textContent = currentUser.email;
     document.body.classList.add('ready');
+
+    // Handle sidebar state
+    const isCollapsed = localStorage.getItem('flowix_sidebar_collapsed') === 'true';
+    if (isCollapsed) toggleSidebar(true);
     
-    // Load existing connections (simulated for now)
     loadConnections();
   }
 
+  function toggleSidebar(force) {
+    const sidebar = document.querySelector('.sidebar');
+    const main = document.querySelector('.dash-main');
+    const btn = document.getElementById('btn-sidebar-toggle');
+    const collapsed = force !== undefined ? force : !sidebar.classList.contains('collapsed');
+    
+    sidebar.classList.toggle('collapsed', collapsed);
+    main.classList.toggle('collapsed', collapsed);
+    btn.textContent = collapsed ? '»' : '«';
+    localStorage.setItem('flowix_sidebar_collapsed', collapsed);
+  }
+  document.getElementById('btn-sidebar-toggle').addEventListener('click', () => toggleSidebar());
+
   function loadConnections() {
-    // This will be replaced by actual Auth0/Nango logic later
     console.log('Loading connections for:', currentUser.id);
   }
 
@@ -239,14 +277,12 @@ body.ready{opacity:1}
     window.location.href = 'neura_ui.html';
   };
 
-  // Connection handlers
   const apps = ['slack', 'google', 'discord', 'github', 'notion', 'teams'];
   apps.forEach(app => {
     const btn = document.getElementById(`btn-conn-${app}`);
     if (btn) {
       btn.onclick = () => {
         toast(`Connecting to ${app.charAt(0).toUpperCase() + app.slice(1)}...`);
-        // Auth0 setup will go here
       };
     }
   });
