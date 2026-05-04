@@ -373,7 +373,7 @@ a{color:inherit;text-decoration:none}
       </button>
       <div class="snav-label">Team</div>
       <button class="snav-item" data-section="teams" id="nav-teams">
-        <span class="snav-icon">👥</span> Teams
+        <span class="snav-icon">⬢</span> Teams
       </button>
       <div class="snav-label">Account</div>
 
@@ -657,15 +657,13 @@ a{color:inherit;text-decoration:none}
         <div class="form-card-title">Generate Team Invite Code</div>
         <div class="form-grid">
           <div class="field-group">
-            <label class="field-label">Expiration (Days)</label>
-            <select class="field-select" id="team-expiry">
-              <option value="0">No Expiration</option>
-              <option value="1">1 Day</option>
-              <option value="7">7 Days</option>
-              <option value="30">30 Days</option>
-              <option value="90">90 Days</option>
-              <option value="365">365 Days</option>
-            </select>
+            <label class="field-label">Expiration (1-365 Days)</label>
+            <div style="display:flex;gap:12px;align-items:center">
+              <input type="number" id="team-expiry" class="field-input" min="1" max="365" value="30" style="flex:1"/>
+              <label style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);white-space:nowrap">
+                <input type="checkbox" id="team-no-expiry"/> No Expiry
+              </label>
+            </div>
           </div>
           <div class="field-group" style="display:flex;align-items:flex-end">
             <button class="btn btn-dark" id="btn-gen-team-code" style="width:100%">Generate 12-Digit Code</button>
@@ -1468,10 +1466,19 @@ console.log(reply);`;
       const item = document.createElement('div');
       item.className = 'site-item';
       item.style.padding = '16px';
+      
+      const maskedCode = c.code.replace(/./g, '•');
+      const displayCode = c.revealed ? c.code : maskedCode;
+
       item.innerHTML = `
         <div style="display:flex;justify-content:space-between;align-items:center;width:100%">
           <div>
-            <div style="font-family:var(--font-m);font-size:16px;font-weight:700;color:var(--text)">${c.code}</div>
+            <div style="font-family:var(--font-m);font-size:16px;font-weight:700;color:var(--text);letter-spacing:0.1em">
+              ${displayCode}
+              <button class="btn btn-out btn-xs" style="margin-left:12px;padding:2px 8px;font-size:10px" onclick="toggleTeamCode(${idx})">
+                ${c.revealed ? 'Hide' : 'Show'}
+              </button>
+            </div>
             <div style="font-size:11px;color:${isExpired ? '#dc2626' : 'var(--muted)'};margin-top:4px">
               ${c.expiry ? `Expires: ${new Date(c.expiry).toLocaleDateString()}` : 'No Expiration'}
               ${isExpired ? ' (Expired)' : ''}
@@ -1484,20 +1491,33 @@ console.log(reply);`;
     });
   }
 
+  window.toggleTeamCode = function(idx) {
+    state.teamCodes[idx].revealed = !state.teamCodes[idx].revealed;
+    renderTeamsSection();
+  };
+
   window.revokeTeamCode = function(idx) {
     state.teamCodes.splice(idx, 1);
     saveState(); renderTeamsSection(); toast('Invite code revoked.');
   };
 
   document.getElementById('btn-gen-team-code').addEventListener('click', () => {
-    const expiryDays = parseInt(document.getElementById('team-expiry').value);
+    const noExpiry = document.getElementById('team-no-expiry').checked;
+    const expiryDays = parseInt(document.getElementById('team-expiry').value) || 30;
+    
+    if (!noExpiry && (expiryDays < 1 || expiryDays > 365)) {
+      toast('Please enter 1-365 days.', 'error');
+      return;
+    }
+
     let code = '';
     for(let i=0; i<12; i++) code += Math.floor(Math.random() * 10).toString();
     
     const newCode = {
       code: code,
       createdAt: Date.now(),
-      expiry: expiryDays > 0 ? (Date.now() + (expiryDays * 24 * 60 * 60 * 1000)) : null
+      expiry: noExpiry ? null : (Date.now() + (expiryDays * 24 * 60 * 60 * 1000)),
+      revealed: false
     };
     
     if (!state.teamCodes) state.teamCodes = [];
