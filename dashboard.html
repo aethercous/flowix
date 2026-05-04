@@ -371,6 +371,10 @@ a{color:inherit;text-decoration:none}
       <button class="snav-item" data-section="agentapi" id="nav-agentapi">
         <span class="snav-icon">◇</span> Agent API
       </button>
+      <div class="snav-label">Team</div>
+      <button class="snav-item" data-section="teams" id="nav-teams">
+        <span class="snav-icon">👥</span> Teams
+      </button>
       <div class="snav-label">Account</div>
 
       <button class="snav-item" data-section="billing">
@@ -640,6 +644,44 @@ a{color:inherit;text-decoration:none}
       </div>
     </div>
 
+    <!-- === TEAMS === -->
+    <div id="section-teams" class="dash-section">
+      <div class="ds-header">
+        <div>
+          <div class="ds-eyebrow">Collaboration</div>
+          <div class="ds-title">Teams Management</div>
+        </div>
+      </div>
+
+      <div class="form-card glass">
+        <div class="form-card-title">Generate Team Invite Code</div>
+        <div class="form-grid">
+          <div class="field-group">
+            <label class="field-label">Expiration (Days)</label>
+            <select class="field-select" id="team-expiry">
+              <option value="0">No Expiration</option>
+              <option value="1">1 Day</option>
+              <option value="7">7 Days</option>
+              <option value="30">30 Days</option>
+              <option value="90">90 Days</option>
+              <option value="365">365 Days</option>
+            </select>
+          </div>
+          <div class="field-group" style="display:flex;align-items:flex-end">
+            <button class="btn btn-dark" id="btn-gen-team-code" style="width:100%">Generate 12-Digit Code</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="usage-stats" style="margin-top:24px">
+        <div class="bc-plan-label">Active Team Codes</div>
+        <div id="team-codes-list" class="site-list"></div>
+        <div id="team-codes-empty" style="padding:20px 0;text-align:center;color:var(--muted);font-size:13px">
+          No invite codes generated yet.
+        </div>
+      </div>
+    </div>
+
 
 
     <!-- === BILLING === -->
@@ -805,7 +847,7 @@ a{color:inherit;text-decoration:none}
 
   /* -- State -------------------------- */
   let STATE_KEY = 'flowix_state';
-  let state = { agents:[] };
+  let state = { agents:[], teamCodes:[] };
   let currentUser = null;
   let accessToken = null;
   let pendingConfirmFn = null;
@@ -1265,6 +1307,7 @@ console.log(reply);`;
   function renderAll() {
     renderAgents(); populateAgentSelects(); updateBillingStats();
     renderSkillsSection(); renderBrowserSection(); renderAgentApiSection();
+    renderTeamsSection();
     const editSel = document.getElementById('edit-agent-select');
     populateEditForm(editSel.value === 'new' ? null : state.agents.find(a => a.id === editSel.value));
   }
@@ -1406,6 +1449,61 @@ console.log(reply);`;
       }
     } catch (e) { console.error('Failed to load transaction count:', e); }
   }
+
+  /* -- SECTION: Teams ----------------- */
+  function renderTeamsSection() {
+    const list = document.getElementById('team-codes-list');
+    const empty = document.getElementById('team-codes-empty');
+    if (!state.teamCodes) state.teamCodes = [];
+    
+    list.innerHTML = '';
+    if (state.teamCodes.length === 0) {
+      empty.style.display = '';
+      return;
+    }
+    empty.style.display = 'none';
+
+    state.teamCodes.forEach((c, idx) => {
+      const isExpired = c.expiry && Date.now() > c.expiry;
+      const item = document.createElement('div');
+      item.className = 'site-item';
+      item.style.padding = '16px';
+      item.innerHTML = `
+        <div style="display:flex;justify-content:space-between;align-items:center;width:100%">
+          <div>
+            <div style="font-family:var(--font-m);font-size:16px;font-weight:700;color:var(--text)">${c.code}</div>
+            <div style="font-size:11px;color:${isExpired ? '#dc2626' : 'var(--muted)'};margin-top:4px">
+              ${c.expiry ? `Expires: ${new Date(c.expiry).toLocaleDateString()}` : 'No Expiration'}
+              ${isExpired ? ' (Expired)' : ''}
+            </div>
+          </div>
+          <button class="btn btn-out btn-xs" onclick="revokeTeamCode(${idx})">Revoke</button>
+        </div>
+      `;
+      list.appendChild(item);
+    });
+  }
+
+  window.revokeTeamCode = function(idx) {
+    state.teamCodes.splice(idx, 1);
+    saveState(); renderTeamsSection(); toast('Invite code revoked.');
+  };
+
+  document.getElementById('btn-gen-team-code').addEventListener('click', () => {
+    const expiryDays = parseInt(document.getElementById('team-expiry').value);
+    let code = '';
+    for(let i=0; i<12; i++) code += Math.floor(Math.random() * 10).toString();
+    
+    const newCode = {
+      code: code,
+      createdAt: Date.now(),
+      expiry: expiryDays > 0 ? (Date.now() + (expiryDays * 24 * 60 * 60 * 1000)) : null
+    };
+    
+    if (!state.teamCodes) state.teamCodes = [];
+    state.teamCodes.unshift(newCode);
+    saveState(); renderTeamsSection(); toast('12-digit invite code generated!', 'success');
+  });
 
   document.getElementById('btn-signout').addEventListener('click', async () => {
     await sb.auth.signOut(); window.location.href = 'neura_ui.html';
