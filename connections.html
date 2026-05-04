@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>flowix - Connections</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#f8fafc;
+  --text:#0f172a;
+  --muted:#64748b;
+  --dim:#94a3b8;
+  --border:#e2e8f0;
+  --primary:#2563eb;
+  --primary-dark:#1e40af;
+  --surface:#ffffff;
+  --nav-h:64px;
+  --sidebar-w:260px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:14px;line-height:1.5;opacity:0;transition:opacity 0.2s ease}
+body.ready{opacity:1}
+
+/* -- NAV ----------------------------- */
+.top-nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:var(--nav-h);background:var(--surface);border-bottom:1px solid var(--border)}
+.nav-left{display:flex;align-items:center;gap:24px}
+.nav-logo{font-size:20px;font-weight:800;color:var(--primary);letter-spacing:-0.02em}
+.nav-logo a{color:inherit;text-decoration:none}
+.nav-back{font-size:12px;font-weight:500;color:var(--muted);text-decoration:none;transition:color 0.15s}
+.nav-back:hover{color:var(--text)}
+.nav-right{display:flex;align-items:center;gap:16px}
+.nav-email{font-size:13px;font-weight:500;color:var(--text)}
+.nav-signout{font-size:12px;font-weight:600;padding:8px 16px;background:var(--bg);border:1px solid var(--border);color:var(--text);cursor:pointer;transition:all 0.2s}
+.nav-signout:hover{background:var(--border)}
+
+/* -- LAYOUT -------------------------- */
+.dash-layout{display:flex;min-height:100vh;position:relative;z-index:1}
+
+/* -- SIDEBAR ------------------------- */
+.sidebar{width:var(--sidebar-w);position:fixed;top:var(--nav-h);bottom:0;left:0;display:flex;flex-direction:column;padding:24px 0;background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;overflow-x:hidden;z-index:50}
+.snav{display:flex;flex-direction:column;gap:2px;padding:0 8px;width:100%}
+.snav-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--dim);padding:0 12px;margin-bottom:8px;margin-top:24px;width:100%}
+.snav-item{display:flex;align-items:center;gap:12px;padding:12px 14px;cursor:pointer;border:none;background:none;text-align:left;width:calc(var(--sidebar-w) - 16px);font-size:14px;font-weight:500;color:var(--muted);transition:all 0.2s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-decoration:none}
+.snav-item:hover{background:var(--bg);color:var(--text)}
+.snav-item.active{background:var(--primary);color:#fff}
+.snav-icon{font-size:16px;width:20px;display:inline-flex;justify-content:center;flex-shrink:0}
+
+/* -- MAIN ---------------------------- */
+.dash-main{flex:1;margin-left:var(--sidebar-w);padding:calc(var(--nav-h) + 40px) 40px 80px;min-height:100vh}
+.ds-header{margin-bottom:40px;display:flex;align-items:flex-end;justify-content:space-between}
+.ds-eyebrow{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:6px}
+.ds-title{font-size:32px;font-weight:800;letter-spacing:-0.02em;color:var(--text)}
+
+/* -- GRID ---------------------------- */
+.conn-grid{display:grid;grid-template-columns:repeat(auto-fill, minmax(300px, 1fr));gap:16px}
+.conn-card{background:var(--surface);border:1px solid var(--border);padding:32px;display:flex;flex-direction:column;transition:all 0.2s}
+.conn-card:hover{border-color:var(--dim);box-shadow:0 4px 12px rgba(0,0,0,0.03)}
+.conn-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.conn-icon{width:48px;height:48px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800}
+.conn-status{font-size:10px;font-weight:700;text-transform:uppercase;padding:4px 8px;background:var(--bg);color:var(--muted)}
+.conn-status.connected{background:rgba(34, 197, 94, 0.1);color:#16a34a}
+.conn-name{font-size:18px;font-weight:700;color:var(--text);margin-bottom:8px}
+.conn-desc{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:24px;flex:1}
+.btn{display:inline-flex;align-items:center;justify-content:center;padding:10px 20px;font-size:12px;font-weight:600;cursor:pointer;border:none;transition:all 0.2s}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-primary:hover{background:var(--primary-dark)}
+.btn-out{background:transparent;border:1px solid var(--border);color:var(--text)}
+.btn-out:hover{background:var(--bg);border-color:var(--dim)}
+
+/* -- TOAST --------------------------- */
+#toast-container{position:fixed;bottom:28px;right:28px;z-index:300;display:flex;flex-direction:column;gap:8px;align-items:flex-end}
+.toast{padding:12px 20px;background:#0f172a;color:#fff;font-size:12px;font-weight:500;box-shadow:0 8px 24px rgba(0,0,0,0.15);animation:toastIn 0.2s ease both}
+@keyframes toastIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+
+<nav class="top-nav">
+  <div class="nav-left">
+    <div class="nav-logo"><a href="neura_ui.html?from_dash=1">flowix</a></div>
+    <a class="nav-back" href="neura_ui.html?from_dash=1">← Back to site</a>
+  </div>
+  <div class="nav-right">
+    <span class="nav-email" id="nav-email"></span>
+    <button class="nav-signout" id="btn-signout">Sign out</button>
+  </div>
+</nav>
+
+<div class="dash-layout">
+  <aside class="sidebar">
+    <nav class="snav">
+      <div class="snav-label">Main</div>
+      <a href="dashboard.html" class="snav-item">
+        <span class="snav-icon">◆</span> My Agents
+      </a>
+      <a href="dashboard.html#skills" class="snav-item">
+        <span class="snav-icon">◈</span> Skills
+      </a>
+      
+      <div class="snav-label">Configuration</div>
+      <a href="connections.html" class="snav-item active">
+        <span class="snav-icon">◎</span> Connections
+      </a>
+      <a href="dashboard.html#browser" class="snav-item">
+        <span class="snav-icon">✦</span> Browser Access
+      </a>
+      <a href="dashboard.html#api" class="snav-item">
+        <span class="snav-icon">◇</span> Agent API
+      </a>
+      
+      <div class="snav-label">Account</div>
+      <a href="dashboard.html#billing" class="snav-item">
+        <span class="snav-icon">⬡</span> Billing
+      </a>
+    </nav>
+  </aside>
+
+  <main class="dash-main">
+    <header class="ds-header">
+      <div>
+        <div class="ds-eyebrow">OAuth Apps</div>
+        <div class="ds-title">Connections</div>
+      </div>
+    </header>
+
+    <div class="conn-grid">
+      <!-- Slack -->
+      <div class="conn-card">
+        <div class="conn-top">
+          <div class="conn-icon" style="color:#4A154B">S</div>
+          <div class="conn-status" id="status-slack">Not Connected</div>
+        </div>
+        <div class="conn-name">Slack</div>
+        <div class="conn-desc">Allow your agents to read messages, post updates, and respond to mentions in your Slack workspace.</div>
+        <button class="btn btn-primary" id="btn-conn-slack">Connect Slack</button>
+      </div>
+
+      <!-- Google -->
+      <div class="conn-card">
+        <div class="conn-top">
+          <div class="conn-icon" style="color:#4285F4">G</div>
+          <div class="conn-status" id="status-google">Not Connected</div>
+        </div>
+        <div class="conn-name">Google Calendar</div>
+        <div class="conn-desc">Enable agents to check your availability, schedule meetings, and manage your daily agenda.</div>
+        <button class="btn btn-primary" id="btn-conn-google">Connect Google</button>
+      </div>
+
+      <!-- Discord -->
+      <div class="conn-card">
+        <div class="conn-top">
+          <div class="conn-icon" style="color:#5865F2">D</div>
+          <div class="conn-status" id="status-discord">Not Connected</div>
+        </div>
+        <div class="conn-name">Discord</div>
+        <div class="conn-desc">Connect your AI to Discord servers to moderate chats, answer questions, or manage community roles.</div>
+        <button class="btn btn-primary" id="btn-conn-discord">Connect Discord</button>
+      </div>
+
+      <!-- GitHub -->
+      <div class="conn-card">
+        <div class="conn-top">
+          <div class="conn-icon" style="color:#181717">G</div>
+          <div class="conn-status" id="status-github">Not Connected</div>
+        </div>
+        <div class="conn-name">GitHub</div>
+        <div class="conn-desc">Give your agents access to repositories to analyze code, manage issues, and review pull requests.</div>
+        <button class="btn btn-primary" id="btn-conn-github">Connect GitHub</button>
+      </div>
+
+      <!-- Notion -->
+      <div class="conn-card">
+        <div class="conn-top">
+          <div class="conn-icon" style="color:#000">N</div>
+          <div class="conn-status" id="status-notion">Not Connected</div>
+        </div>
+        <div class="conn-name">Notion</div>
+        <div class="conn-desc">Sync your knowledge base with your AI. Agents can read documents and update Notion pages in real-time.</div>
+        <button class="btn btn-primary" id="btn-conn-notion">Connect Notion</button>
+      </div>
+
+      <!-- Microsoft Teams -->
+      <div class="conn-card">
+        <div class="conn-top">
+          <div class="conn-icon" style="color:#6264A7">T</div>
+          <div class="conn-status" id="status-teams">Not Connected</div>
+        </div>
+        <div class="conn-name">Microsoft Teams</div>
+        <div class="conn-desc">Deploy your agents directly into Teams channels to assist your organization with automated workflows.</div>
+        <button class="btn btn-primary" id="btn-conn-teams">Connect Teams</button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div id="toast-container"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+(function() {
+  const sb = supabase.createClient(
+    'https://utofnywijqsozjqmkhcn.supabase.co',
+    'sb_publishable_NFpInIt2anAJxn2slHZIuQ_BsEw4g1n'
+  );
+
+  let currentUser = null;
+
+  async function init() {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) {
+      window.location.href = 'neura_ui.html';
+      return;
+    }
+    currentUser = session.user;
+    document.getElementById('nav-email').textContent = currentUser.email;
+    document.body.classList.add('ready');
+    
+    // Load existing connections (simulated for now)
+    loadConnections();
+  }
+
+  function loadConnections() {
+    // This will be replaced by actual Auth0/Nango logic later
+    console.log('Loading connections for:', currentUser.id);
+  }
+
+  function toast(msg) {
+    const el = document.createElement('div');
+    el.className = 'toast';
+    el.textContent = msg;
+    document.getElementById('toast-container').appendChild(el);
+    setTimeout(() => el.remove(), 3000);
+  }
+
+  document.getElementById('btn-signout').onclick = async () => {
+    await sb.auth.signOut();
+    window.location.href = 'neura_ui.html';
+  };
+
+  // Connection handlers
+  const apps = ['slack', 'google', 'discord', 'github', 'notion', 'teams'];
+  apps.forEach(app => {
+    const btn = document.getElementById(`btn-conn-${app}`);
+    if (btn) {
+      btn.onclick = () => {
+        toast(`Connecting to ${app.charAt(0).toUpperCase() + app.slice(1)}...`);
+        // Auth0 setup will go here
+      };
+    }
+  });
+
+  init();
+})();
+</script>
+</body>
+</html>
