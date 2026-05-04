@@ -73,7 +73,7 @@ a{color:inherit;text-decoration:none}
 .btn-sm{padding:8px 16px;font-size:12px}
 
 /* -- NAV ----------------------------- */
-nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:var(--nav-h);background:var(--surface);border-bottom:1px solid var(--border)}
+.top-nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:var(--nav-h);background:var(--surface);border-bottom:1px solid var(--border)}
 .nav-left{display:flex;align-items:center;gap:24px}
 .nav-logo{font-size:20px;font-weight:800;color:var(--primary);letter-spacing:-0.02em}
 .nav-logo a{color:inherit}
@@ -85,13 +85,13 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .nav-signout:hover{background:var(--border);border-color:var(--border-hi)}
 
 /* -- LAYOUT -------------------------- */
-.dash-layout{display:block;min-height:100vh;position:relative;z-index:1}
+.dash-layout{display:flex;min-height:100vh;position:relative;z-index:1}
 
 /* -- SIDEBAR ------------------------- */
 .sidebar{width:var(--sidebar-w);position:fixed;top:var(--nav-h);bottom:0;left:0;display:flex;flex-direction:column;padding:24px 0;background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;overflow-x:hidden;z-index:50}
-.snav{display:flex;flex-direction:column;gap:2px;padding:0 8px}
-.snav-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--dim);padding:0 12px;margin-bottom:8px;margin-top:24px}
-.snav-item{display:flex;align-items:center;gap:12px;padding:12px 14px;cursor:pointer;border:none;background:none;text-align:left;width:100%;font-size:14px;font-weight:500;color:var(--muted);border-radius:0;transition:all 0.2s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.snav{display:flex;flex-direction:column;gap:2px;padding:0 8px;width:100%}
+.snav-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--dim);padding:0 12px;margin-bottom:8px;margin-top:24px;width:100%}
+.snav-item{display:flex;align-items:center;gap:12px;padding:12px 14px;cursor:pointer;border:none;background:none;text-align:left;width:calc(var(--sidebar-w) - 16px);font-size:14px;font-weight:500;color:var(--muted);border-radius:0;transition:all 0.2s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:0}
 .snav-item:hover{background:var(--bg);color:var(--text)}
 .snav-item.active{background:var(--primary);color:#fff}
 .snav-icon{font-size:16px;width:20px;display:inline-flex;justify-content:center;flex-shrink:0}
@@ -99,7 +99,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .sidebar-footer{margin-top:auto;padding:16px 22px 4px;font-size:10px;color:var(--dim)}
 
 /* -- MAIN ---------------------------- */
-.dash-main{margin-left:var(--sidebar-w);padding:calc(var(--nav-h) + 40px) 40px 80px;min-height:100vh}
+.dash-main{flex:1;margin-left:var(--sidebar-w);padding:calc(var(--nav-h) + 40px) 40px 80px;min-height:100vh}
 
 /* -- SECTION ------------------------- */
 .dash-section{display:none;animation:fadeUp 0.3s ease-out}
@@ -334,7 +334,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 
 <div class="dash-layout">
 
-<nav>
+<nav class="top-nav">
   <div class="nav-left">
     <div class="nav-logo"><a href="neura_ui.html">flowix</a></div>
     <a class="nav-back" href="neura_ui.html">← Back to site</a>
