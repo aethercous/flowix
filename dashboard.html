@@ -1462,7 +1462,10 @@ console.log(reply);`;
       selectedAmount = parseInt(btn.dataset.amount);
       document.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      document.getElementById('custom-amount').value = '';
+      const input = document.getElementById('custom-amount');
+      input.value = selectedAmount;
+      // Trigger any listeners on the input
+      input.dispatchEvent(new Event('input', { bubbles: true }));
     });
   });
   
