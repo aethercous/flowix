@@ -1289,7 +1289,7 @@ console.log(reply);`;
     try {
       const { data, error } = await sb.from('user_balance').select('balance_usd').eq('user_id', currentUser.id).single();
       if (!error && data) {
-        document.getElementById('wallet-balance').textContent = data.balance_usd.toFixed(2);
+        document.getElementById('wallet-balance').textContent = parseFloat(data.balance_usd).toFixed(2);
       }
     } catch (e) { console.error('Failed to load balance:', e); }
   }
@@ -1308,7 +1308,7 @@ console.log(reply);`;
           <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line);font-size:13px">
             <span style="color:var(--muted)">${new Date(t.created_at).toLocaleDateString()}</span>
             <span style="color:var(--text)">${t.description}</span>
-            <span style="color:${t.type === 'deposit' ? '#22c55e' : '#ef4444'};font-weight:600">${t.type === 'deposit' ? '+' : '-'}$${t.amount_usd.toFixed(2)}</span>
+            <span style="color:${t.type === 'deposit' ? '#22c55e' : '#ef4444'};font-weight:600">${t.type === 'deposit' ? '+' : '-'}$${parseFloat(t.amount_usd).toFixed(2)}</span>
           </div>
         `).join('');
         document.getElementById('transaction-history').style.display = '';

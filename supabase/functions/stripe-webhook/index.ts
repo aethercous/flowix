@@ -48,29 +48,45 @@ serve(async (req) => {
 
     // Only handle checkout.session.completed
     if (event.type !== 'checkout.session.completed') {
+      console.log('Ignoring event type:', event.type);
       return new Response('OK', { status: 200 });
     }
 
     const session = event.data.object;
     const metadata = session.metadata || {};
     
+    console.log('Processing checkout session:', session.id);
+    console.log('Payment status:', session.payment_status);
+    console.log('Metadata:', metadata);
+
+    // Verify payment was actually collected
+    if (session.payment_status !== 'paid') {
+      console.log('Payment not yet collected, skipping. Status:', session.payment_status);
+      return new Response('Payment not collected', { status: 200 });
+    }
+    
     // Verify this is a wallet deposit
     if (metadata.type !== 'wallet_deposit') {
+      console.log('Not a wallet deposit, skipping');
       return new Response('OK', { status: 200 });
     }
 
     const userId = metadata.user_id;
     const amount = parseFloat(metadata.amount);
 
-    if (!userId || !amount) {
+    if (!userId || !amount || isNaN(amount)) {
+      console.error('Invalid metadata:', { userId, amount });
       return new Response('Missing metadata', { status: 400 });
     }
+
+    console.log('Processing deposit:', { userId, amount });
 
     // Create Supabase admin client
     const supabaseUrl = Deno.env.get('SUPABASE_URL') || '';
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
     
     if (!supabaseUrl || !supabaseServiceKey) {
+      console.error('Missing Supabase config');
       return new Response('Supabase not configured', { status: 500 });
     }
 
@@ -84,32 +100,50 @@ serve(async (req) => {
       .single();
 
     if (existingTx) {
+      console.log('Transaction already processed for session:', session.id);
       return new Response('Already processed', { status: 200 });
     }
 
     // Get or create user balance
-    const { data: balance } = await supabase
+    const { data: balance, error: balanceError } = await supabase
       .from('user_balance')
       .select('id, balance_usd')
       .eq('user_id', userId)
       .single();
 
-    const newBalance = (balance?.balance_usd || 0) + amount;
+    if (balanceError && balanceError.code !== 'PGRST116') {
+      // PGRST116 = no rows found (that's ok, we'll insert)
+      console.error('Error fetching balance:', balanceError);
+    }
+
+    // CRITICAL: parseFloat because Supabase returns decimal columns as strings
+    const currentBalance = parseFloat(balance?.balance_usd || '0');
+    const newBalance = currentBalance + amount;
+
+    console.log('Balance update:', { currentBalance, amount, newBalance });
 
     // Update balance (insert if not exists)
     if (balance) {
-      await supabase
+      const { error: updateError } = await supabase
         .from('user_balance')
         .update({ balance_usd: newBalance, updated_at: new Date().toISOString() })
         .eq('id', balance.id);
+      if (updateError) {
+        console.error('Failed to update balance:', updateError);
+        return new Response('Failed to update balance', { status: 500 });
+      }
     } else {
-      await supabase
+      const { error: insertError } = await supabase
         .from('user_balance')
         .insert({ user_id: userId, balance_usd: amount });
+      if (insertError) {
+        console.error('Failed to insert balance:', insertError);
+        return new Response('Failed to create balance', { status: 500 });
+      }
     }
 
     // Record the transaction
-    await supabase.from('transactions').insert({
+    const { error: txError } = await supabase.from('transactions').insert({
       user_id: userId,
       type: 'deposit',
       amount_usd: amount,
@@ -117,6 +151,12 @@ serve(async (req) => {
       stripe_checkout_session_id: session.id,
     });
 
+    if (txError) {
+      console.error('Failed to record transaction:', txError);
+      // Balance was already updated, log this for manual reconciliation
+    }
+
+    console.log('Successfully processed deposit of $' + amount.toFixed(2) + ' for user ' + userId);
     return new Response('OK', { status: 200 });
 
   } catch (error) {
