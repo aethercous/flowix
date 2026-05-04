@@ -806,6 +806,7 @@ a{color:inherit;text-decoration:none}
   let currentUser = null;
   let accessToken = null;
   let pendingConfirmFn = null;
+  let pendingCancelFn = null;
 
   function loadState() {
     try { const r = localStorage.getItem(STATE_KEY); if (r) state = JSON.parse(r); } catch(e){}
@@ -844,21 +845,25 @@ a{color:inherit;text-decoration:none}
 
   /* -- Confirm modal ------------------ */
   const modalConfirm = document.getElementById('modal-confirm');
-  function confirm(title, body, onOk, okLabel, cancelLabel) {
+  function confirm(title, body, onOk, okLabel, cancelLabel, onCancel) {
     document.getElementById('confirm-title').textContent = title;
     document.getElementById('confirm-body').textContent = body;
     document.getElementById('btn-confirm-ok').textContent = okLabel || 'Confirm';
     document.getElementById('btn-confirm-cancel').textContent = cancelLabel || 'Cancel';
     pendingConfirmFn = onOk;
+    pendingCancelFn = onCancel;
     modalConfirm.classList.add('open');
     document.body.style.overflow = 'hidden';
   }
   document.getElementById('btn-confirm-cancel').addEventListener('click', () => {
-    modalConfirm.classList.remove('open'); document.body.style.overflow = ''; pendingConfirmFn = null;
+    modalConfirm.classList.remove('open'); document.body.style.overflow = ''; 
+    if(pendingCancelFn){ pendingCancelFn(); pendingCancelFn = null; }
+    pendingConfirmFn = null;
   });
   document.getElementById('btn-confirm-ok').addEventListener('click', () => {
     modalConfirm.classList.remove('open'); document.body.style.overflow = '';
     if(pendingConfirmFn){ pendingConfirmFn(); pendingConfirmFn = null; }
+    pendingCancelFn = null;
   });
 
   /* -- Section switching -------------- */
@@ -1283,7 +1288,10 @@ console.log(reply);`;
       setTimeout(() => {
         confirm('Welcome to flowix!', 'Would you like a quick tutorial to help you get started?', () => {
           startTutorial();
-        }, 'Yes, show me', 'No, I\'m good');
+        }, 'Yes, show me', 'No, I\'m good', () => {
+          // If they click "No, I'm good", mark as done so they aren't asked again
+          localStorage.setItem(tutorialKey, 'true');
+        });
       }, 1000);
     }
   }
