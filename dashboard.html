@@ -1277,8 +1277,9 @@ console.log(reply);`;
     updateUsageStats();
     document.body.classList.add('ready');
 
-    // Tutorial check
-    if (!localStorage.getItem('flowix_tutorial_done')) {
+    // Tutorial check - Tied to User ID
+    const tutorialKey = `flowix_tutorial_done_${currentUser.id}`;
+    if (!localStorage.getItem(tutorialKey)) {
       setTimeout(() => {
         confirm('Welcome to flowix!', 'Would you like a quick tutorial to help you get started?', () => {
           startTutorial();
@@ -1354,7 +1355,9 @@ console.log(reply);`;
   function finishTutorial() {
     document.getElementById('tutorial-overlay').classList.remove('active');
     document.querySelectorAll('.tutorial-highlight').forEach(el => el.classList.remove('tutorial-highlight'));
-    localStorage.setItem('flowix_tutorial_done', 'true');
+    if (currentUser) {
+      localStorage.setItem(`flowix_tutorial_done_${currentUser.id}`, 'true');
+    }
   }
 
   document.getElementById('btn-tutorial-next').onclick = () => {
