@@ -760,6 +760,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
   let STATE_KEY = 'flowix_state';
   let state = { agents:[], apiKeys:[] };
   let currentUser = null;
+  let accessToken = null;
   let pendingConfirmFn = null;
 
   function loadState() {
@@ -1232,6 +1233,7 @@ console.log(reply);`;
     const { data:{ session } } = await sb.auth.getSession();
     if(!session){ window.location.replace('neura_ui.html'); return; }
     currentUser = session.user;
+    accessToken = session.access_token;
     STATE_KEY = 'flowix_state_'+currentUser.id;
     document.getElementById('nav-email').textContent = currentUser.email;
     loadState();
@@ -1368,7 +1370,7 @@ console.log(reply);`;
         headers: {
           'Content-Type': 'application/json',
           'apikey': SUPABASE_ANON_KEY,
-          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+          'Authorization': `Bearer ${accessToken}`
         },
         body: JSON.stringify(requestBody)
       });
