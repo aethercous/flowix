@@ -297,50 +297,7 @@ a{color:inherit;text-decoration:none}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:rgba(9,9,14,0.12)}
 
-/* -- TUTORIAL SYSTEM ----------------- */
-#tutorial-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.4s ease;
-  display: none;
-}
-#tutorial-overlay.active {
-  display: block;
-  opacity: 1;
-  pointer-events: all;
-}
-#tutorial-aura {
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at center, transparent 30%, rgba(88, 152, 255, 0.15) 100%);
-  box-shadow: inset 0 0 150px rgba(88, 152, 255, 0.2);
-  pointer-events: none;
-}
-.tutorial-highlight {
-  position: relative;
-  z-index: 10000 !important;
-  box-shadow: 0 0 0 9999px rgba(9, 9, 14, 0.4), 0 0 40px rgba(88, 152, 255, 0.8) !important;
-  pointer-events: all !important;
-  border-radius: 0;
-}
-#tutorial-bubble {
-  position: absolute;
-  z-index: 10001;
-  width: 280px;
-  padding: 20px;
-  background: #fff;
-  border: 1px solid var(--b-blue);
-  box-shadow: 0 12px 48px rgba(0,0,0,0.15);
-  animation: bubbleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-  border-radius: 0;
-}
-@keyframes bubbleIn { from { opacity:0; transform: translateY(10px) scale(0.95); } to { opacity:1; transform: none; } }
-.tb-title { font-family: var(--font-d); font-size: 16px; font-weight: 800; text-transform: uppercase; color: var(--text); margin-bottom: 8px; }
-.tb-text { font-size: 13px; color: var(--muted); line-height: 1.5; margin-bottom: 16px; }
-.tb-actions { display: flex; gap: 8px; justify-content: flex-end; }
+
 /* -- DEMO MODAL --------------------- */
 .demo-modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(15,23,42,0.8);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:10000;padding:24px}
 .demo-modal-overlay.open{display:flex}
@@ -815,18 +772,7 @@ a{color:inherit;text-decoration:none}
   </main>
 </div>
 
-<!-- === TUTORIAL OVERLAY === -->
-<div id="tutorial-overlay">
-  <div id="tutorial-aura"></div>
-  <div id="tutorial-bubble">
-    <div class="tb-title" id="tb-title">Tutorial</div>
-    <div class="tb-text" id="tb-text">Welcome! Let's get started.</div>
-    <div class="tb-actions">
-      <button class="btn btn-out btn-xs" id="btn-tutorial-skip">Skip</button>
-      <button class="btn btn-dark btn-xs" id="btn-tutorial-next">Next</button>
-    </div>
-  </div>
-</div>
+
 
 <!-- === CONFIRM MODAL === -->
 <div class="modal-overlay" id="modal-confirm">
@@ -1411,112 +1357,7 @@ console.log(reply);`;
       document.getElementById('demo-modal').classList.add('open');
     }
 
-    // Tutorial check - Tied to User ID
-    const tutorialKey = `flowix_tutorial_done_demo`;
-    if (!localStorage.getItem(tutorialKey)) {
-      setTimeout(() => {
-        confirm('Welcome to flowix!', 'Would you like a quick tutorial to help you get started?', () => {
-          startTutorial();
-        }, 'Yes, show me', 'No, I\'m good', () => {
-          // If they click "No, I'm good", mark as done so they aren't asked again
-          localStorage.setItem(tutorialKey, 'true');
-        });
-      }, 1000);
-    }
-  }
 
-  /* -- Tutorial Manager --------------- */
-  let currentStep = 0;
-  const tutorialSteps = [
-    { title: 'Your Control Center', text: 'This is your main dashboard where all your active agents appear.', target: '#nav-agents', section: 'agents' },
-    { title: 'Building Agents', text: 'Click here to create a new agent or modify its core logic and identity.', target: '#nav-edit', section: 'edit' },
-    { title: 'Agent Identity', text: 'Give your agent a clear name and define its specific mission.', target: '#ef-name', section: 'edit' },
-    { title: 'The Backend Brain', text: 'Use the system prompt to set rules, goals, and personality for your agent.', target: '#ef-prompt', section: 'edit' },
-    { title: 'API Key Source', text: 'You can use our platform-provided keys or bring your own for full control.', target: '.key-source-options', section: 'edit' },
-    { title: 'Wallet Balance', text: 'Your wallet fuels platform services and automated tasks.', target: '#wallet-balance', section: 'billing' },
-    { title: 'Ready to launch!', text: 'You are now ready to build your automation empire with flowix.', target: null, section: 'agents' }
-  ];
-
-  function startTutorial() {
-    currentStep = 0;
-    document.getElementById('tutorial-overlay').classList.add('active');
-    showStep(0);
-  }
-
-  function showStep(idx) {
-    const step = tutorialSteps[idx];
-    if (!step) {
-      finishTutorial();
-      return;
-    }
-
-    const bubble = document.getElementById('tutorial-bubble');
-    const nextBtn = document.getElementById('btn-tutorial-next');
-    
-    // Smooth transition: hide and disable
-    bubble.style.opacity = '0';
-    bubble.style.pointerEvents = 'none';
-    nextBtn.disabled = true;
-
-    // Switch section
-    if (step.section) switchSection(step.section);
-
-    // Clear highlights
-    document.querySelectorAll('.tutorial-highlight').forEach(el => el.classList.remove('tutorial-highlight'));
-
-    if (step.target) {
-      const el = document.querySelector(step.target);
-      if (el) {
-        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        
-        setTimeout(() => {
-          el.classList.add('tutorial-highlight');
-          const rect = el.getBoundingClientRect();
-          const bubbleWidth = 280;
-          
-          document.getElementById('tb-title').textContent = step.title;
-          document.getElementById('tb-text').textContent = step.text;
-          nextBtn.textContent = idx === tutorialSteps.length - 1 ? 'Finish' : 'Next';
-          
-          const bubbleHeight = bubble.offsetHeight || 160;
-          let top = rect.bottom + window.scrollY + 20;
-          let left = rect.left + (rect.width / 2) - (bubbleWidth / 2);
-
-          if (left < 20) left = 20;
-          if (left + bubbleWidth > window.innerWidth - 20) left = window.innerWidth - bubbleWidth - 20;
-
-          if (rect.bottom + bubbleHeight + 40 > window.innerHeight) {
-            top = rect.top + window.scrollY - bubbleHeight - 20;
-          }
-
-          bubble.style.top = top + 'px';
-          bubble.style.left = left + 'px';
-          bubble.style.transform = 'none';
-          bubble.style.opacity = '1';
-          bubble.style.pointerEvents = 'auto';
-          nextBtn.disabled = false;
-        }, 500); 
-      } else {
-        // Fallback to center
-        centerBubble(bubble, step, idx);
-      }
-    } else {
-      centerBubble(bubble, step, idx);
-    }
-  }
-
-  function centerBubble(bubble, step, idx) {
-    const nextBtn = document.getElementById('btn-tutorial-next');
-    document.getElementById('tb-title').textContent = step.title;
-    document.getElementById('tb-text').textContent = step.text;
-    nextBtn.textContent = idx === tutorialSteps.length - 1 ? 'Finish' : 'Next';
-    
-    bubble.style.top = '50%';
-    bubble.style.left = '50%';
-    bubble.style.transform = 'translate(-50%, -50%)';
-    bubble.style.opacity = '1';
-    bubble.style.pointerEvents = 'auto';
-    nextBtn.disabled = false;
   }
 
   function closeDemoModal() {
@@ -1524,20 +1365,7 @@ console.log(reply);`;
     localStorage.setItem('flowix_demo_viewed', 'true');
   }
 
-  function finishTutorial() {
-    document.getElementById('tutorial-overlay').classList.remove('active');
-    document.querySelectorAll('.tutorial-highlight').forEach(el => el.classList.remove('tutorial-highlight'));
-    if (currentUser) {
-      localStorage.setItem(`flowix_tutorial_done_${currentUser.id}`, 'true');
-    }
-  }
 
-  document.getElementById('btn-tutorial-next').onclick = () => {
-    currentStep++;
-    showStep(currentStep);
-  };
-
-  document.getElementById('btn-tutorial-skip').onclick = finishTutorial;
 
 
   function updateUsageStats() {
