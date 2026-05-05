@@ -1405,8 +1405,7 @@ console.log(reply);`;
     loadWalletBalance();
     loadTransactions();
     updateUsageStats();
-    document.body.classList.add('ready');
-
+    
     if (!localStorage.getItem('flowix_demo_viewed')) {
       document.getElementById('demo-modal').classList.add('open');
     }
@@ -1450,16 +1449,19 @@ console.log(reply);`;
       return;
     }
 
-    // Switch section if needed
+    const bubble = document.getElementById('tutorial-bubble');
+    const nextBtn = document.getElementById('btn-tutorial-next');
+    
+    // Smooth transition: hide and disable
+    bubble.style.opacity = '0';
+    bubble.style.pointerEvents = 'none';
+    nextBtn.disabled = true;
+
+    // Switch section
     if (step.section) switchSection(step.section);
 
-    // Clear previous highlight
+    // Clear highlights
     document.querySelectorAll('.tutorial-highlight').forEach(el => el.classList.remove('tutorial-highlight'));
-
-    const bubble = document.getElementById('tutorial-bubble');
-    document.getElementById('tb-title').textContent = step.title;
-    document.getElementById('tb-text').textContent = step.text;
-    document.getElementById('btn-tutorial-next').textContent = idx === tutorialSteps.length - 1 ? 'Finish' : 'Next';
 
     if (step.target) {
       const el = document.querySelector(step.target);
@@ -1470,17 +1472,18 @@ console.log(reply);`;
           el.classList.add('tutorial-highlight');
           const rect = el.getBoundingClientRect();
           const bubbleWidth = 280;
-          const bubbleHeight = bubble.offsetHeight || 160;
           
-          // Position bubble
+          document.getElementById('tb-title').textContent = step.title;
+          document.getElementById('tb-text').textContent = step.text;
+          nextBtn.textContent = idx === tutorialSteps.length - 1 ? 'Finish' : 'Next';
+          
+          const bubbleHeight = bubble.offsetHeight || 160;
           let top = rect.bottom + window.scrollY + 20;
           let left = rect.left + (rect.width / 2) - (bubbleWidth / 2);
 
-          // Keep on screen (horizontal)
           if (left < 20) left = 20;
           if (left + bubbleWidth > window.innerWidth - 20) left = window.innerWidth - bubbleWidth - 20;
 
-          // Keep on screen (vertical) - Flip if too low
           if (rect.bottom + bubbleHeight + 40 > window.innerHeight) {
             top = rect.top + window.scrollY - bubbleHeight - 20;
           }
@@ -1488,19 +1491,31 @@ console.log(reply);`;
           bubble.style.top = top + 'px';
           bubble.style.left = left + 'px';
           bubble.style.transform = 'none';
-        }, 400); // Wait for scroll
+          bubble.style.opacity = '1';
+          bubble.style.pointerEvents = 'auto';
+          nextBtn.disabled = false;
+        }, 500); 
       } else {
-        // Center bubble if target missing
-        bubble.style.top = '50%';
-        bubble.style.left = '50%';
-        bubble.style.transform = 'translate(-50%, -50%)';
+        // Fallback to center
+        centerBubble(bubble, step, idx);
       }
     } else {
-      // Center bubble
-      bubble.style.top = '50%';
-      bubble.style.left = '50%';
-      bubble.style.transform = 'translate(-50%, -50%)';
+      centerBubble(bubble, step, idx);
     }
+  }
+
+  function centerBubble(bubble, step, idx) {
+    const nextBtn = document.getElementById('btn-tutorial-next');
+    document.getElementById('tb-title').textContent = step.title;
+    document.getElementById('tb-text').textContent = step.text;
+    nextBtn.textContent = idx === tutorialSteps.length - 1 ? 'Finish' : 'Next';
+    
+    bubble.style.top = '50%';
+    bubble.style.left = '50%';
+    bubble.style.transform = 'translate(-50%, -50%)';
+    bubble.style.opacity = '1';
+    bubble.style.pointerEvents = 'auto';
+    nextBtn.disabled = false;
   }
 
   function closeDemoModal() {

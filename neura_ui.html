@@ -739,18 +739,15 @@ footer{
 <script>
   window.addEventListener('DOMContentLoaded', () => {
     document.body.classList.add('ready');
+    if (!localStorage.getItem('flowix_demo_viewed')) {
+      document.getElementById('demo-modal').classList.add('open');
+    }
   });
 
   function closeDemoModal() {
     document.getElementById('demo-modal').classList.remove('open');
     localStorage.setItem('flowix_demo_viewed', 'true');
   }
-
-  window.addEventListener('DOMContentLoaded', () => {
-    if (!localStorage.getItem('flowix_demo_viewed')) {
-      document.getElementById('demo-modal').classList.add('open');
-    }
-  });
 </script>
 
 </body>
