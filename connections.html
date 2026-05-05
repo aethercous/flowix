@@ -238,6 +238,7 @@ body.ready{opacity:1}
 
   let currentUser = null;
   let state = { agents:[] };
+  let STATE_KEY = 'flowix_state';
 
   async function init() {
     const { data: { session } } = await sb.auth.getSession();
@@ -246,10 +247,11 @@ body.ready{opacity:1}
       return;
     }
     currentUser = session.user;
+    STATE_KEY = 'flowix_state_' + currentUser.id;
     document.getElementById('nav-email').textContent = currentUser.email;
     
     // Load State
-    const saved = localStorage.getItem('flowix_state');
+    const saved = localStorage.getItem(STATE_KEY);
     if (saved) state = JSON.parse(saved);
 
     populateAgentSelect();
@@ -330,7 +332,7 @@ body.ready{opacity:1}
     }
     
     // Save State
-    localStorage.setItem('flowix_state', JSON.stringify(state));
+    localStorage.setItem(STATE_KEY, JSON.stringify(state));
     loadConnections(aid);
   }
 
