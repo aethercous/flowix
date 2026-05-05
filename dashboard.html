@@ -1433,8 +1433,7 @@ console.log(reply);`;
     { title: 'Agent Identity', text: 'Give your agent a clear name and define its specific mission.', target: '#ef-name', section: 'edit' },
     { title: 'The Backend Brain', text: 'Use the system prompt to set rules, goals, and personality for your agent.', target: '#ef-prompt', section: 'edit' },
     { title: 'API Key Source', text: 'You can use our platform-provided keys or bring your own for full control.', target: '.key-source-options', section: 'edit' },
-    { title: 'Web Access', text: 'Configure how your agent interacts with the web and manage site credentials.', target: '#nav-browser', section: 'browser' },
-    { title: 'Wallet Balance', text: 'Your wallet fuels platform services and automated tasks.', target: '#wallet-balance', section: 'agents' },
+    { title: 'Wallet Balance', text: 'Your wallet fuels platform services and automated tasks.', target: '#wallet-balance', section: 'billing' },
     { title: 'Ready to launch!', text: 'You are now ready to build your automation empire with flowix.', target: null, section: 'agents' }
   ];
 
@@ -1465,21 +1464,36 @@ console.log(reply);`;
     if (step.target) {
       const el = document.querySelector(step.target);
       if (el) {
-        el.classList.add('tutorial-highlight');
-        const rect = el.getBoundingClientRect();
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
         
-        // Position bubble
-        let top = rect.bottom + window.scrollY + 20;
-        let left = rect.left + (rect.width / 2) - 140;
+        setTimeout(() => {
+          el.classList.add('tutorial-highlight');
+          const rect = el.getBoundingClientRect();
+          const bubbleWidth = 280;
+          const bubbleHeight = bubble.offsetHeight || 160;
+          
+          // Position bubble
+          let top = rect.bottom + window.scrollY + 20;
+          let left = rect.left + (rect.width / 2) - (bubbleWidth / 2);
 
-        // Keep on screen
-        if (left < 20) left = 20;
-        if (left + 280 > window.innerWidth - 20) left = window.innerWidth - 300;
-        if (top + 150 > window.innerHeight + window.scrollY - 20) top = rect.top + window.scrollY - 180;
+          // Keep on screen (horizontal)
+          if (left < 20) left = 20;
+          if (left + bubbleWidth > window.innerWidth - 20) left = window.innerWidth - bubbleWidth - 20;
 
-        bubble.style.top = top + 'px';
-        bubble.style.left = left + 'px';
-        bubble.style.transform = 'none';
+          // Keep on screen (vertical) - Flip if too low
+          if (rect.bottom + bubbleHeight + 40 > window.innerHeight) {
+            top = rect.top + window.scrollY - bubbleHeight - 20;
+          }
+
+          bubble.style.top = top + 'px';
+          bubble.style.left = left + 'px';
+          bubble.style.transform = 'none';
+        }, 400); // Wait for scroll
+      } else {
+        // Center bubble if target missing
+        bubble.style.top = '50%';
+        bubble.style.left = '50%';
+        bubble.style.transform = 'translate(-50%, -50%)';
       }
     } else {
       // Center bubble
