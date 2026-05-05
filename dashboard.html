@@ -129,6 +129,18 @@ a{color:inherit;text-decoration:none}
 .agent-card.amber{border-top:4px solid #f59e0b}
 .agent-card.green{border-top:4px solid #10b981}
 
+/* -- CONNECTIONS --------------------- */
+.conn-grid{display:grid;grid-template-columns:repeat(auto-fill, minmax(300px, 1fr));gap:16px}
+.conn-card{background:var(--surface);border:1px solid var(--border);padding:32px;display:flex;flex-direction:column;transition:all 0.2s}
+.conn-card:hover{border-color:var(--dim);box-shadow:0 4px 12px rgba(0,0,0,0.03)}
+.conn-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.conn-icon{width:48px;height:48px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800}
+.conn-status{font-size:10px;font-weight:700;text-transform:uppercase;padding:4px 8px;background:var(--bg);color:var(--muted)}
+.conn-status.connected{background:rgba(34, 197, 94, 0.1);color:#16a34a}
+.conn-name{font-size:18px;font-weight:700;color:var(--text);margin-bottom:8px}
+.conn-desc{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:24px;flex:1}
+
+
 .ac-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
 .ac-status{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;display:flex;align-items:center;gap:6px;color:var(--muted)}
 .ac-status.on{color:#16a34a}
@@ -328,7 +340,7 @@ a{color:inherit;text-decoration:none}
     </div>
   </div>
 
-  <nav class="nav glass">
+  <div class="nav-left">
     <div class="nav-logo"><a href="neura_ui.html?from_dash=1">flowix</a></div>
     <a class="nav-back" href="neura_ui.html?from_dash=1">← Back to site</a>
   </div>
@@ -353,9 +365,9 @@ a{color:inherit;text-decoration:none}
       </button>
 
       <div class="snav-label">Configuration</div>
-      <a href="connections.html" class="snav-item" style="text-decoration:none">
+      <button class="snav-item" data-section="connections" id="nav-connections">
         <span class="snav-icon">◈</span> Connections
-      </a>
+      </button>
       <button class="snav-item" data-section="agentapi" id="nav-agentapi">
         <span class="snav-icon">◇</span> Agent API
       </button>
@@ -689,6 +701,96 @@ a{color:inherit;text-decoration:none}
 
 
 
+    <!-- === CONNECTIONS === -->
+    <div id="section-connections" class="dash-section">
+      <header class="ds-header">
+        <div>
+          <div class="ds-eyebrow">OAuth Apps</div>
+          <div class="ds-title">Connections</div>
+        </div>
+        <div style="width:300px">
+          <label class="ds-eyebrow">Select Agent</label>
+          <select id="conn-agent-select" class="field-select">
+            <option value="">Choose an agent...</option>
+          </select>
+        </div>
+      </header>
+
+      <div id="conn-empty-state" style="padding:100px 0;text-align:center">
+        <div style="font-size:48px;margin-bottom:16px;color:var(--dim)">◈</div>
+        <div style="font-size:18px;font-weight:700;color:var(--text)">Select an agent to manage connections</div>
+        <div style="font-size:13px;color:var(--muted);margin-top:8px">Connections are linked to specific agents. Choose one to continue.</div>
+      </div>
+
+      <div class="conn-grid" id="conn-grid" style="display:none">
+        <!-- Slack -->
+        <div class="conn-card">
+          <div class="conn-top">
+            <div class="conn-icon" style="color:#4A154B">S</div>
+            <div class="conn-status" id="status-slack">Not Connected</div>
+          </div>
+          <div class="conn-name">Slack</div>
+          <div class="conn-desc">Allow your agents to read messages, post updates, and respond to mentions in your Slack workspace.</div>
+          <button class="btn btn-dark" id="btn-conn-slack">Connect Slack</button>
+        </div>
+
+        <!-- Google -->
+        <div class="conn-card">
+          <div class="conn-top">
+            <div class="conn-icon" style="color:#4285F4">G</div>
+            <div class="conn-status" id="status-google">Not Connected</div>
+          </div>
+          <div class="conn-name">Google Calendar</div>
+          <div class="conn-desc">Enable agents to check your availability, schedule meetings, and manage your daily agenda.</div>
+          <button class="btn btn-dark" id="btn-conn-google">Connect Google</button>
+        </div>
+
+        <!-- Discord -->
+        <div class="conn-card">
+          <div class="conn-top">
+            <div class="conn-icon" style="color:#5865F2">D</div>
+            <div class="conn-status" id="status-discord">Not Connected</div>
+          </div>
+          <div class="conn-name">Discord</div>
+          <div class="conn-desc">Connect your AI to Discord servers to moderate chats, answer questions, or manage community roles.</div>
+          <button class="btn btn-dark" id="btn-conn-discord">Connect Discord</button>
+        </div>
+
+        <!-- GitHub -->
+        <div class="conn-card">
+          <div class="conn-top">
+            <div class="conn-icon" style="color:#181717">G</div>
+            <div class="conn-status" id="status-github">Not Connected</div>
+          </div>
+          <div class="conn-name">GitHub</div>
+          <div class="conn-desc">Give your agents access to repositories to analyze code, manage issues, and review pull requests.</div>
+          <button class="btn btn-dark" id="btn-conn-github">Connect GitHub</button>
+        </div>
+
+        <!-- Notion -->
+        <div class="conn-card">
+          <div class="conn-top">
+            <div class="conn-icon" style="color:#000">N</div>
+            <div class="conn-status" id="status-notion">Not Connected</div>
+          </div>
+          <div class="conn-name">Notion</div>
+          <div class="conn-desc">Sync your knowledge base with your AI. Agents can read documents and update Notion pages in real-time.</div>
+          <button class="btn btn-dark" id="btn-conn-notion">Connect Notion</button>
+        </div>
+
+        <!-- Microsoft Teams -->
+        <div class="conn-card">
+          <div class="conn-top">
+            <div class="conn-icon" style="color:#6264A7">T</div>
+            <div class="conn-status" id="status-teams">Not Connected</div>
+          </div>
+          <div class="conn-name">Microsoft Teams</div>
+          <div class="conn-desc">Deploy your agents directly into Teams channels to assist your organization with automated workflows.</div>
+          <button class="btn btn-dark" id="btn-conn-teams">Connect Teams</button>
+        </div>
+      </div>
+    </div>
+
     <!-- === BILLING === -->
     <div id="section-billing" class="dash-section">
       <div class="ds-header">
@@ -934,7 +1036,7 @@ a{color:inherit;text-decoration:none}
 
   /* -- Populate agent selects --------- */
   function populateAgentSelects() {
-    ['skills-agent-select','browser-agent-select','agentapi-select'].forEach(id => {
+    ['skills-agent-select','browser-agent-select','agentapi-select','conn-agent-select'].forEach(id => {
       const sel = document.getElementById(id);
       const cur = sel.value;
       sel.innerHTML = '<option value="">- select an agent -</option>';
@@ -1318,6 +1420,7 @@ console.log(reply);`;
     renderAgents(); populateAgentSelects(); updateBillingStats();
     renderSkillsSection(); renderAgentApiSection();
     renderTeamsSection();
+    renderConnectionsSection();
     const editSel = document.getElementById('edit-agent-select');
     populateEditForm(editSel.value === 'new' ? null : state.agents.find(a => a.id === editSel.value));
 
@@ -1352,6 +1455,7 @@ console.log(reply);`;
     loadTransactions();
     updateUsageStats();
     document.body.classList.add('ready');
+    bindConnectionEvents();
     
     if (!localStorage.getItem('flowix_demo_viewed')) {
       document.getElementById('demo-modal').classList.add('open');
@@ -1472,6 +1576,87 @@ console.log(reply);`;
     state.teamCodes.unshift(newCode);
     saveState(); renderTeamsSection(); toast('12-digit invite code generated!', 'success');
   });
+
+  /* -- SECTION: Connections ----------- */
+  function renderConnectionsSection() {
+    const aidSelect = document.getElementById('conn-agent-select');
+    if (!aidSelect) return;
+    const aid = aidSelect.value;
+    const grid = document.getElementById('conn-grid');
+    const empty = document.getElementById('conn-empty-state');
+    
+    if (!aid) {
+      if (grid) grid.style.display = 'none';
+      if (empty) empty.style.display = 'block';
+    } else {
+      if (grid) grid.style.display = 'grid';
+      if (empty) empty.style.display = 'none';
+      loadConnections(aid);
+    }
+  }
+
+  function loadConnections(agentId) {
+    const agent = state.agents.find(a => a.id === agentId);
+    if (!agent) return;
+    
+    const apps = ['slack', 'google', 'discord', 'github', 'notion', 'teams'];
+    apps.forEach(app => {
+      const statusEl = document.getElementById(`status-${app}`);
+      const btn = document.getElementById(`btn-conn-${app}`);
+      if (!statusEl || !btn) return;
+      
+      const isConn = agent.connections && agent.connections[app];
+      
+      if (isConn) {
+        statusEl.textContent = 'Connected';
+        statusEl.classList.add('connected');
+        btn.textContent = 'Disconnect';
+        btn.classList.remove('btn-dark');
+        btn.classList.add('btn-out');
+      } else {
+        statusEl.textContent = 'Not Connected';
+        statusEl.classList.remove('connected');
+        btn.textContent = `Connect ${app.charAt(0).toUpperCase() + app.slice(1)}`;
+        btn.classList.add('btn-dark');
+        btn.classList.remove('btn-out');
+      }
+    });
+  }
+
+  function toggleConnection(app) {
+    const aidSelect = document.getElementById('conn-agent-select');
+    if (!aidSelect) return;
+    const aid = aidSelect.value;
+    if (!aid) return;
+    const agent = state.agents.find(a => a.id === aid);
+    if (!agent) return;
+
+    if (!agent.connections) agent.connections = {};
+    
+    if (agent.connections[app]) {
+      delete agent.connections[app];
+      toast(`Disconnected ${app} from ${agent.name}`);
+    } else {
+      agent.connections[app] = { connectedAt: Date.now() };
+      toast(`Connected ${app} to ${agent.name}!`, 'success');
+    }
+    
+    saveState();
+    loadConnections(aid);
+    renderAgents();
+  }
+
+  // Bind events for connections
+  function bindConnectionEvents() {
+    const aidSelect = document.getElementById('conn-agent-select');
+    if (aidSelect) {
+      aidSelect.addEventListener('change', renderConnectionsSection);
+    }
+    ['slack', 'google', 'discord', 'github', 'notion', 'teams'].forEach(app => {
+      const btn = document.getElementById(`btn-conn-${app}`);
+      if (btn) btn.onclick = () => toggleConnection(app);
+    });
+  }
 
   document.getElementById('btn-signout').addEventListener('click', () => {
     window.location.href = 'neura_ui.html';
