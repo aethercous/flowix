@@ -1370,7 +1370,7 @@ console.log(reply);`;
   /* -- Render all --------------------- */
   function renderAll() {
     renderAgents(); populateAgentSelects(); updateBillingStats();
-    renderSkillsSection(); renderBrowserSection(); renderAgentApiSection();
+    renderSkillsSection(); renderAgentApiSection();
     renderTeamsSection();
     const editSel = document.getElementById('edit-agent-select');
     populateEditForm(editSel.value === 'new' ? null : state.agents.find(a => a.id === editSel.value));
@@ -1405,6 +1405,7 @@ console.log(reply);`;
     loadWalletBalance();
     loadTransactions();
     updateUsageStats();
+    document.body.classList.add('ready');
     
     if (!localStorage.getItem('flowix_demo_viewed')) {
       document.getElementById('demo-modal').classList.add('open');
