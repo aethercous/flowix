@@ -84,9 +84,32 @@ body.ready{opacity:1}
 #toast-container{position:fixed;bottom:28px;right:28px;z-index:300;display:flex;flex-direction:column;gap:8px;align-items:flex-end}
 .toast{padding:12px 20px;background:#0f172a;color:#fff;font-size:12px;font-weight:500;box-shadow:0 8px 24px rgba(0,0,0,0.15);animation:toastIn 0.2s ease both}
 @keyframes toastIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+/* -- DEMO MODAL --------------------- */
+.demo-modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(15,23,42,0.8);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:10000;padding:24px}
+.demo-modal-overlay.open{display:flex}
+.demo-modal-card{background:var(--surface);width:100%;max-width:480px;border:1px solid var(--border);padding:40px;text-align:center;animation:modalPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)}
+@keyframes modalPop { from { opacity:0; transform: scale(0.9) translateY(10px) } to { opacity:1; transform: scale(1) translateY(0) } }
+.demo-modal-icon{font-size:48px;margin-bottom:24px;color:var(--primary)}
+.demo-modal-title{font-size:24px;font-weight:800;letter-spacing:-0.02em;color:var(--text);margin-bottom:12px}
+.demo-modal-text{font-size:15px;color:var(--muted);line-height:1.6;margin-bottom:32px}
+.btn-demo-modal{width:100%;padding:14px;background:var(--primary);color:#fff;border:none;font-size:14px;font-weight:700;cursor:pointer;transition:all 0.2s}
+.btn-demo-modal:hover{background:var(--primary-dark);transform:translateY(-1px)}
 </style>
 </head>
 <body>
+
+  <!-- Demo Modal -->
+  <div class="demo-modal-overlay" id="demo-modal">
+    <div class="demo-modal-card">
+      <div class="demo-modal-icon">◈</div>
+      <div class="demo-modal-title">Demo Platform</div>
+      <div class="demo-modal-text">
+        Welcome to flowix. Please note that this is currently a **demo platform**. 
+        Agent functionalities and live workflows are not yet active as we finalize our production infrastructure.
+      </div>
+      <button class="btn-demo-modal" onclick="closeDemoModal()">Explore the Demo</button>
+    </div>
+  </div>
 
 <nav class="top-nav">
   <div class="nav-left">
@@ -252,6 +275,10 @@ body.ready{opacity:1}
     populateAgentSelect();
     document.body.classList.add('ready');
 
+    if (!localStorage.getItem('flowix_demo_viewed')) {
+      document.getElementById('demo-modal').classList.add('open');
+    }
+
     // Handle sidebar state
     const isCollapsed = localStorage.getItem('flowix_sidebar_collapsed') === 'true';
     if (isCollapsed) toggleSidebar(true);
@@ -364,6 +391,11 @@ body.ready{opacity:1}
       btn.onclick = () => toggleConnection(app);
     }
   });
+
+  function closeDemoModal() {
+    document.getElementById('demo-modal').classList.remove('open');
+    localStorage.setItem('flowix_demo_viewed', 'true');
+  }
 
   init();
 })();
