@@ -459,14 +459,8 @@ footer{
     <a href="#">Integrations</a>
     <a href="#">Docs</a>
   </div>
-  <div class="nav-actions" id="nav-auth-btns">
-    <button class="btn btn-out btn-sm" id="btn-login">Log in</button>
-    <button class="btn btn-dark btn-sm" id="btn-signup-nav">Get started</button>
-  </div>
-  <div class="nav-user" id="nav-user">
-    <span class="nav-user-email" id="nav-user-email"></span>
-    <a href="dashboard.html" class="btn btn-dark btn-sm" style="text-decoration:none">Dashboard</a>
-    <button class="nav-signout" id="btn-signout">Sign out</button>
+  <div class="nav-actions">
+    <a href="dashboard.html" class="btn btn-dark btn-sm" style="text-decoration:none">Enter Dashboard</a>
   </div>
 </nav>
 
@@ -478,7 +472,7 @@ footer{
     <h1>Your AI.<br/><span class="dim">Works everywhere.</span></h1>
     <p class="hero-sub">Connect any LLM, give it skills like web browsing and group chat access, then deploy it to Slack, Teams, Discord, or your browser. No infrastructure. No code.</p>
     <div class="hero-btns">
-      <button class="btn btn-dark" id="btn-signup-hero">Build your agent</button>
+      <a href="dashboard.html" class="btn btn-dark" style="text-decoration:none">Build your agent</a>
       <button class="btn btn-out no-pop">See how it works ->“</button>
     </div>
     <div class="hero-models">
@@ -723,7 +717,7 @@ footer{
   <h2>Ship your agent<br/><span class="dim">today.</span></h2>
   <p>Create an account, connect your LLM API key, and have a working agent in Slack or your browser in under five minutes.</p>
   <div class="cta-btns">
-    <button class="btn btn-dark" id="btn-signup-cta">Create an account</button>
+    <a href="dashboard.html" class="btn btn-dark" style="text-decoration:none">Try the platform</a>
     <button class="btn btn-out">Read the docs ->’</button>
   </div>
 </section>
@@ -733,155 +727,19 @@ footer{
   <div class="fl">flowix</div>
   <div class="flinks">
     <a href="#">Platform</a>
-    <a href="#">Skills</a>
-    <a href="#">Integrations</a>
-    <a href="#">Docs</a>
-    <a href="#">Privacy</a>
+    <a href="dashboard.html">Platform</a>
+    <a href="dashboard.html">Skills</a>
+    <a href="dashboard.html">Integrations</a>
+    <a href="dashboard.html">Docs</a>
+    <a href="dashboard.html">Privacy</a>
   </div>
   <div class="fcopy">© 2026 flowix</div>
 </footer>
 
-<!--  LOGIN MODAL  -->
-<div class="modal-overlay" id="modal-login">
-  <div class="modal">
-    <button class="modal-close" id="close-login">&#x2715;</button>
-    <div class="modal-title">Log in</div>
-    <p class="modal-sub">No account? <a id="switch-to-signup">Create one</a></p>
-    <form id="form-login" novalidate>
-      <div class="auth-field">
-        <label for="login-email">Email</label>
-        <input type="email" id="login-email" placeholder="you@example.com" autocomplete="email" required/>
-      </div>
-      <div class="auth-field">
-        <label for="login-password">Password</label>
-        <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password" required/>
-      </div>
-      <button type="submit" class="auth-submit" id="login-submit">Log in</button>
-      <div class="auth-msg" id="login-msg"></div>
-    </form>
-  </div>
-</div>
-
-<!--  SIGNUP MODAL  -->
-<div class="modal-overlay" id="modal-signup">
-  <div class="modal">
-    <button class="modal-close" id="close-signup">&#x2715;</button>
-    <div class="modal-title">Create account</div>
-    <p class="modal-sub">Already have one? <a id="switch-to-login">Log in</a></p>
-    <form id="form-signup" novalidate>
-      <div class="auth-field">
-        <label for="signup-email">Email</label>
-        <input type="email" id="signup-email" placeholder="you@example.com" autocomplete="email" required/>
-      </div>
-      <div class="auth-field">
-        <label for="signup-password">Password</label>
-        <input type="password" id="signup-password" placeholder="At least 6 characters" autocomplete="new-password" required/>
-      </div>
-      <button type="submit" class="auth-submit" id="signup-submit">Create account</button>
-      <div class="auth-msg" id="signup-msg"></div>
-    </form>
-  </div>
-</div>
-
-<!--  SUPABASE + AUTH  -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
-(function () {
-  const { createClient } = supabase;
-  const sb = createClient(
-    'https://utofnywijqsozjqmkhcn.supabase.co',
-    'sb_publishable_NFpInIt2anAJxn2slHZIuQ_BsEw4g1n'
-  );
-
-  const navAuthBtns = document.getElementById('nav-auth-btns');
-  const navUser = document.getElementById('nav-user');
-  const navUserEmail = document.getElementById('nav-user-email');
-  const modalLogin = document.getElementById('modal-login');
-  const modalSignup = document.getElementById('modal-signup');
-  const formLogin = document.getElementById('form-login');
-  const formSignup = document.getElementById('form-signup');
-  const loginMsg = document.getElementById('login-msg');
-  const signupMsg = document.getElementById('signup-msg');
-  const loginSubmit = document.getElementById('login-submit');
-  const signupSubmit = document.getElementById('signup-submit');
-
-  const openModal = (el) => { el.classList.add('open');    document.body.style.overflow = 'hidden'; };
-  const closeModal = (el) => { el.classList.remove('open'); document.body.style.overflow = ''; };
-  const closeAll = () => { closeModal(modalLogin); closeModal(modalSignup); };
-  const setMsg = (el, text, type) => { el.textContent = text; el.className = 'auth-msg ' + (type||''); };
-  const setLoading = (btn, loading) => { btn.disabled = loading; btn.textContent = loading ? 'Please wait...' : btn.dataset.label; };
-
-  loginSubmit.dataset.label = loginSubmit.textContent;
-  signupSubmit.dataset.label = signupSubmit.textContent;
-
-  [modalLogin, modalSignup].forEach(m => m.addEventListener('click', e => { if (e.target === m) closeAll(); }));
-
-  document.getElementById('close-login').addEventListener('click', () => closeModal(modalLogin));
-  document.getElementById('close-signup').addEventListener('click', () => closeModal(modalSignup));
-  document.getElementById('switch-to-signup').addEventListener('click', () => { closeModal(modalLogin); openModal(modalSignup); });
-  document.getElementById('switch-to-login').addEventListener('click', () => { closeModal(modalSignup); openModal(modalLogin); });
-
-  document.getElementById('btn-login').addEventListener('click', () => openModal(modalLogin));
-  document.getElementById('btn-signup-nav').addEventListener('click', () => openModal(modalSignup));
-  document.getElementById('btn-signup-hero').addEventListener('click', () => openModal(modalSignup));
-  document.getElementById('btn-signup-cta').addEventListener('click', () => openModal(modalSignup));
-
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAll(); });
-
-  const showLoggedIn = (email) => { navAuthBtns.style.display = 'none'; navUser.classList.add('visible'); navUserEmail.textContent = email; };
-  const showLoggedOut = () => { navAuthBtns.style.display = ''; navUser.classList.remove('visible'); };
-
-  document.getElementById('btn-signout').addEventListener('click', async () => { await sb.auth.signOut(); });
-
-  async function checkSession() {
-    const { data: { session } } = await sb.auth.getSession();
-    if (session?.user) {
-      showLoggedIn(session.user.email);
-    } else {
-      showLoggedOut();
-    }
+  window.addEventListener('DOMContentLoaded', () => {
     document.body.classList.add('ready');
-  }
-  checkSession();
-
-  sb.auth.onAuthStateChange((_event, session) => {
-    if (session?.user) {
-      showLoggedIn(session.user.email);
-      closeAll();
-      const urlParams = new URLSearchParams(window.location.search);
-      if (_event === 'SIGNED_IN' && !urlParams.get('from_dash')) {
-        window.location.href = 'dashboard.html';
-      }
-    } else {
-      showLoggedOut();
-    }
   });
-
-  formLogin.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const email = document.getElementById('login-email').value.trim();
-    const password = document.getElementById('login-password').value;
-    if (!email || !password) { setMsg(loginMsg, 'Please fill in all fields.', 'error'); return; }
-    setLoading(loginSubmit, true); setMsg(loginMsg, '', '');
-    const { error } = await sb.auth.signInWithPassword({ email, password });
-    setLoading(loginSubmit, false);
-    if (error) setMsg(loginMsg, error.message, 'error');
-  });
-
-  formSignup.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const email = document.getElementById('signup-email').value.trim();
-    const password = document.getElementById('signup-password').value;
-    if (!email || !password) { setMsg(signupMsg, 'Please fill in all fields.', 'error'); return; }
-    if (password.length < 6) { setMsg(signupMsg, 'Password must be at least 6 characters.', 'error'); return; }
-    setLoading(signupSubmit, true); setMsg(signupMsg, '', '');
-    const { error } = await sb.auth.signUp({ email, password });
-    setLoading(signupSubmit, false);
-    if (error) { setMsg(signupMsg, error.message, 'error'); }
-    else       { setMsg(signupMsg, 'Check your email to confirm your account.', 'success'); formSignup.reset(); }
-  });
-
-  })();
 
   function closeDemoModal() {
     document.getElementById('demo-modal').classList.remove('open');
@@ -896,9 +754,6 @@ footer{
 </script>
 
 </body>
-</html>
-
-
 
 
 

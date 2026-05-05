@@ -241,13 +241,8 @@ body.ready{opacity:1}
   let STATE_KEY = 'flowix_state';
 
   async function init() {
-    const { data: { session } } = await sb.auth.getSession();
-    if (!session) {
-      window.location.href = 'neura_ui.html';
-      return;
-    }
-    currentUser = session.user;
-    STATE_KEY = 'flowix_state_' + currentUser.id;
+    currentUser = { id: 'demo-user', email: 'demo@flowix.ai' };
+    STATE_KEY = 'flowix_state_demo';
     document.getElementById('nav-email').textContent = currentUser.email;
     
     // Load State
@@ -358,10 +353,9 @@ body.ready{opacity:1}
     setTimeout(() => el.remove(), 3000);
   }
 
-  document.getElementById('btn-signout').onclick = async () => {
-    await sb.auth.signOut();
+  document.getElementById('btn-signout').addEventListener('click', () => {
     window.location.href = 'neura_ui.html';
-  };
+  });
 
   const apps = ['slack', 'google', 'discord', 'github', 'notion', 'teams'];
   apps.forEach(app => {

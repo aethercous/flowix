@@ -1372,11 +1372,9 @@ console.log(reply);`;
 
   /* -- Auth + init -------------------- */
   async function init() {
-    const { data:{ session } } = await sb.auth.getSession();
-    if(!session){ window.location.replace('neura_ui.html'); return; }
-    currentUser = session.user;
-    accessToken = session.access_token;
-    STATE_KEY = 'flowix_state_'+currentUser.id;
+    currentUser = { id: 'demo-user', email: 'demo@flowix.ai' };
+    accessToken = 'demo-token';
+    STATE_KEY = 'flowix_state_demo';
     document.getElementById('nav-email').textContent = currentUser.email;
     loadState();
     populateEditForm(null);
@@ -1387,7 +1385,7 @@ console.log(reply);`;
     document.body.classList.add('ready');
 
     // Tutorial check - Tied to User ID
-    const tutorialKey = `flowix_tutorial_done_${currentUser.id}`;
+    const tutorialKey = `flowix_tutorial_done_demo`;
     if (!localStorage.getItem(tutorialKey)) {
       setTimeout(() => {
         confirm('Welcome to flowix!', 'Would you like a quick tutorial to help you get started?', () => {
@@ -1585,11 +1583,8 @@ console.log(reply);`;
     saveState(); renderTeamsSection(); toast('12-digit invite code generated!', 'success');
   });
 
-  document.getElementById('btn-signout').addEventListener('click', async () => {
-    await sb.auth.signOut(); window.location.href = 'neura_ui.html';
-  });
-  sb.auth.onAuthStateChange((_e, session) =>{
-    if(!session) window.location.replace('neura_ui.html');
+  document.getElementById('btn-signout').addEventListener('click', () => {
+    window.location.href = 'neura_ui.html';
   });
 
   /* -- Wallet / Add Funds ------------- */
