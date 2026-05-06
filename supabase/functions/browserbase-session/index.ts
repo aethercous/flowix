@@ -88,6 +88,7 @@ serve(async (req: Request) => {
 
   const sessionPayload: Record<string, unknown> = {
     projectId: bbProjectId,
+    keepAlive: true,
   };
 
   // Optionally set an initial URL if provided

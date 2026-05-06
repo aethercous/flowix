@@ -180,6 +180,17 @@ body.ready{opacity:1}
     </div>
 
     <div class="conn-grid" id="conn-grid" style="display:none">
+      <!-- LinkedIn -->
+      <div class="conn-card">
+        <div class="conn-top">
+          <div class="conn-icon" style="color:#0A66C2;font-weight:900;">in</div>
+          <div class="conn-status" id="status-linkedin">Not Connected</div>
+        </div>
+        <div class="conn-name">LinkedIn</div>
+        <div class="conn-desc">Allow agents to browse your feed, post updates, and reply to messages as you on LinkedIn.</div>
+        <button class="btn btn-primary" id="btn-conn-linkedin">Connect LinkedIn</button>
+      </div>
+
       <!-- Slack -->
       <div class="conn-card">
         <div class="conn-top">
@@ -315,7 +326,7 @@ body.ready{opacity:1}
     if (!agent) return;
     
     // Check for connected apps in agent metadata
-    const apps = ['slack', 'google', 'discord', 'github', 'notion', 'teams'];
+    const apps = ['linkedin', 'slack', 'google', 'discord', 'github', 'notion', 'teams'];
     apps.forEach(app => {
       const statusEl = document.getElementById(`status-${app}`);
       const btn = document.getElementById(`btn-conn-${app}`);
@@ -338,6 +349,10 @@ body.ready{opacity:1}
   }
 
   function toggleConnection(app) {
+    if (app === 'linkedin') {
+      return handleBrowserbaseAuth(app);
+    }
+
     const aid = document.getElementById('conn-agent-select').value;
     if (!aid) return;
     const agent = state.agents.find(a => a.id === aid);
@@ -356,6 +371,69 @@ body.ready{opacity:1}
     // Save State
     localStorage.setItem(STATE_KEY, JSON.stringify(state));
     loadConnections(aid);
+  }
+
+  async function handleBrowserbaseAuth(app) {
+    const aid = document.getElementById('conn-agent-select').value;
+    if (!aid) return;
+    
+    const btn = document.getElementById(`btn-conn-${app}`);
+    const originalText = btn.textContent;
+    btn.textContent = "Opening...";
+
+    try {
+      // Get the real Supabase Auth session token (required by the edge function)
+      const { data: { session } } = await sb.auth.getSession();
+      
+      // Call the Edge Function
+      const { data, error } = await sb.functions.invoke('browserbase-session', {
+        body: { agentId: aid, url: "https://www.linkedin.com/login" }
+      });
+
+      if (error || !data || !data.debugUrl) {
+        throw new Error(error?.message || "Failed to get debug URL");
+      }
+
+      // Store the session ID in the Supabase DB
+      if (session) {
+        await sb.from('agent_connections').upsert({
+          user_id: session.user.id,
+          agent_id: aid,
+          app_name: app,
+          session_id: data.sessionId
+        }, { onConflict: 'agent_id, app_name' });
+      }
+
+      // Open the OAuth-style popup
+      const w = 600;
+      const h = 700;
+      const left = (window.innerWidth / 2) - (w / 2);
+      const top = (window.innerHeight / 2) - (h / 2);
+      const authWindow = window.open(data.debugUrl, 'BrowserAuth', `width=${w},height=${h},top=${top},left=${left}`);
+
+      btn.textContent = "Waiting for login...";
+
+      // Poll until the user closes the popup
+      const checkInterval = setInterval(() => {
+        if (authWindow && authWindow.closed) {
+          clearInterval(checkInterval);
+          
+          // Update local state to reflect connection
+          const agent = state.agents.find(a => a.id === aid);
+          if (!agent.connections) agent.connections = {};
+          agent.connections[app] = { connectedAt: Date.now(), sessionId: data.sessionId };
+          localStorage.setItem(STATE_KEY, JSON.stringify(state));
+          
+          loadConnections(aid);
+          toast(`Successfully connected ${app}!`, 'success');
+        }
+      }, 1000);
+
+    } catch (err) {
+      console.error(err);
+      toast("Error starting connection: " + err.message, "error");
+      btn.textContent = originalText;
+    }
   }
 
   function toggleSidebar(force) {
@@ -384,7 +462,7 @@ body.ready{opacity:1}
     window.location.href = 'neura_ui.html';
   });
 
-  const apps = ['slack', 'google', 'discord', 'github', 'notion', 'teams'];
+  const apps = ['linkedin', 'slack', 'google', 'discord', 'github', 'notion', 'teams'];
   apps.forEach(app => {
     const btn = document.getElementById(`btn-conn-${app}`);
     if (btn) {
