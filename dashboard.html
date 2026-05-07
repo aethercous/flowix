@@ -230,7 +230,7 @@ a{color:inherit;text-decoration:none}
 .aak-label{font-size:10px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
 .aak-key-row{display:flex;align-items:center;gap:10px}
 .aak-key-display{
-  flex:1;padding:11px 14px;
+  flex:1;min-width:0;padding:11px 14px;
   background:rgba(255,255,255,0.5);
   border:1px solid rgba(9,9,14,0.1);
   font-family:var(--font-m);font-size:12px;color:var(--text);
@@ -358,7 +358,7 @@ a{color:inherit;text-decoration:none}
         <span class="snav-icon">◆</span> My Agents
       </button>
       <button class="snav-item" data-section="chat" id="nav-chat">
-        <span class="snav-icon">💬</span> Chat
+        <span class="snav-icon">◇</span> Chat
       </button>
       <button class="snav-item" data-section="skills" id="nav-skills">
         <span class="snav-icon">◈</span> Skills
@@ -428,7 +428,7 @@ a{color:inherit;text-decoration:none}
         </select>
       </div>
       <div id="chat-placeholder" class="empty-state" style="padding:40px 32px">
-        <div class="empty-icon">💬</div>
+        <div class="empty-icon">◇</div>
         <div class="empty-title">Select an agent</div>
         <div class="empty-desc">Choose an agent above to start chatting with it.</div>
       </div>
@@ -1495,12 +1495,10 @@ console.log(reply);`;
     msgs.scrollTop = msgs.scrollHeight;
 
     if(!agent.apiKey) {
-       const errDiv = document.createElement('div');
-       errDiv.style.cssText = 'align-self:flex-start; background:#fee2e2; color:#dc2626; padding:10px 14px; border-radius:12px 12px 12px 0; max-width:80%; font-size:14px;';
-       errDiv.textContent = "Error: Agent requires an API key to be generated in the Agent API tab before chatting.";
-       msgs.appendChild(errDiv);
-       msgs.scrollTop = msgs.scrollHeight;
-       return;
+       agent.apiKey = nraKey();
+       saveState();
+       renderAgentApiSection();
+       renderAgents();
     }
 
     const loadDiv = document.createElement('div');
