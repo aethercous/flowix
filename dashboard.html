@@ -360,9 +360,7 @@ a{color:inherit;text-decoration:none}
       <button class="snav-item" data-section="chat" id="nav-chat">
         <span class="snav-icon">◇</span> Chat
       </button>
-      <button class="snav-item" data-section="skills" id="nav-skills">
-        <span class="snav-icon">◈</span> Skills
-      </button>
+
       <button class="snav-item" data-section="edit" id="nav-edit">
         <span class="snav-icon">◎</span> Edit Agent
       </button>
@@ -442,30 +440,7 @@ a{color:inherit;text-decoration:none}
       </div>
     </div>
 
-    <!-- === SKILLS === -->
-    <div id="section-skills" class="dash-section">
-      <div class="ds-header">
-        <div>
-          <div class="ds-eyebrow">Agent Configuration</div>
-          <div class="ds-title">Skills</div>
-        </div>
-      </div>
-      <div class="section-selector glass">
-        <label for="skills-agent-select">Agent</label>
-        <select id="skills-agent-select" class="field-select">
-          <option value="">- select an agent -</option>
-        </select>
-      </div>
-      <div id="skills-placeholder" class="empty-state" style="padding:40px 32px">
-        <div class="empty-icon">◈</div>
-        <div class="empty-title">Select an agent</div>
-        <div class="empty-desc">Choose an agent above to configure its skills.</div>
-      </div>
-      <div id="skills-config-grid" class="skills-config-grid" style="display:none"></div>
-      <div id="skills-save-row" style="display:none;margin-top:8px">
-        <button class="btn btn-dark" id="btn-save-skills">Save Skills</button>
-      </div>
-    </div>
+
 
     <!-- === EDIT AGENT === -->
     <div id="section-edit" class="dash-section">
@@ -1068,7 +1043,7 @@ a{color:inherit;text-decoration:none}
 
   /* -- Populate agent selects --------- */
   function populateAgentSelects() {
-    ['skills-agent-select','browser-agent-select','agentapi-select','conn-agent-select', 'chat-agent-select'].forEach(id => {
+    ['browser-agent-select','agentapi-select','conn-agent-select', 'chat-agent-select'].forEach(id => {
       const sel = document.getElementById(id);
       if(!sel) return;
       const cur = sel.value;
@@ -1138,43 +1113,7 @@ a{color:inherit;text-decoration:none}
     });
   }
 
-  /* -- SECTION: Skills ---------------- */
-  function renderSkillsSection() {
-    const agentId = document.getElementById('skills-agent-select').value;
-    const agent = state.agents.find(a => a.id === agentId);
-    const grid = document.getElementById('skills-config-grid');
-    const ph = document.getElementById('skills-placeholder');
-    const saveRow = document.getElementById('skills-save-row');
-    if(!agent){ grid.style.display='none'; saveRow.style.display='none'; ph.style.display=''; return; }
-    ph.style.display='none'; grid.style.display=''; saveRow.style.display='';
-    grid.innerHTML = '';
-    const enabled = new Set(agent.skills||[]);
-    SKILLS.forEach((skill,i) => {
-      const on = enabled.has(skill.id);
-      const card = document.createElement('div');
-      card.className = `skill-toggle-card ${SKILL_COLORS[i]}`;
-      card.innerHTML = `
-        <div class="stc-left">
-          <div class="stc-acronym">${skill.acronym}</div>
-          <div><div class="stc-name">${skill.name}</div><div class="stc-desc">${skill.desc}</div></div>
-        </div>
-        <div class="toggle-pill ${on?'on':'off'}" data-skill="${skill.id}"></div>
-      `;
-      card.addEventListener('click', () => {
-        const pill = card.querySelector('.toggle-pill');
-        pill.classList.toggle('on'); pill.classList.toggle('off');
-      });
-      grid.appendChild(card);
-    });
-  }
-  document.getElementById('skills-agent-select').addEventListener('change', renderSkillsSection);
-  document.getElementById('btn-save-skills').addEventListener('click', () => {
-    const agentId = document.getElementById('skills-agent-select').value;
-    const agent = state.agents.find(a => a.id === agentId);
-    if(!agent) return;
-    agent.skills = [...document.querySelectorAll('#skills-config-grid .toggle-pill.on')].map(p => p.dataset.skill);
-    saveState(); renderAgents(); toast('Skills saved.','success');
-  });
+
 
   /* -- SECTION: Edit Agent ------------ */
   function populateEditForm(agent) {
