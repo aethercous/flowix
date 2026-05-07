@@ -357,6 +357,9 @@ a{color:inherit;text-decoration:none}
       <button class="snav-item active" data-section="agents" id="nav-agents">
         <span class="snav-icon">◆</span> My Agents
       </button>
+      <button class="snav-item" data-section="chat" id="nav-chat">
+        <span class="snav-icon">💬</span> Chat
+      </button>
       <button class="snav-item" data-section="skills" id="nav-skills">
         <span class="snav-icon">◈</span> Skills
       </button>
@@ -408,6 +411,35 @@ a{color:inherit;text-decoration:none}
         <button class="btn btn-dark" id="btn-new-agent-empty">Create First Agent</button>
       </div>
       <div id="agents-grid" class="agents-grid"></div>
+    </div>
+
+    <!-- === CHAT === -->
+    <div id="section-chat" class="dash-section">
+      <div class="ds-header">
+        <div>
+          <div class="ds-eyebrow">Workspace</div>
+          <div class="ds-title">Chat with Agent</div>
+        </div>
+      </div>
+      <div class="section-selector glass">
+        <label for="chat-agent-select">Agent</label>
+        <select id="chat-agent-select" class="field-select">
+          <option value="">- select an agent -</option>
+        </select>
+      </div>
+      <div id="chat-placeholder" class="empty-state" style="padding:40px 32px">
+        <div class="empty-icon">💬</div>
+        <div class="empty-title">Select an agent</div>
+        <div class="empty-desc">Choose an agent above to start chatting with it.</div>
+      </div>
+      <div id="chat-interface" class="glass" style="display:none; flex-direction:column; height: 60vh; border: 1px solid var(--border);">
+        <div id="chat-messages" style="flex:1; overflow-y:auto; padding:20px; display:flex; flex-direction:column; gap:16px;">
+        </div>
+        <div style="border-top: 1px solid var(--border); padding: 16px; display:flex; gap: 12px; background:var(--bg);">
+          <input type="text" id="chat-input" class="field-input" placeholder="Type your message..." style="flex:1;" />
+          <button id="btn-chat-send" class="btn btn-dark">Send</button>
+        </div>
+      </div>
     </div>
 
     <!-- === SKILLS === -->
@@ -1036,8 +1068,9 @@ a{color:inherit;text-decoration:none}
 
   /* -- Populate agent selects --------- */
   function populateAgentSelects() {
-    ['skills-agent-select','browser-agent-select','agentapi-select','conn-agent-select'].forEach(id => {
+    ['skills-agent-select','browser-agent-select','agentapi-select','conn-agent-select', 'chat-agent-select'].forEach(id => {
       const sel = document.getElementById(id);
+      if(!sel) return;
       const cur = sel.value;
       sel.innerHTML = '<option value="">- select an agent -</option>';
       state.agents.forEach(a => {
@@ -1415,10 +1448,100 @@ console.log(reply);`;
     document.getElementById('billing-site-count').textContent = totalSites;
   }
 
+  /* -- SECTION: Chat ------------------ */
+  document.getElementById('chat-agent-select').addEventListener('change', renderChatSection);
+
+  function renderChatSection() {
+    const agentId = document.getElementById('chat-agent-select').value;
+    const agent = state.agents.find(a => a.id === agentId);
+    const ui = document.getElementById('chat-interface');
+    const ph = document.getElementById('chat-placeholder');
+    const msgs = document.getElementById('chat-messages');
+
+    if(!agent){ 
+      ui.style.display='none'; 
+      ph.style.display=''; 
+      return; 
+    }
+    ph.style.display='none'; 
+    ui.style.display='flex';
+    if(msgs.children.length === 0) {
+      msgs.innerHTML = `<div style="text-align:center; color:var(--muted); font-size:12px; margin-bottom:16px;">Chat started with ${agent.name}</div>`;
+    }
+  }
+
+  document.getElementById('btn-chat-send').addEventListener('click', sendChatMessage);
+  document.getElementById('chat-input').addEventListener('keypress', (e) => {
+    if(e.key === 'Enter') sendChatMessage();
+  });
+
+  async function sendChatMessage() {
+    const input = document.getElementById('chat-input');
+    const msg = input.value.trim();
+    if(!msg) return;
+
+    const agentId = document.getElementById('chat-agent-select').value;
+    const agent = state.agents.find(a => a.id === agentId);
+    if(!agent) return;
+
+    input.value = '';
+    const msgs = document.getElementById('chat-messages');
+    
+    // append user message
+    const userDiv = document.createElement('div');
+    userDiv.style.cssText = 'align-self:flex-end; background:var(--primary); color:#fff; padding:10px 14px; border-radius:12px 12px 0 12px; max-width:80%; font-size:14px;';
+    userDiv.textContent = msg;
+    msgs.appendChild(userDiv);
+    msgs.scrollTop = msgs.scrollHeight;
+
+    if(!agent.apiKey) {
+       const errDiv = document.createElement('div');
+       errDiv.style.cssText = 'align-self:flex-start; background:#fee2e2; color:#dc2626; padding:10px 14px; border-radius:12px 12px 12px 0; max-width:80%; font-size:14px;';
+       errDiv.textContent = "Error: Agent requires an API key to be generated in the Agent API tab before chatting.";
+       msgs.appendChild(errDiv);
+       msgs.scrollTop = msgs.scrollHeight;
+       return;
+    }
+
+    const loadDiv = document.createElement('div');
+    loadDiv.style.cssText = 'align-self:flex-start; background:var(--surface); border:1px solid var(--border); padding:10px 14px; border-radius:12px 12px 12px 0; max-width:80%; font-size:14px; color:var(--muted);';
+    loadDiv.textContent = 'Thinking...';
+    msgs.appendChild(loadDiv);
+    msgs.scrollTop = msgs.scrollHeight;
+
+    try {
+      const res = await fetch(`${SUPABASE_URL}/functions/v1/agent-invoke`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Agent-Key": agent.apiKey
+        },
+        body: JSON.stringify({ message: msg })
+      });
+      loadDiv.remove();
+      if(!res.ok) {
+        throw new Error(`API error: ${res.status}`);
+      }
+      const data = await res.json();
+      
+      const botDiv = document.createElement('div');
+      botDiv.style.cssText = 'align-self:flex-start; background:var(--surface); border:1px solid var(--border); padding:10px 14px; border-radius:12px 12px 12px 0; max-width:80%; font-size:14px;';
+      botDiv.textContent = data.reply || "No reply content.";
+      msgs.appendChild(botDiv);
+    } catch(e) {
+      loadDiv.remove();
+      const errDiv = document.createElement('div');
+      errDiv.style.cssText = 'align-self:flex-start; background:#fee2e2; color:#dc2626; padding:10px 14px; border-radius:12px 12px 12px 0; max-width:80%; font-size:14px;';
+      errDiv.textContent = `Error: ${e.message}`;
+      msgs.appendChild(errDiv);
+    }
+    msgs.scrollTop = msgs.scrollHeight;
+  }
+
   /* -- Render all --------------------- */
   function renderAll() {
     renderAgents(); populateAgentSelects(); updateBillingStats();
-    renderSkillsSection(); renderAgentApiSection();
+    renderSkillsSection(); renderAgentApiSection(); renderChatSection();
     renderTeamsSection();
     renderConnectionsSection();
     const editSel = document.getElementById('edit-agent-select');

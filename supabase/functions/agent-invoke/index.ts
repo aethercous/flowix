@@ -260,7 +260,21 @@ serve(async (req: Request) => {
 
   // NOTE: llm_key_encrypted is currently stored as plain text.
   // In production, decrypt this using Supabase Vault before use.
-  const llmApiKey = llm_key_encrypted;
+  let llmApiKey = llm_key_encrypted;
+
+  if (!llmApiKey) {
+    if (providerPrefix === "anthropic") {
+      llmApiKey = Deno.env.get("CLAUDE_APIKEY") || "";
+    } else if (providerPrefix === "openai") {
+      llmApiKey = Deno.env.get("OPENAI_APIKEY") || "";
+    } else if (providerPrefix === "google") {
+      llmApiKey = Deno.env.get("GEMINI_APIKEY") || "";
+    }
+  }
+
+  if (!llmApiKey) {
+    return jsonResponse({ error: `Missing API key for provider: ${providerPrefix}` }, 500);
+  }
 
   // ------------------------------------------------------------------
   // Route to the appropriate LLM provider
