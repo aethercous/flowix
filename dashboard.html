@@ -1411,11 +1411,17 @@ console.log(reply);`;
 
   document.getElementById('agentapi-select').addEventListener('change', renderAgentApiSection);
 
-  document.getElementById('btn-gen-key').addEventListener('click', () => {
+  document.getElementById('btn-gen-key').addEventListener('click', async () => {
     const agent = state.agents.find(a => a.id === document.getElementById('agentapi-select').value);
     if(!agent) return;
-    agent.apiKey = nraKey();
-    saveState(); renderAgentApiSection(); renderAgents(); toast('API key generated.','success');
+    try {
+      agent.apiKey = nraKey();
+      agent.supabaseTokenId = await createAgentToken(agent, agent.apiKey);
+      saveState(); renderAgentApiSection(); renderAgents(); toast('API key generated.','success');
+    } catch(e) {
+      toast('Failed to save API key to database', 'error');
+      console.error(e);
+    }
   });
   document.getElementById('btn-copy-key').addEventListener('click', () => {
     const agent = state.agents.find(a => a.id === document.getElementById('agentapi-select').value);
@@ -1423,19 +1429,33 @@ console.log(reply);`;
     navigator.clipboard.writeText(agent.apiKey).then(() => toast('Copied to clipboard.','success'));
   });
   document.getElementById('btn-regen-key').addEventListener('click', () => {
-    confirm('Regenerate Key','The old key will stop working immediately.',() => {
+    confirm('Regenerate Key','The old key will stop working immediately.', async () => {
       const agent = state.agents.find(a => a.id === document.getElementById('agentapi-select').value);
       if(!agent) return;
-      agent.apiKey = nraKey();
-      saveState(); renderAgentApiSection(); renderAgents(); toast('API key regenerated.','success');
+      try {
+        if(agent.supabaseTokenId) await deleteAgentToken(agent.supabaseTokenId);
+        agent.apiKey = nraKey();
+        agent.supabaseTokenId = await createAgentToken(agent, agent.apiKey);
+        saveState(); renderAgentApiSection(); renderAgents(); toast('API key regenerated.','success');
+      } catch(e) {
+        toast('Failed to regenerate key', 'error');
+        console.error(e);
+      }
     });
   });
   document.getElementById('btn-revoke-key').addEventListener('click', () => {
-    confirm('Revoke Key','The key will stop working immediately and cannot be recovered.',() => {
+    confirm('Revoke Key','The key will stop working immediately and cannot be recovered.', async () => {
       const agent = state.agents.find(a => a.id === document.getElementById('agentapi-select').value);
       if(!agent) return;
-      agent.apiKey = null;
-      saveState(); renderAgentApiSection(); renderAgents(); toast('API key revoked.');
+      try {
+        if(agent.supabaseTokenId) await deleteAgentToken(agent.supabaseTokenId);
+        agent.apiKey = null;
+        agent.supabaseTokenId = null;
+        saveState(); renderAgentApiSection(); renderAgents(); toast('API key revoked.');
+      } catch(e) {
+        toast('Failed to revoke key', 'error');
+        console.error(e);
+      }
     });
   });
 
@@ -1495,10 +1515,21 @@ console.log(reply);`;
     msgs.scrollTop = msgs.scrollHeight;
 
     if(!agent.apiKey) {
-       agent.apiKey = nraKey();
-       saveState();
-       renderAgentApiSection();
-       renderAgents();
+       try {
+         agent.apiKey = nraKey();
+         agent.supabaseTokenId = await createAgentToken(agent, agent.apiKey);
+         saveState();
+         renderAgentApiSection();
+         renderAgents();
+       } catch(e) {
+         console.error(e);
+         const errDiv = document.createElement('div');
+         errDiv.style.cssText = 'align-self:flex-start; background:#fee2e2; color:#dc2626; padding:10px 14px; border-radius:12px 12px 12px 0; max-width:80%; font-size:14px;';
+         errDiv.textContent = "Error saving API key to database.";
+         msgs.appendChild(errDiv);
+         msgs.scrollTop = msgs.scrollHeight;
+         return;
+       }
     }
 
     const loadDiv = document.createElement('div');
@@ -1565,7 +1596,7 @@ console.log(reply);`;
 
   /* -- Auth + init -------------------- */
   async function init() {
-    currentUser = { id: 'demo-user', email: 'demo@flowix.ai' };
+    currentUser = { id: '00000000-0000-0000-0000-000000000000', email: 'demo@flowix.ai' };
     accessToken = 'demo-token';
     STATE_KEY = 'flowix_state_demo';
     document.getElementById('nav-email').textContent = currentUser.email;
