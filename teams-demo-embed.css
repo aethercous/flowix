@@ -1,0 +1,262 @@
+/* flowix Teams demo — iframe embed + landing inline panel */
+
+html,
+body.fx-teams-embed-demo,
+.fx-teams-inline-demo {
+  height: 100%;
+  min-height: 100%;
+}
+
+body.fx-teams-embed-demo {
+  overflow: hidden;
+  margin: 0;
+  pointer-events: none;
+  user-select: none;
+  background: transparent;
+}
+
+.fx-teams-inline-demo {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+  overflow: hidden;
+  border-radius: 16px;
+  background: linear-gradient(180deg, #5eb3e8 0%, #87ceeb 42%, #e8f4fc 100%);
+  pointer-events: none;
+  user-select: none;
+}
+
+body.fx-teams-embed-demo .fx-sky-scene {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+body.fx-teams-embed-demo #fx-teams-embed-stage,
+.fx-teams-inline-demo #fx-teams-embed-stage {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 16px;
+  box-sizing: border-box;
+}
+
+body.fx-teams-embed-demo .teams-view,
+.fx-teams-inline-demo .teams-view {
+  width: 100%;
+  max-width: 380px;
+  min-height: 0 !important;
+  padding: 0 !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+body.fx-teams-embed-demo .teams-view.hidden,
+.fx-teams-inline-demo .teams-view.hidden {
+  display: none !important;
+}
+
+body.fx-teams-embed-demo .teams-auth-card,
+.fx-teams-inline-demo .teams-auth-card {
+  width: 100%;
+  max-width: 380px;
+  padding: 28px 24px;
+  margin: 0;
+  background: rgba(255, 255, 255, 0.92) !important;
+  border: 1px solid rgba(255, 255, 255, 0.85) !important;
+  box-shadow: 0 12px 40px rgba(45, 90, 135, 0.15) !important;
+}
+
+body.fx-teams-embed-demo #view-chat,
+.fx-teams-inline-demo #view-chat {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  max-width: 420px;
+  width: 100%;
+  height: 100%;
+  min-height: 0 !important;
+  max-height: 100%;
+  padding: 0 !important;
+  position: relative;
+  box-sizing: border-box;
+}
+
+body.fx-teams-embed-demo #view-chat .teams-header,
+.fx-teams-inline-demo #view-chat .teams-header {
+  position: relative;
+  top: auto;
+  left: auto;
+  right: auto;
+  height: 52px;
+  padding: 0 14px;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.95) !important;
+}
+
+.fx-teams-inline-demo .teams-logo-sm,
+.fx-teams-inline-demo .teams-agent-name {
+  color: #12121a !important;
+}
+
+body.fx-teams-embed-demo #view-chat .teams-chat,
+.fx-teams-inline-demo #view-chat .teams-chat {
+  flex: 1 1 auto;
+  min-height: 180px;
+  max-height: none;
+  padding: 14px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scroll-behavior: auto;
+  background: rgba(30, 40, 55, 0.35);
+}
+
+body.fx-teams-embed-demo .msg,
+.fx-teams-inline-demo .msg {
+  max-width: 92%;
+  overflow: visible;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+body.fx-teams-embed-demo #view-chat .teams-compose,
+.fx-teams-inline-demo #view-chat .teams-compose {
+  position: relative;
+  bottom: auto;
+  left: auto;
+  right: auto;
+  transform: none;
+  max-width: none;
+  width: 100%;
+  padding: 12px 14px;
+  flex-shrink: 0;
+  background: rgba(18, 18, 26, 0.92) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.12) !important;
+}
+
+.fx-teams-inline-demo #view-chat .teams-compose textarea,
+.fx-teams-inline-demo #view-chat .teams-compose textarea.fx-teams-typing,
+body.fx-teams-embed-demo #view-chat .teams-compose textarea,
+body.fx-teams-embed-demo #view-chat .teams-compose textarea.fx-teams-typing {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.22) !important;
+  color: #ffffff !important;
+  caret-color: #ffffff;
+  max-height: 88px;
+  overflow-y: auto;
+  line-height: 1.45;
+}
+
+.fx-teams-inline-demo #view-chat .teams-compose textarea::placeholder,
+body.fx-teams-embed-demo #view-chat .teams-compose textarea::placeholder {
+  color: rgba(255, 255, 255, 0.45) !important;
+}
+
+.fx-teams-inline-demo .msg.user,
+body.fx-teams-embed-demo .msg.user {
+  background: #12121a !important;
+  color: #ffffff !important;
+}
+
+.fx-teams-inline-demo .msg.bot,
+body.fx-teams-embed-demo .msg.bot {
+  background: rgba(255, 255, 255, 0.95) !important;
+  color: #12121a !important;
+  border-color: rgba(255, 255, 255, 0.5) !important;
+}
+
+body.fx-teams-embed-demo .fx-embed-field-focus .form-input,
+.fx-teams-inline-demo .fx-embed-field-focus .form-input {
+  border-color: #156cc2 !important;
+  box-shadow: 0 0 0 3px rgba(21, 108, 194, 0.22) !important;
+}
+
+.fx-teams-embed-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 20000;
+  pointer-events: none;
+}
+
+.fx-teams-inline-demo .fx-teams-embed-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  overflow: hidden;
+  border-radius: 16px;
+}
+
+body.fx-teams-embed-demo .fx-teams-embed-flash {
+  position: absolute;
+  inset: 0;
+}
+
+.fx-teams-inline-demo .fx-teams-embed-cursor,
+body.fx-teams-embed-demo .fx-teams-embed-cursor {
+  position: absolute;
+  z-index: 25;
+  width: 24px;
+  height: 24px;
+  margin: -2px 0 0 -2px;
+  pointer-events: none;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.4));
+  transition: left 0.7s cubic-bezier(0.33, 1, 0.68, 1),
+    top 0.7s cubic-bezier(0.33, 1, 0.68, 1),
+    transform 0.12s ease,
+    opacity 0.2s ease;
+}
+
+.fx-teams-embed-cursor {
+  position: fixed;
+  z-index: 20002;
+  width: 24px;
+  height: 24px;
+  margin: -2px 0 0 -2px;
+  pointer-events: none;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.4));
+  transition: left 0.7s cubic-bezier(0.33, 1, 0.68, 1),
+    top 0.7s cubic-bezier(0.33, 1, 0.68, 1),
+    transform 0.12s ease,
+    opacity 0.2s ease;
+}
+
+.fx-teams-embed-cursor.is-clicking {
+  transform: scale(0.86);
+}
+
+.fx-teams-embed-cursor.is-hidden {
+  opacity: 0;
+}
+
+.fx-teams-embed-flash {
+  position: fixed;
+  inset: 0;
+  z-index: 20001;
+  background: rgba(255, 255, 255, 0.35);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.fx-teams-inline-demo .fx-teams-embed-flash {
+  position: absolute;
+  inset: 0;
+}
+
+.fx-teams-embed-flash.is-on {
+  animation: fx-teams-embed-flash 0.35s ease-out;
+}
+
+@keyframes fx-teams-embed-flash {
+  0% { opacity: 0.12; }
+  100% { opacity: 0; }
+}

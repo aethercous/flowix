@@ -1,0 +1,2253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<title>flowix — Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="flowix-tines.css"/>
+<link rel="stylesheet" href="flowix-landing.css"/>
+<link rel="stylesheet" href="flowix-sky.css"/>
+<link rel="stylesheet" href="flowix-tutorial.css"/>
+<link rel="stylesheet" href="flowix-dashboard-chat.css"/>
+<link rel="stylesheet" href="flowix-mobile.css"/>
+<style>
+#toast-container {
+  position: fixed;
+  bottom: 32px;
+  right: 32px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+/*
+header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 64px;
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+}
+
+.logo {
+  font-size: 18px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #0d0d0d 0%, #404040 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.5px;
+}
+
+.nav-main {
+  display: flex;
+  gap: 40px;
+  list-style: none;
+}
+
+.nav-main button {
+  background: none;
+  border: none;
+  color: #6b7280;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  padding: 8px 0;
+  position: relative;
+}
+
+.nav-main button:hover { color: #0d0d0d; }
+.nav-main button.active { color: #0d0d0d; }
+.nav-main button.active::after {
+  content: '';
+  position: absolute;
+  bottom: -12px;
+  left: 0;
+  right: 0;
+  height: 2.5px;
+  background: linear-gradient(90deg, #0d0d0d 0%, #404040 100%);
+  border-radius: 1.25px;
+  animation: slideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* -- SVG ICONS -- */
+.nav-icon {
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+  margin-right: 6px;
+  stroke-width: 1.5;
+  stroke: currentColor;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vertical-align: -2px;
+}
+
+.nav-main button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.balance-display {
+  font-size: 12px;
+  font-weight: 600;
+  color: #0d0d0d;
+  padding: 6px 14px;
+  background: rgba(13, 13, 13, 0.06);
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(8px);
+}
+
+.btn-signout {
+  padding: 8px 18px;
+  background: rgba(255, 255, 255, 0.5);
+  color: #0d0d0d;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  backdrop-filter: blur(8px);
+}
+
+.btn-signout:hover {
+  background: rgba(255, 255, 255, 0.7);
+  border-color: rgba(0, 0, 0, 0.12);
+  transform: translateY(-1px);
+}
+
+/* -- MAIN LAYOUT -- */
+main {
+  margin-top: 64px;
+  padding: 48px 32px;
+  max-width: 1400px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.page-header {
+  margin-bottom: 48px;
+}
+
+.page-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: #0d0d0d;
+  margin-bottom: 12px;
+  letter-spacing: -0.5px;
+}
+
+.page-subtitle {
+  font-size: 14px;
+  color: #6b7280;
+  font-weight: 400;
+}
+
+/* -- SECTIONS -- */
+.section {
+  display: none;
+}
+
+.section.active {
+  display: block;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* -- CARD GRID -- */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 16px;
+  padding: 24px;
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.card:hover {
+  border-color: rgba(255, 255, 255, 0.7);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.08);
+  transform: translateY(-6px);
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.card-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #0d0d0d;
+}
+
+.card-badge {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  background: rgba(0, 0, 0, 0.08);
+  color: #0d0d0d;
+  border-radius: 6px;
+  letter-spacing: 0.3px;
+}
+
+.card-description {
+  font-size: 13px;
+  color: #6b7280;
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+
+.card-footer {
+  display: flex;
+  gap: 8px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+/* -- BUTTONS -- */
+.btn {
+  padding: 10px 18px;
+  border: none;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  flex: 1;
+  text-align: center;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #0d0d0d 0%, #404040 100%);
+  color: white;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.6);
+  color: #0d0d0d;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(8px);
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.8);
+  border-color: rgba(0, 0, 0, 0.12);
+}
+
+.btn-danger {
+  background: rgba(239, 68, 68, 0.1);
+  color: #dc2626;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.btn-danger:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.btn-large {
+  padding: 12px 28px;
+  width: auto;
+}
+
+/* -- FORM -- */
+.form-card {
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 16px;
+  padding: 32px;
+  margin-bottom: 24px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.form-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #0d0d0d;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #0d0d0d;
+  margin-bottom: 8px;
+}
+
+.form-input, .form-select, .form-textarea {
+  padding: 10px 14px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  font-family: 'Geist', sans-serif;
+  font-size: 13px;
+  color: #0d0d0d;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(4px);
+}
+
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+  outline: none;
+  border-color: rgba(0, 0, 0, 0.2);
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05);
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.form-hint {
+  font-size: 12px;
+  color: #6b7280;
+  margin-top: 6px;
+}
+
+.form-actions {
+  display: flex;
+  gap: 12px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+/* -- RADIO BUTTONS -- */
+.radio-group {
+  display: grid;
+  gap: 12px;
+  margin: 16px 0;
+}
+
+.radio-option {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(4px);
+}
+
+.radio-option:hover {
+  background: rgba(255, 255, 255, 0.7);
+  border-color: rgba(0, 0, 0, 0.15);
+}
+
+.radio-option.selected {
+  background: rgba(0, 0, 0, 0.05);
+  border-color: rgba(0, 0, 0, 0.2);
+}
+
+.radio-option input {
+  margin-right: 12px;
+  cursor: pointer;
+}
+
+/* -- BILLING AMOUNTS -- */
+.amount-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 12px;
+  margin: 16px 0;
+}
+
+.amount-btn {
+  padding: 16px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 10px;
+  cursor: pointer;
+  text-align: center;
+  font-weight: 500;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  backdrop-filter: blur(4px);
+}
+
+.amount-btn:hover {
+  border-color: rgba(0, 0, 0, 0.15);
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.amount-btn.active {
+  background: linear-gradient(135deg, #0d0d0d 0%, #404040 100%);
+  color: white;
+  border-color: rgba(0, 0, 0, 0.2);
+}
+
+/* -- API KEY DISPLAY -- */
+.api-key-box {
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  padding: 16px;
+  margin: 16px 0;
+  font-family: 'Geist Mono', monospace;
+  font-size: 12px;
+  color: #0d0d0d;
+  word-break: break-all;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  backdrop-filter: blur(4px);
+}
+
+.api-key-text {
+  flex: 1;
+}
+
+.api-key-actions {
+  display: flex;
+  gap: 8px;
+  margin-left: 16px;
+  flex-shrink: 0;
+}
+
+/* -- EMPTY STATE -- */
+.empty-state {
+  text-align: center;
+  padding: 80px 40px;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(12px);
+}
+
+.empty-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  opacity: 0.2;
+  color: #0d0d0d;
+}
+
+.empty-icon svg {
+  display: block;
+  margin: 0 auto;
+}
+
+.empty-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #0d0d0d;
+  margin-bottom: 8px;
+}
+
+.empty-text {
+  font-size: 14px;
+  color: #6b7280;
+  margin-bottom: 24px;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* -- TOAST -- */
+#toast-container {
+  position: fixed;
+  bottom: 32px;
+  right: 32px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.toast {
+  padding: 14px 20px;
+  background: rgba(0, 0, 0, 0.85);
+  color: white;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 500;
+  animation: slideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.toast.success {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  border-color: rgba(16, 185, 129, 0.3);
+}
+.toast.error {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(120px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+*/
+.fx-perm-list { display: flex; flex-direction: column; gap: 12px; margin-top: 8px; }
+.fx-perm-option {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 14px 16px; border-radius: 12px;
+  border: 1px solid rgba(0,0,0,0.08);
+  background: rgba(255,255,255,0.5);
+  backdrop-filter: blur(8px);
+  cursor: pointer;
+}
+.fx-perm-option input { width: auto; margin-top: 3px; flex-shrink: 0; }
+.fx-perm-option strong { display: block; font-size: 14px; margin-bottom: 4px; }
+.fx-perm-option small { display: block; font-size: 12px; color: #6b7280; line-height: 1.45; font-weight: 400; }
+.fx-conn-picker { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
+.fx-conn-option {
+  display: flex; align-items: flex-start; gap: 12px; padding: 14px 16px;
+  border: 1px solid rgba(0,0,0,0.08); border-radius: 12px; background: rgba(255,255,255,0.5);
+  cursor: pointer; transition: border-color 0.15s;
+}
+.fx-conn-option:hover { border-color: rgba(21, 108, 194, 0.35); }
+.fx-conn-option input { margin-top: 3px; width: auto; flex-shrink: 0; }
+.fx-conn-option strong { display: block; font-size: 14px; margin-bottom: 2px; }
+.fx-conn-option small { display: block; font-size: 12px; color: #6b7280; line-height: 1.4; font-weight: 400; }
+.fx-conn-empty { padding: 20px; text-align: center; background: rgba(0,0,0,0.03); border-radius: 12px; font-size: 13px; color: #6b7280; }
+.fx-conn-empty a { color: #156cc2; font-weight: 600; text-decoration: none; }
+.fx-conn-empty a:hover { text-decoration: underline; }
+.fx-conn-card .card-header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.fx-conn-card .card-header .card-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-width: 0;
+}
+
+.fx-conn-card .card-header .card-badge {
+  flex-shrink: 0;
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1.2;
+  min-height: 22px;
+  white-space: nowrap;
+  text-align: center;
+}
+
+.fx-conn-card .card-footer { border-top: none; padding-top: 0; }
+.fx-conn-card .card-footer .btn { flex: none; width: 100%; }
+.fx-conn-status-connected { background: rgba(34, 197, 94, 0.12); color: #16a34a; }
+.team-code-badge--active { background: #eef4f1; color: #3d6b5a; }
+.team-code-badge--revoked { background: #fef2f2; color: #991b1b; }
+.team-code-badge--expired { background: #f3f4f6; color: #6b7280; }
+</style>
+</head>
+<body class="fx-tines fx-sky fx-app-page">
+
+<div class="fx-sky-scene" aria-hidden="true" data-layers-ready="1">
+  <div class="fx-sky-gradient"></div>
+  <div class="fx-sky-stars" aria-hidden="true"></div>
+  <div class="fx-cloud c1"></div>
+  <div class="fx-cloud c2"></div>
+  <div class="fx-cloud c3"></div>
+  <div class="fx-cloud c4"></div>
+  <div class="fx-cloud c5"></div>
+  <div class="fx-cloud c6"></div>
+  <div class="fx-cloud c7"></div>
+</div>
+
+<header>
+  <div class="header-left">
+    <a href="neura_ui.html" class="logo" style="text-decoration:none">flowix</a>
+    <nav class="nav-main">
+      <button data-section="agents" class="nav-btn active">
+        <svg class="nav-icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3"/><path d="M12 15c-4 0-7 2-7 5v2h14v-2c0-3-3-5-7-5z"/></svg>
+        Agents
+      </button>
+      <button data-section="chat" class="nav-btn">
+        <svg class="nav-icon" viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+        Chat
+      </button>
+      <button data-section="teams" class="nav-btn">
+        <svg class="nav-icon" viewBox="0 0 24 24"><circle cx="8" cy="8" r="2.5"/><circle cx="16" cy="8" r="2.5"/><circle cx="12" cy="17" r="2.5"/><path d="M8 11v3m8-3v3M12 11v6"/></svg>
+        flowix Teams
+      </button>
+      <button data-section="api" class="nav-btn">
+        <svg class="nav-icon" viewBox="0 0 24 24"><rect x="5" y="6" width="14" height="12" rx="2"/><line x1="9" y1="11" x2="15" y2="11"/><line x1="9" y1="15" x2="12" y2="15"/></svg>
+        API Keys
+      </button>
+      <button data-section="billing" class="nav-btn">
+        <svg class="nav-icon" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="12" cy="12" r="3"/><line x1="3" y1="8" x2="21" y2="8"/></svg>
+        Billing
+      </button>
+      <button data-section="connections" class="nav-btn">
+        <svg class="nav-icon" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        Connections
+      </button>
+    </nav>
+  </div>
+  <div class="header-right">
+    <div class="balance-display" id="balance-display">Balance: $0.00</div>
+    <button type="button" class="fx-settings-gear" id="btn-open-settings" title="Settings" aria-label="Settings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+        <path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1.08-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1.08 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.26.6.85 1 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+      </svg>
+    </button>
+    <button class="btn-signout" id="btn-signout">Sign Out</button>
+  </div>
+</header>
+
+<main>
+
+<!-- AGENTS SECTION -->
+<div id="section-agents" class="section active">
+  <div class="page-header">
+    <div class="page-subtitle">flowix platform</div>
+    <div class="page-title">My Agents</div>
+    <p class="fx-page-desc" style="margin-top:12px;margin-bottom:0">Build, deploy, and manage intelligent agents across your stack.</p>
+  </div>
+
+  <div style="margin-bottom: 32px;">
+    <button class="btn btn-primary btn-large" id="btn-new-agent">+ Create New Agent</button>
+  </div>
+
+  <div id="empty-agents" class="empty-state">
+    <div class="empty-icon"><svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2c5.5 0 10 4.5 10 10s-4.5 10-10 10S2 17.5 2 12 6.5 2 12 2z"/><path d="M12 8v8m-4-4h8"/></svg></div>
+    <div class="empty-title">No Agents Yet</div>
+    <div class="empty-text">Create your first flowix agent. Deploy to Slack, Discord, or the flowix Teams desktop app.</div>
+    <button class="btn btn-primary btn-large" id="btn-new-agent-alt">Create First Agent</button>
+  </div>
+
+  <div id="agents-grid" class="card-grid" style="display: none;"></div>
+</div>
+
+<!-- CHAT SECTION -->
+<div id="section-chat" class="section">
+  <div class="page-header">
+    <div class="page-subtitle">Conversations</div>
+    <div class="page-title">Chat with your agents</div>
+    <p class="fx-page-desc" style="margin-top:12px;margin-bottom:0">Pick an agent you created, start a thread, and every message is saved to your account.</p>
+  </div>
+
+  <div class="fx-chat-layout">
+    <aside class="fx-chat-sidebar">
+      <div class="form-group" style="margin-bottom:0">
+        <label class="form-label" for="chat-agent-select">Agent</label>
+        <select class="form-select" id="chat-agent-select"></select>
+      </div>
+      <button type="button" class="btn btn-secondary" id="btn-new-chat">+ New chat</button>
+      <ul class="fx-chat-thread-list" id="chat-thread-list"></ul>
+    </aside>
+    <div class="fx-chat-main">
+      <div class="fx-chat-messages" id="chat-messages" aria-live="polite"></div>
+      <div class="fx-chat-compose">
+        <textarea id="chat-message-input" rows="2" placeholder="Message your agent…"></textarea>
+        <button type="button" class="btn btn-primary" id="btn-chat-send">Send</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CREATE / EDIT AGENT SECTION -->
+<div id="section-create" class="section">
+  <div class="page-header">
+    <div class="page-subtitle">Configuration</div>
+    <div class="page-title" id="agent-form-title">Create New Agent</div>
+  </div>
+
+  <div class="form-card">
+    <div class="form-title">Agent Configuration</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label">Agent Name *</label>
+        <input class="form-input" type="text" id="agent-name" placeholder="e.g., Research Assistant"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Model *</label>
+        <select class="form-select" id="agent-model">
+          <option value="claude-sonnet">Claude 3.5 Sonnet</option>
+          <option value="claude-opus">Claude 3 Opus</option>
+          <option value="gpt-4">GPT-4</option>
+          <option value="openai-custom">Custom OpenAI (your key)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">System Prompt *</label>
+      <textarea class="form-textarea" id="agent-prompt" placeholder="Define your agent's personality and behavior..."></textarea>
+      <div class="form-hint">This guides how your agent responds and makes decisions.</div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Allowed websites *</label>
+      <textarea class="form-textarea" id="agent-allowed-urls" placeholder="https://app.company.com&#10;https://docs.example.com&#10;*.staging.example.com" style="min-height:120px"></textarea>
+      <div class="form-hint">One URL or domain per line. Your agent can only browse these sites (enforced in Browserbase). Use <code>*.domain.com</code> for subdomains.</div>
+    </div>
+
+    <div class="form-group" style="margin-top:20px">
+      <label class="form-label">What can this agent do?</label>
+      <div class="fx-perm-list">
+        <label class="fx-perm-option">
+          <input type="checkbox" id="agent-can-read" checked/>
+          <span>
+            <strong>Read &amp; navigate</strong>
+            <small>View pages, read group chats, scroll, and take screenshots. No posting or editing.</small>
+          </span>
+        </label>
+        <label class="fx-perm-option">
+          <input type="checkbox" id="agent-can-send"/>
+          <span>
+            <strong>Send &amp; edit</strong>
+            <small>Post messages, click buttons, fill forms, and change content on allowed sites. Requires read &amp; navigate.</small>
+          </span>
+        </label>
+      </div>
+      <div class="form-hint">Turn off both only if the agent should not use the web. Send &amp; edit is enforced in the browser and in the agent prompt.</div>
+    </div>
+
+    <div class="form-group" style="margin-top:8px">
+      <label class="form-label" style="display:flex;align-items:center;gap:8px;cursor:pointer">
+        <input type="checkbox" id="agent-use-custom-key" style="width:auto"/>
+        Use my own LLM API key (optional)
+      </label>
+      <div class="form-hint">When enabled, Flowix uses your key for this agent instead of platform defaults. Leave blank when editing to keep the existing key.</div>
+    </div>
+
+    <div id="custom-key-section" style="display:none;padding:16px;border-radius:12px;margin:12px 0;border:1px solid rgba(0,0,0,0.08);background:rgba(255,255,255,0.5)">
+      <div class="form-group" style="margin-bottom:0">
+        <label class="form-label" id="custom-key-label">API Key</label>
+        <input class="form-input" type="password" id="agent-custom-api-key" placeholder="sk-... or sk-ant-..." autocomplete="off"/>
+        <div class="form-hint" id="custom-key-hint">Stored securely on the server and only used for this agent.</div>
+      </div>
+    </div>
+
+    <div class="form-group" style="margin-top:24px">
+      <label class="form-label">Connected applications</label>
+      <div class="form-hint" style="margin-bottom:12px">Choose which of your connected accounts this agent can use. <a href="#" id="link-manage-connections" style="color:#156cc2;font-weight:600">Manage connections</a></div>
+      <div id="agent-connections-picker" class="fx-conn-picker"></div>
+    </div>
+
+    <div class="form-actions">
+      <button class="btn btn-primary" id="btn-save">Save Agent</button>
+      <button class="btn btn-secondary" id="btn-cancel">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONNECTIONS SECTION -->
+<div id="section-connections" class="section">
+  <div class="page-header">
+    <div class="page-subtitle">Integrations</div>
+    <div class="page-title">Connections</div>
+    <p class="fx-page-desc" style="margin-top:12px;margin-bottom:0">Connect your application accounts here. When you create or edit an agent, choose which connected accounts that agent can use.</p>
+  </div>
+
+  <div id="oauth-setup-banner" class="form-card" style="margin-bottom:24px;border-color:rgba(21,108,194,0.25);background:rgba(232,240,246,0.9)">
+    <div class="form-title" style="font-size:15px">OAuth setup required</div>
+    <p style="font-size:13px;color:#6b7280;line-height:1.6;margin-bottom:12px">
+      Each provider needs a Client ID and Secret in
+      <a href="https://supabase.com/dashboard/project/utofnywijqsozjqmkhcn/settings/functions" target="_blank" rel="noopener" style="color:#156cc2;font-weight:600">Supabase → Edge Functions → Secrets</a>.
+      In the provider&apos;s OAuth app, set the redirect URL to:
+    </p>
+    <code style="display:block;padding:10px 12px;background:#fff;border:1px solid rgba(0,0,0,0.08);border-radius:8px;font-size:12px;word-break:break-all;margin-bottom:12px">https://utofnywijqsozjqmkhcn.supabase.co/functions/v1/oauth-callback</code>
+    <p style="font-size:12px;color:#86868b;margin:0">Slack: <code>OAUTH_SLACK_CLIENT_ID</code> / <code>OAUTH_SLACK_CLIENT_SECRET</code> · Google: <code>OAUTH_GOOGLE_*</code> · GitHub: <code>OAUTH_GITHUB_*</code> · etc.</p>
+  </div>
+
+  <div class="form-card" style="margin-bottom:24px">
+    <div class="form-title">Your accounts</div>
+    <p style="font-size:13px;color:#6b7280;margin-bottom:20px">OAuth connections are shared across your workspace. Link them to individual agents when creating or editing an agent.</p>
+    <div id="oauth-conn-grid" class="card-grid"></div>
+  </div>
+
+</div>
+
+<!-- TEAMS SECTION -->
+<div id="section-teams" class="section">
+  <div class="page-header">
+    <div class="page-subtitle">flowix Teams</div>
+    <div class="page-title">Desktop app &amp; invite codes</div>
+    <p class="fx-page-desc" style="margin-top:12px;margin-bottom:0">flowix Teams is a separate app your organization downloads — not Microsoft Teams. Generate invite codes below to connect agents.</p>
+  </div>
+
+  <div class="fx-teams-hero">
+    <div>
+      <div class="fx-eyebrow">Download the app</div>
+      <h3 class="fx-display-title">flowix Teams for your org</h3>
+      <p style="font-size:15px;color:var(--fx-text-secondary);line-height:1.55;margin-bottom:16px">Install the flowix Teams desktop app on Windows or Mac. Share invite codes from below so teammates can join your workspace.</p>
+      <div class="fx-dl-btns">
+      <a href="/teams-app/index.html" class="fx-dl-btn fx-action">Open in browser</a>
+      <a href="/teams-app/download.html" class="fx-dl-btn outline fx-action">Download Mac / Windows</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <div class="form-title">Agent Teams access</div>
+    <p style="font-size:14px;color:var(--fx-text-secondary);margin-bottom:16px;line-height:1.5">
+      Turn off an agent to block every invite code immediately. Revoke individual codes below.
+    </p>
+    <div id="team-agents-toggles"></div>
+  </div>
+
+  <div class="form-card">
+    <div class="form-title">Generate flowix Teams invite code</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label">Select Agent *</label>
+        <select class="form-select" id="team-agent-select">
+          <option value="">Choose an agent...</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Code label (optional)</label>
+        <input class="form-input" type="text" id="team-code-label" placeholder="e.g. Ops team Q2" maxlength="80"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Expires at (minute precision)</label>
+        <input class="form-input" type="datetime-local" id="team-expires-at"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Max uses</label>
+        <input class="form-input" type="number" id="team-max-uses" min="1" max="10000" value="100"/>
+      </div>
+    </div>
+    <button class="btn btn-primary" id="btn-gen-team-code">Generate Invite Code</button>
+    <div id="team-code-reveal" style="display:none;margin-top:20px;padding:16px;background:#f0f7ff;border:1px solid #c5d9f0;border-radius:12px">
+      <div style="font-size:12px;color:#5c5c6a;margin-bottom:8px">Copy now — this code is only shown once:</div>
+      <div id="team-code-reveal-value" style="font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:600;color:#156cc2;word-break:break-all"></div>
+      <button type="button" class="btn btn-secondary" id="btn-copy-new-code" style="margin-top:12px">Copy code</button>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <div class="form-title">Active Team Codes</div>
+    <div id="team-codes-empty" style="padding: 40px 0; text-align: center; color: #86868b;">
+      No invite codes generated yet.
+    </div>
+    <div id="team-codes-list" style="display: none;"></div>
+  </div>
+</div>
+
+<!-- API KEYS SECTION -->
+<div id="section-api" class="section">
+  <div class="page-header">
+    <div class="page-subtitle">Developer</div>
+    <div class="page-title">API Keys</div>
+  </div>
+
+  <div class="form-card">
+    <div class="form-title">Your API Keys</div>
+    <p style="margin-bottom: 24px; color: #86868b;">
+      Use your API keys to invoke agents programmatically. Keep them secure and never share them.
+    </p>
+
+    <div id="api-keys-list" style="display: none;"></div>
+
+    <div id="api-keys-empty" style="padding: 40px 0; text-align: center; color: #86868b;">
+      No API keys generated yet.
+    </div>
+
+    <button class="btn btn-primary" id="btn-gen-api-key" style="margin-top: 16px;">Generate New API Key</button>
+  </div>
+
+  <div class="form-card">
+    <div class="form-title">API Documentation</div>
+    <div style="color: #86868b; line-height: 1.8;">
+      <p style="margin-bottom: 16px;">
+        <strong style="color: #1d1d1f;">Endpoint:</strong>
+      </p>
+      <div class="api-key-box">
+        <span>POST /functions/v1/agent-invoke</span>
+      </div>
+      <p style="margin-bottom: 16px;">
+        <strong style="color: #1d1d1f;">Headers:</strong>
+      </p>
+      <ul style="margin-left: 20px;">
+        <li style="margin-bottom: 8px;">Content-Type: application/json</li>
+        <li style="margin-bottom: 8px;">X-Agent-Key: Your API key</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- BILLING SECTION -->
+<div id="section-billing" class="section">
+  <div class="page-header">
+    <div class="page-subtitle">Account</div>
+    <div class="page-title">Billing & Credits</div>
+  </div>
+
+  <div class="form-card">
+    <div class="form-title">Current Balance</div>
+    <div style="text-align: center; padding: 32px 0;">
+      <div style="font-size: 48px; font-weight: 700; color: #156cc2; margin-bottom: 12px;" id="balance-large">$0.00</div>
+      <div style="font-size: 14px; color: #86868b;">Pay-as-you-go credit balance</div>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <div class="form-title">Add Credits</div>
+
+    <div style="margin-bottom: 24px;">
+      <label class="form-label">Select Amount</label>
+      <div class="amount-grid">
+        <button class="amount-btn" data-amount="10">$10</button>
+        <button class="amount-btn" data-amount="25">$25</button>
+        <button class="amount-btn" data-amount="50">$50</button>
+        <button class="amount-btn" data-amount="100">$100</button>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Custom Amount</label>
+      <div style="display: flex; gap: 12px;">
+        <div style="position: relative; flex: 1;">
+          <span style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #86868b;">$</span>
+          <input class="form-input" type="number" id="custom-amount" placeholder="Enter amount" min="1" max="10000" style="padding-left: 28px;"/>
+        </div>
+      </div>
+      <div class="form-hint">Amount must be between $1 and $10,000</div>
+    </div>
+
+    <button class="btn btn-primary" id="btn-checkout" style="margin-top: 24px; width: 100%; padding: 12px;">Proceed to Checkout</button>
+  </div>
+
+  <div class="form-card">
+    <div class="form-title">Recent Transactions</div>
+    <div id="transactions-list" style="color: #86868b; text-align: center; padding: 40px 0;">
+      No transactions yet.
+    </div>
+  </div>
+</div>
+
+<!-- SETTINGS SECTION -->
+<div id="section-settings" class="section">
+  <div class="page-header">
+    <div class="page-subtitle">Appearance</div>
+    <div class="page-title">Settings</div>
+    <p class="fx-page-desc" style="margin-top:12px;margin-bottom:0">Set a fixed time of day, or turn on the animated day cycle.</p>
+  </div>
+
+  <div class="form-card">
+    <div class="form-title">Background</div>
+    <p style="font-size:13px;color:#6b7280;margin-bottom:20px;line-height:1.55">Saved in this browser for the landing page and dashboard.</p>
+
+    <label class="fx-perm-option" style="margin-bottom:24px">
+      <input type="checkbox" id="sky-cycle-enabled"/>
+      <span>
+        <strong>Day cycle (10 minutes)</strong>
+        <small>When enabled, the sky animates through a full day on a loop. Turn off to keep a fixed time using the slider below.</small>
+      </span>
+    </label>
+
+    <div class="fx-sky-time-block">
+      <div class="fx-sky-time-header">
+        <strong>Time of day</strong>
+        <div class="fx-sky-time-meta">
+          <span id="sky-time-label">12:00 PM</span>
+          <span id="sky-time-phase">Daytime</span>
+        </div>
+      </div>
+      <p id="sky-time-hint" style="font-size:13px;color:#6b7280;margin:0 0 12px;line-height:1.5"></p>
+      <div class="fx-sky-time-slider-wrap">
+        <input type="range" class="fx-sky-time-slider" id="sky-time-slider" min="0" max="1000" value="140" aria-label="Time of day"/>
+      </div>
+      <div class="fx-sky-time-labels">
+        <span>6 AM</span>
+        <span>Noon</span>
+        <span>Sunset</span>
+        <span>8 PM</span>
+      </div>
+      <div id="sky-time-preview" aria-hidden="true"></div>
+    </div>
+
+    <p style="font-size:12px;color:#86868b;margin-top:20px"><a href="neura_ui.html" style="color:#156cc2;font-weight:600">Open homepage</a> to preview your sky.</p>
+    <p style="font-size:12px;color:#86868b;margin-top:12px">
+      <button type="button" class="fx-tutorial-skip" id="btn-replay-tutorial" style="padding:0">Replay dashboard tour</button>
+    </p>
+  </div>
+</div>
+
+</main>
+
+<div id="toast-container"></div>
+
+<!-- SUPABASE -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="flowix-connections.js"></script>
+<script src="flowix-sky.js"></script>
+<script src="flowix-tutorial.js"></script>
+<script src="flowix-dashboard-chat.js"></script>
+
+<script>
+(function() {
+  const SUPABASE_URL = 'https://utofnywijqsozjqmkhcn.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_NFpInIt2anAJxn2slHZIuQ_BsEw4g1n';
+
+  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  let currentUser = null;
+  let state = { agents: [], teamCodes: [], apiKeys: [], agentTokens: {}, balance: 0, userConnections: [], oauthBusy: null };
+  let editingAgentId = null;
+  let agentLinkedConnectionIds = [];
+
+  const DEFAULT_AGENT_PROMPT =
+    'You are a Flowix assistant for this team. Be direct and practical. When a task needs the live web, use Browserbase (Flowix can open a remote browser session and run navigate/click/type/screenshot actions).';
+
+  function escapeHtml(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function parseAllowedUrlsText(text) {
+    return [...new Set(
+      (text || '').split(/[\n,]+/).map(s => s.trim()).filter(Boolean)
+    )];
+  }
+
+  function resolveLlmProvider(model) {
+    const m = (model || '').toLowerCase();
+    if (m === 'openai-custom' || m.includes('gpt')) return `openai/${m === 'openai-custom' ? 'gpt-4o' : model}`;
+    if (m.includes('claude') || m.includes('opus') || m.includes('sonnet')) {
+      const id = m === 'claude-opus' ? 'claude-3-opus-20240229' : 'claude-3-5-sonnet-20241022';
+      return `anthropic/${id}`;
+    }
+    return `anthropic/claude-3-5-sonnet-20241022`;
+  }
+
+  async function syncAgentToken(agent, options = {}) {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) throw new Error('Session expired');
+
+    const body = {
+      agent_id: agent.id,
+      agent_name: agent.name,
+      system_prompt: agent.prompt || agent.system_prompt || DEFAULT_AGENT_PROMPT,
+      model: agent.model,
+      llm_provider: resolveLlmProvider(agent.model),
+      allowed_urls: agent.allowed_urls || [],
+      can_read_navigate: agent.can_read_navigate !== false,
+      can_send_edit: !!agent.can_send_edit,
+      sync_config: true
+    };
+    if (options.llm_api_key) body.llm_api_key = options.llm_api_key;
+
+    const { data, error } = await sb.functions.invoke('create-or-get-agent-token', {
+      headers: { Authorization: `Bearer ${session.access_token}` },
+      body
+    });
+    if (error) throw new Error(error.message || 'Failed to sync agent token');
+    state.agentTokens[agent.id] = { token_id: data.token_id, api_key: data.api_key };
+    saveState();
+    return state.agentTokens[agent.id];
+  }
+
+  async function ensureAgentToken(agent, options = {}) {
+    if (state.agentTokens[agent.id]?.token_id && !options.force) {
+      return syncAgentToken(agent, options);
+    }
+    return syncAgentToken(agent, options);
+  }
+
+  async function loadAgents() {
+    const { data, error } = await sb
+      .from('agents')
+      .select('id, name, model, system_prompt, allowed_urls, can_read_navigate, can_send_edit, teams_enabled, created_at, updated_at')
+      .order('created_at', { ascending: true });
+
+    if (error) {
+      console.error('loadAgents:', error);
+      toast('Could not load agents: ' + error.message, 'error');
+      return;
+    }
+
+    state.agents = (data || []).map(row => ({
+      id: row.id,
+      name: row.name,
+      model: row.model,
+      prompt: row.system_prompt,
+      system_prompt: row.system_prompt,
+      allowed_urls: row.allowed_urls || [],
+      can_read_navigate: row.can_read_navigate !== false,
+      can_send_edit: !!row.can_send_edit,
+      teams_enabled: row.teams_enabled !== false,
+      created: row.created_at,
+      updated: row.updated_at
+    }));
+
+    await loadAgentTokensFromDb();
+    saveState();
+    if (typeof FlowixDashboardChat !== 'undefined') FlowixDashboardChat.refresh();
+  }
+
+  async function loadAgentTokensFromDb() {
+    const { data, error } = await sb
+      .from('agent_tokens')
+      .select('id, agent_id, api_key')
+      .eq('user_id', currentUser.id);
+
+    if (error || !data) return;
+    data.forEach(row => {
+      state.agentTokens[row.agent_id] = { token_id: row.id, api_key: row.api_key };
+    });
+  }
+
+  async function loadUserConnections() {
+    try {
+      state.userConnections = await FlowixConnections.loadUserConnections(sb, currentUser.id);
+    } catch (e) {
+      console.warn('loadUserConnections', e);
+      state.userConnections = [];
+    }
+  }
+
+  async function loadAgentLinkedConnections(agentId) {
+    if (!agentId) {
+      agentLinkedConnectionIds = [];
+      return;
+    }
+    const rows = await FlowixConnections.loadAgentConnections(sb, currentUser.id, agentId);
+    agentLinkedConnectionIds = rows
+      .filter(r => r.user_connection_id)
+      .map(r => r.user_connection_id);
+  }
+
+  function getSelectedAgentConnectionIds() {
+    const picker = document.getElementById('agent-connections-picker');
+    if (!picker) return [];
+    return [...picker.querySelectorAll('input[type="checkbox"]:checked')].map(el => el.value);
+  }
+
+  function renderAgentConnectionsPicker() {
+    const picker = document.getElementById('agent-connections-picker');
+    if (!picker) return;
+
+    if (!state.userConnections.length) {
+      picker.innerHTML = `
+        <div class="fx-conn-empty">
+          No accounts connected yet.
+          <a href="dashboard.html#connections">Connect Slack, Google, and more</a>
+        </div>`;
+      return;
+    }
+
+    const appLabels = {};
+    FlowixConnections.OAUTH_APPS.forEach(a => { appLabels[a.id] = a.label; });
+
+    picker.innerHTML = state.userConnections.map(c => {
+      const checked = agentLinkedConnectionIds.includes(c.id) ? 'checked' : '';
+      const appLabel = appLabels[c.provider] || c.provider;
+      return `
+        <label class="fx-conn-option">
+          <input type="checkbox" value="${c.id}" ${checked}/>
+          <span>
+            <strong>${escapeHtml(c.account_label || appLabel)}</strong>
+            <small>${escapeHtml(appLabel)} · connected ${new Date(c.connected_at).toLocaleDateString()}</small>
+          </span>
+        </label>`;
+    }).join('');
+  }
+
+  async function migrateLocalAgentsIfNeeded() {
+    const saved = localStorage.getItem(`flowix_${currentUser.id}`);
+    if (!saved) return;
+    let local;
+    try { local = JSON.parse(saved); } catch { return; }
+    if (!local.agents?.length) return;
+
+    const { count } = await sb.from('agents').select('*', { count: 'exact', head: true });
+    if (count && count > 0) return;
+
+    for (const a of local.agents) {
+      const allowed = a.allowed_urls || [];
+      const { data: inserted, error } = await sb.from('agents').insert({
+        user_id: currentUser.id,
+        name: a.name,
+        model: a.model || 'claude-sonnet',
+        system_prompt: a.prompt || a.system_prompt || DEFAULT_AGENT_PROMPT,
+        allowed_urls: allowed.length ? allowed : ['https://example.com']
+      }).select().single();
+      if (error || !inserted) continue;
+
+      const agent = {
+        id: inserted.id,
+        name: inserted.name,
+        model: inserted.model,
+        prompt: inserted.system_prompt,
+        allowed_urls: inserted.allowed_urls
+      };
+      if (a.openaiKey) {
+        try {
+          await syncAgentToken(agent, { llm_api_key: atob(a.openaiKey) });
+        } catch (e) { console.warn('migrate token', e); }
+      } else {
+        try { await syncAgentToken(agent); } catch (e) { console.warn('migrate token', e); }
+      }
+    }
+    toast('Your agents were migrated to your account.', 'success');
+  }
+  let selectedAmount = 0;
+
+  // INIT
+  async function init() {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) {
+      window.location.href = 'neura_ui.html?signin=1';
+      return;
+    }
+
+    try {
+    currentUser = session.user;
+
+    const saved = localStorage.getItem(`flowix_${currentUser.id}`);
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        state.teamCodes = parsed.teamCodes || [];
+        state.apiKeys = parsed.apiKeys || [];
+        state.agentTokens = parsed.agentTokens || {};
+        state.balance = parsed.balance || 0;
+      } catch (e) { console.warn('local state parse', e); }
+    }
+
+    await migrateLocalAgentsIfNeeded();
+    await loadAgents();
+    await loadUserConnections();
+    await loadAgentConnectionCounts();
+
+    // Fetch balance from database
+    try {
+      const { data } = await sb.from('user_balance').select('balance_usd').eq('user_id', currentUser.id).single();
+      if (data) {
+        state.balance = data.balance_usd;
+      }
+    } catch (e) {
+      console.log('Balance fetch note:', e.message);
+    }
+
+    renderAgents();
+    FlowixDashboardChat.init({
+      sb,
+      state,
+      currentUser,
+      ensureAgentToken,
+      toast,
+      escapeHtml,
+      supabaseUrl: SUPABASE_URL,
+      supabaseKey: SUPABASE_KEY,
+    });
+    populateTeamAgentSelect();
+    initTeamExpiryPicker();
+    await loadTeamCodesFromDb();
+    renderAPIKeys();
+    updateBalance();
+    setupNavigation();
+    setupBilling();
+    bindOAuthGridClicks();
+    if (typeof FlowixSky !== 'undefined') {
+      try {
+        FlowixSky.init();
+      } catch (skyErr) {
+        console.warn('FlowixSky init failed:', skyErr);
+      }
+    }
+
+    const cb = FlowixConnections.parseOAuthCallbackParams();
+    if (cb.oauth === 'success' && cb.provider) {
+      await loadUserConnections();
+      toast(`Successfully connected ${cb.provider}!`, 'success');
+      FlowixConnections.clearOAuthCallbackParams();
+    } else if (cb.oauth === 'error') {
+      toast(cb.message || 'OAuth connection failed', 'error');
+      FlowixConnections.clearOAuthCallbackParams();
+    }
+
+    const hashSection = (location.hash || '').replace(/^#/, '').split('?')[0];
+    if (hashSection && document.getElementById(`section-${hashSection}`)) {
+      showSection(hashSection);
+    }
+    document.getElementById('link-manage-connections')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      showSection('connections');
+    });
+
+    if (typeof FlowixTutorial !== 'undefined') {
+      FlowixTutorial.offerIfNeeded(currentUser.id, {
+        showSection,
+        openCreateAgent: () => openCreateAgentForm(),
+      });
+    }
+    document.getElementById('btn-replay-tutorial')?.addEventListener('click', () => {
+      if (typeof FlowixTutorial !== 'undefined') {
+        FlowixTutorial.restart({
+          userId: currentUser.id,
+          showSection,
+          openCreateAgent: () => openCreateAgentForm(),
+        });
+      }
+    });
+    } catch (err) {
+      console.error('Dashboard init failed:', err);
+      toast(err?.message || 'Failed to load dashboard', 'error');
+    } finally {
+      document.body.classList.add('ready');
+    }
+  }
+
+  function saveState() {
+    localStorage.setItem(`flowix_${currentUser.id}`, JSON.stringify(state));
+  }
+
+  function updateBalance() {
+    const balance = state.balance || 0;
+    const headerBal = document.getElementById('balance-display');
+    const largeBal = document.getElementById('balance-large');
+    if (headerBal) headerBal.textContent = `Balance: $${balance.toFixed(2)}`;
+    if (largeBal) largeBal.textContent = `$${balance.toFixed(2)}`;
+  }
+
+  // NAVIGATION
+  function setupNavigation() {
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const section = btn.dataset.section;
+        if (section) showSection(section);
+      });
+    });
+  }
+
+  function showSection(name) {
+    const section = document.getElementById(`section-${name}`);
+    if (!section) return;
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    section.classList.add('active');
+    const gear = document.getElementById('btn-open-settings');
+    if (gear) gear.classList.toggle('is-active', name === 'settings');
+    if (typeof FlowixSky !== 'undefined') {
+      FlowixSky.applyMode(FlowixSky.getSettings().mode);
+      FlowixSky.updateTimeSliderState();
+    }
+    const navBtn = document.querySelector(`[data-section="${name}"]`);
+    if (navBtn) navBtn.classList.add('active');
+    if (name === 'connections') refreshConnectionsPage();
+    if (name === 'chat' && typeof FlowixDashboardChat !== 'undefined') {
+      FlowixDashboardChat.refresh();
+    }
+    if (name === 'teams') {
+      initTeamExpiryPicker();
+      loadTeamCodesFromDb();
+    }
+    if (history.replaceState) {
+      const path = name === 'agents' ? 'dashboard.html' : `dashboard.html#${name}`;
+      history.replaceState(null, '', path);
+    }
+  }
+  window.__fxShowSection = showSection;
+
+  async function loadAgentConnectionsMap() {
+    const { data } = await sb
+      .from('agent_connections')
+      .select('agent_id, app_name, session_id, user_connection_id, connected_at')
+      .eq('user_id', currentUser.id);
+    state.agents.forEach(a => { a.connections = {}; });
+    (data || []).forEach(c => {
+      const agent = state.agents.find(a => a.id === c.agent_id);
+      if (agent) {
+        agent.connections[c.app_name] = {
+          sessionId: c.session_id,
+          userConnectionId: c.user_connection_id,
+          connectedAt: c.connected_at
+        };
+      }
+    });
+  }
+
+  function renderOAuthConnectionsGrid() {
+    const grid = document.getElementById('oauth-conn-grid');
+    if (!grid) return;
+    const byProvider = {};
+    state.userConnections.forEach(c => { byProvider[c.provider] = c; });
+
+    grid.innerHTML = FlowixConnections.OAUTH_APPS.map(app => {
+      const conn = byProvider[app.id];
+      const connected = !!conn;
+      const badge = connected
+        ? `<div class="card-badge fx-conn-status-connected">${escapeHtml(conn.account_label || 'Connected')}</div>`
+        : '<div class="card-badge">Not connected</div>';
+      return `
+      <div class="card fx-conn-card">
+        <div class="card-header">
+          <div class="card-title" style="display:flex;align-items:center;gap:10px">
+            <span style="font-size:22px;font-weight:800;color:${app.color}">${app.icon}</span>
+            ${escapeHtml(app.label)}
+          </div>
+          ${badge}
+        </div>
+        <div class="card-description">${escapeHtml(app.desc)}</div>
+        <div class="card-footer">
+          <button class="btn ${connected ? 'btn-secondary' : 'btn-primary'}" data-oauth-btn="${app.id}">
+            ${connected ? 'Disconnect' : 'Connect ' + escapeHtml(app.label)}
+          </button>
+        </div>
+      </div>`;
+    }).join('');
+
+  }
+
+  let oauthGridClickBound = false;
+  function bindOAuthGridClicks() {
+    const grid = document.getElementById('oauth-conn-grid');
+    if (!grid || oauthGridClickBound) return;
+    oauthGridClickBound = true;
+    grid.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-oauth-btn]');
+      if (!btn || btn.disabled) return;
+      e.preventDefault();
+      handleDashboardOAuthClick(btn.dataset.oauthBtn, btn);
+    });
+  }
+
+  async function handleDashboardOAuthClick(provider, btnEl) {
+    if (state.oauthBusy) return;
+    const conn = state.userConnections.find(c => c.provider === provider);
+    if (conn) {
+      if (!confirm(`Disconnect ${provider}? Agents using this account will lose access.`)) return;
+      try {
+        await FlowixConnections.disconnectOAuth(sb, provider);
+        await loadUserConnections();
+        renderOAuthConnectionsGrid();
+        renderAgentConnectionsPicker();
+        toast(`Disconnected ${provider}`, 'success');
+      } catch (e) {
+        toast(e.message, 'error');
+      }
+      return;
+    }
+    state.oauthBusy = provider;
+    if (btnEl) {
+      btnEl.disabled = true;
+      btnEl.dataset.prevLabel = btnEl.textContent;
+      btnEl.textContent = 'Connecting…';
+    }
+    try {
+      await FlowixConnections.startOAuth(sb, provider, { returnUrl: 'dashboard.html#connections' });
+    } catch (e) {
+      const app = FlowixConnections.OAUTH_APPS.find(a => a.id === provider);
+      const short = (e.message || '').includes('not configured')
+        ? `${app?.label || provider} needs OAuth secrets in Supabase (see setup box above).`
+        : (e.message || 'Connection failed');
+      toast(short, 'error');
+    } finally {
+      state.oauthBusy = null;
+      if (btnEl) {
+        btnEl.disabled = false;
+        btnEl.textContent = btnEl.dataset.prevLabel || 'Connect';
+      }
+    }
+  }
+
+  async function refreshConnectionsPage() {
+    await loadUserConnections();
+    await loadAgentConnectionsMap();
+    renderOAuthConnectionsGrid();
+    bindOAuthGridClicks();
+    renderAgentConnectionsPicker();
+  }
+
+  function showConnectionsForAgent(agentId) {
+    showSection('connections');
+  }
+  window.showSection = showSection;
+  window.showConnectionsForAgent = showConnectionsForAgent;
+
+  // AGENTS
+  function renderAgents() {
+    const grid = document.getElementById('agents-grid');
+    const empty = document.getElementById('empty-agents');
+
+    if (state.agents.length === 0) {
+      grid.style.display = 'none';
+      empty.style.display = 'block';
+      return;
+    }
+
+    empty.style.display = 'none';
+    grid.style.display = 'grid';
+
+    grid.innerHTML = state.agents.map(a => {
+      const urls = (a.allowed_urls || []).length;
+      const perms = a.can_send_edit
+        ? 'Read · Send/Edit'
+        : (a.can_read_navigate !== false ? 'Read-only' : 'No web');
+      const preview = (a.prompt || '').substring(0, 80);
+      const connCount = a.connectionCount != null ? a.connectionCount : '';
+      const connBadge = connCount !== '' ? ` · ${connCount} app${connCount === 1 ? '' : 's'}` : '';
+      return `
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">${escapeHtml(a.name)}</div>
+          <div class="card-badge">${escapeHtml(perms)}</div>
+        </div>
+        <div class="card-description">${escapeHtml(a.model)} • ${new Date(a.created).toLocaleDateString()} • ${urls} site${urls === 1 ? '' : 's'}${connBadge}</div>
+        <div style="font-size: 12px; color: #86868b; margin-bottom: 16px;">${escapeHtml(preview)}${preview.length >= 80 ? '…' : ''}</div>
+        <div class="card-footer">
+          <button class="btn btn-secondary" onclick="editAgent('${a.id}')">Edit</button>
+          <button class="btn btn-secondary" onclick="showConnectionsForAgent('${a.id}')">Connections</button>
+          <button class="btn btn-danger" onclick="deleteAgent('${a.id}')">Delete</button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  async function openCreateAgentForm() {
+    editingAgentId = null;
+    agentLinkedConnectionIds = [];
+    clearForm();
+    document.getElementById('agent-form-title').textContent = 'Create New Agent';
+    document.getElementById('btn-save').textContent = 'Save Agent';
+    renderAgentConnectionsPicker();
+    showSection('create');
+  }
+
+  document.getElementById('btn-new-agent')?.addEventListener('click', openCreateAgentForm);
+  document.getElementById('btn-new-agent-alt')?.addEventListener('click', openCreateAgentForm);
+
+  function updateCustomKeyUi() {
+    const model = document.getElementById('agent-model').value;
+    const checkbox = document.getElementById('agent-use-custom-key');
+    const section = document.getElementById('custom-key-section');
+    const label = document.getElementById('custom-key-label');
+    const hint = document.getElementById('custom-key-hint');
+
+    if (model === 'openai-custom') {
+      checkbox.checked = true;
+      checkbox.disabled = true;
+    } else {
+      checkbox.disabled = false;
+    }
+
+    const show = checkbox.checked;
+    section.style.display = show ? 'block' : 'none';
+
+    if (model === 'openai-custom' || model.includes('gpt')) {
+      label.textContent = 'OpenAI API Key';
+      hint.textContent = 'Required for custom OpenAI. Stored on the server for this agent only.';
+    } else if (model.includes('claude')) {
+      label.textContent = 'Anthropic API Key';
+      hint.textContent = 'Optional Anthropic key for this agent.';
+    } else {
+      label.textContent = 'LLM API Key';
+    }
+  }
+
+  document.getElementById('agent-model').addEventListener('change', updateCustomKeyUi);
+  document.getElementById('agent-use-custom-key').addEventListener('change', updateCustomKeyUi);
+
+  document.getElementById('agent-can-send').addEventListener('change', function () {
+    if (this.checked) document.getElementById('agent-can-read').checked = true;
+  });
+  document.getElementById('agent-can-read').addEventListener('change', function () {
+    if (!this.checked) document.getElementById('agent-can-send').checked = false;
+  });
+
+  document.getElementById('btn-save').addEventListener('click', saveAgent);
+  document.getElementById('btn-cancel').addEventListener('click', () => {
+    editingAgentId = null;
+    showSection('agents');
+  });
+
+  async function saveAgent() {
+    const name = document.getElementById('agent-name').value.trim();
+    const model = document.getElementById('agent-model').value;
+    const prompt = document.getElementById('agent-prompt').value.trim();
+    const allowedUrls = parseAllowedUrlsText(document.getElementById('agent-allowed-urls').value);
+    const useCustomKey = document.getElementById('agent-use-custom-key').checked;
+    const customKey = document.getElementById('agent-custom-api-key').value.trim();
+    const canRead = document.getElementById('agent-can-read').checked;
+    const canSend = document.getElementById('agent-can-send').checked;
+
+    if (!name || !prompt) {
+      toast('Please fill in all required fields', 'error');
+      return;
+    }
+    if (canRead && !allowedUrls.length) {
+      toast('Add at least one allowed website when read & navigate is enabled', 'error');
+      return;
+    }
+    if (canSend && !canRead) {
+      toast('Send & edit requires read & navigate', 'error');
+      return;
+    }
+    if (model === 'openai-custom' && !customKey && !editingAgentId) {
+      toast('Please provide your OpenAI API key', 'error');
+      return;
+    }
+    if (useCustomKey && !customKey && !editingAgentId) {
+      toast('Enter your API key or disable custom key', 'error');
+      return;
+    }
+
+    const btn = document.getElementById('btn-save');
+    const prevLabel = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = 'Saving…';
+
+    try {
+      const row = {
+        user_id: currentUser.id,
+        name,
+        model,
+        system_prompt: prompt || DEFAULT_AGENT_PROMPT,
+        allowed_urls: allowedUrls,
+        can_read_navigate: canRead,
+        can_send_edit: canSend
+      };
+
+      let agent;
+      if (editingAgentId) {
+        const { data, error } = await sb
+          .from('agents')
+          .update(row)
+          .eq('id', editingAgentId)
+          .eq('user_id', currentUser.id)
+          .select()
+          .single();
+        if (error) throw error;
+        agent = {
+          id: data.id,
+          name: data.name,
+          model: data.model,
+          prompt: data.system_prompt,
+          allowed_urls: data.allowed_urls,
+          can_read_navigate: data.can_read_navigate !== false,
+          can_send_edit: !!data.can_send_edit,
+          created: data.created_at
+        };
+        const idx = state.agents.findIndex(a => a.id === editingAgentId);
+        if (idx >= 0) state.agents[idx] = agent;
+      } else {
+        const { data, error } = await sb.from('agents').insert(row).select().single();
+        if (error) throw error;
+        agent = {
+          id: data.id,
+          name: data.name,
+          model: data.model,
+          prompt: data.system_prompt,
+          allowed_urls: data.allowed_urls,
+          can_read_navigate: data.can_read_navigate !== false,
+          can_send_edit: !!data.can_send_edit,
+          created: data.created_at
+        };
+        state.agents.push(agent);
+      }
+
+      const tokenOpts = {};
+      if (customKey && (useCustomKey || model === 'openai-custom')) {
+        tokenOpts.llm_api_key = customKey;
+      }
+      await syncAgentToken(agent, tokenOpts);
+
+      try {
+        const selectedConnIds = getSelectedAgentConnectionIds();
+        await FlowixConnections.saveAgentConnectionLinks(
+          sb, currentUser.id, agent.id, selectedConnIds
+        );
+      } catch (linkErr) {
+        console.warn('agent connection links', linkErr);
+        toast('Agent saved, but connection links failed: ' + (linkErr.message || linkErr), 'error');
+      }
+
+      saveState();
+      clearForm();
+      editingAgentId = null;
+      agentLinkedConnectionIds = [];
+      await loadAgentConnectionCounts();
+      renderAgents();
+      populateTeamAgentSelect();
+      showSection('agents');
+      toast(`Agent "${name}" saved to your account`, 'success');
+    } catch (e) {
+      toast(e.message || 'Failed to save agent', 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = prevLabel;
+    }
+  }
+
+  async function editAgent(id) {
+    const agent = state.agents.find(a => a.id === id);
+    if (!agent) return;
+    editingAgentId = id;
+    await loadAgentLinkedConnections(id);
+    document.getElementById('agent-form-title').textContent = 'Edit Agent';
+    document.getElementById('btn-save').textContent = 'Update Agent';
+    document.getElementById('agent-name').value = agent.name;
+    document.getElementById('agent-model').value = agent.model;
+    document.getElementById('agent-prompt').value = agent.prompt || agent.system_prompt || '';
+    document.getElementById('agent-allowed-urls').value = (agent.allowed_urls || []).join('\n');
+    document.getElementById('agent-can-read').checked = agent.can_read_navigate !== false;
+    document.getElementById('agent-can-send').checked = !!agent.can_send_edit;
+    document.getElementById('agent-custom-api-key').value = '';
+    document.getElementById('agent-use-custom-key').checked = agent.model === 'openai-custom';
+    updateCustomKeyUi();
+    renderAgentConnectionsPicker();
+    showSection('create');
+  }
+
+  async function deleteAgent(id) {
+    if (!confirm('Delete this agent? This cannot be undone.')) return;
+
+    try {
+      await sb.from('agent_tokens').delete().eq('agent_id', id).eq('user_id', currentUser.id);
+      await sb.from('agent_connections').delete().eq('agent_id', id).eq('user_id', currentUser.id);
+      const { error } = await sb.from('agents').delete().eq('id', id).eq('user_id', currentUser.id);
+      if (error) throw error;
+
+      state.agents = state.agents.filter(a => a.id !== id);
+      delete state.agentTokens[id];
+      state.apiKeys = state.apiKeys.filter(k => k.agentId !== id);
+      state.teamCodes = state.teamCodes.filter(c => c.agentId !== id);
+      saveState();
+      renderAgents();
+      renderAPIKeys();
+      renderTeamCodes();
+      populateTeamAgentSelect();
+      toast('Agent deleted', 'success');
+    } catch (e) {
+      toast(e.message || 'Failed to delete agent', 'error');
+    }
+  }
+
+  function clearForm() {
+    document.getElementById('agent-name').value = '';
+    document.getElementById('agent-model').value = 'claude-sonnet';
+    document.getElementById('agent-prompt').value = '';
+    document.getElementById('agent-allowed-urls').value = '';
+    document.getElementById('agent-can-read').checked = true;
+    document.getElementById('agent-can-send').checked = false;
+    document.getElementById('agent-custom-api-key').value = '';
+    document.getElementById('agent-use-custom-key').checked = false;
+    agentLinkedConnectionIds = [];
+    updateCustomKeyUi();
+    renderAgentConnectionsPicker();
+  }
+
+  async function loadAgentConnectionCounts() {
+    const { data } = await sb
+      .from('agent_connections')
+      .select('agent_id')
+      .eq('user_id', currentUser.id);
+    const counts = {};
+    (data || []).forEach(r => {
+      counts[r.agent_id] = (counts[r.agent_id] || 0) + 1;
+    });
+    state.agents.forEach(a => {
+      a.connectionCount = counts[a.id] || 0;
+    });
+  }
+
+  window.editAgent = editAgent;
+  window.deleteAgent = deleteAgent;
+
+  // TEAMS
+  let lastGeneratedTeamCode = null;
+
+  function defaultTeamExpiresAt() {
+    const d = new Date();
+    d.setDate(d.getDate() + 7);
+    return d;
+  }
+
+  function toDatetimeLocalValue(d) {
+    const pad = n => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  }
+
+  function initTeamExpiryPicker() {
+    const el = document.getElementById('team-expires-at');
+    if (el && !el.value) el.value = toDatetimeLocalValue(defaultTeamExpiresAt());
+  }
+
+  function populateTeamAgentSelect() {
+    const sel = document.getElementById('team-agent-select');
+    if (!sel) return;
+    sel.innerHTML = '<option value="">Choose an agent...</option>';
+    state.agents.forEach(a => {
+      const opt = document.createElement('option');
+      opt.value = a.id;
+      opt.textContent = a.teams_enabled === false ? `${a.name} (Teams off)` : a.name;
+      opt.disabled = a.teams_enabled === false;
+      sel.appendChild(opt);
+    });
+    renderTeamAgentToggles();
+  }
+
+  function renderTeamAgentToggles() {
+    const wrap = document.getElementById('team-agents-toggles');
+    if (!wrap) return;
+    if (!state.agents.length) {
+      wrap.innerHTML = '<p style="color:#86868b;font-size:14px">Create an agent first.</p>';
+      return;
+    }
+    wrap.innerHTML = state.agents.map(a => `
+      <div class="team-agent-row" style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--fx-border)">
+        <div>
+          <div style="font-weight:600">${escapeHtml(a.name)}</div>
+          <div style="font-size:12px;color:#86868b">${a.teams_enabled !== false ? 'Teammates can join with invite codes' : 'All codes blocked'}</div>
+        </div>
+        <label class="fx-toggle" style="display:flex;align-items:center;gap:8px;cursor:pointer">
+          <input type="checkbox" data-agent-teams-toggle="${a.id}" ${a.teams_enabled !== false ? 'checked' : ''}/>
+          <span style="font-size:13px">Teams on</span>
+        </label>
+      </div>
+    `).join('');
+    wrap.querySelectorAll('[data-agent-teams-toggle]').forEach(input => {
+      input.addEventListener('change', () => setAgentTeamsEnabled(input.dataset.agentTeamsToggle, input.checked));
+    });
+  }
+
+  async function setAgentTeamsEnabled(agentId, enabled) {
+    try {
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) return toast('Please sign in again', 'error');
+      const { data, error } = await sb.functions.invoke('manage-teams-code', {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+        body: { action: 'set_agent_teams_enabled', agent_id: agentId, teams_enabled: enabled }
+      });
+      if (error) throw new Error(error.message);
+      const agent = state.agents.find(a => a.id === agentId);
+      if (agent) agent.teams_enabled = enabled;
+      saveState();
+      populateTeamAgentSelect();
+      await loadTeamCodesFromDb();
+      toast(enabled ? 'Teams enabled for agent' : 'Teams disabled — codes blocked', 'success');
+    } catch (e) {
+      toast(e.message || 'Update failed', 'error');
+      renderTeamAgentToggles();
+    }
+  }
+
+  async function loadTeamCodesFromDb() {
+    const { data, error } = await sb
+      .from('access_codes')
+      .select('id, agent_id, expires_at, used_count, max_uses, is_active, created_at, metadata')
+      .order('created_at', { ascending: false });
+    if (error) {
+      console.error('loadTeamCodesFromDb:', error);
+      return;
+    }
+    state.teamCodes = (data || []).map(row => ({
+      id: row.id,
+      agentId: row.agent_id,
+      expiresAt: row.expires_at,
+      created: row.created_at,
+      usedCount: row.used_count,
+      maxUses: row.max_uses,
+      isActive: row.is_active,
+      label: row.metadata?.label || row.metadata?.agent_name || ''
+    }));
+    renderTeamCodes();
+  }
+
+  document.getElementById('btn-gen-team-code')?.addEventListener('click', generateTeamCode);
+  document.getElementById('btn-copy-new-code')?.addEventListener('click', () => {
+    if (lastGeneratedTeamCode) copyToClipboard(lastGeneratedTeamCode);
+  });
+
+  async function generateTeamCode() {
+    const agentId = document.getElementById('team-agent-select').value;
+    const expiresRaw = document.getElementById('team-expires-at').value;
+    const maxUses = parseInt(document.getElementById('team-max-uses').value, 10) || 100;
+    const label = document.getElementById('team-code-label').value.trim();
+
+    if (!agentId) {
+      toast('Please select an agent', 'error');
+      return;
+    }
+    if (!expiresRaw) {
+      toast('Set an expiration date and time', 'error');
+      return;
+    }
+    const expiresAt = new Date(expiresRaw);
+    if (expiresAt <= new Date()) {
+      toast('Expiration must be in the future', 'error');
+      return;
+    }
+
+    try {
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) {
+        toast('Please sign in again', 'error');
+        return;
+      }
+      const agent = state.agents.find(a => a.id === agentId);
+      if (!agent) {
+        toast('Agent not found', 'error');
+        return;
+      }
+      if (agent.teams_enabled === false) {
+        toast('Enable Teams for this agent first', 'error');
+        return;
+      }
+
+      const token = await ensureAgentToken(agent);
+
+      const { data, error } = await sb.functions.invoke('generate-teams-code', {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+        body: {
+          agent_token_id: token.token_id,
+          agent_id: agentId,
+          expires_at: expiresAt.toISOString(),
+          max_uses: maxUses,
+          label: label || undefined
+        }
+      });
+
+      if (error) {
+        toast(`Error: ${error.message}`, 'error');
+        return;
+      }
+      if (data?.error) {
+        toast(data.error, 'error');
+        return;
+      }
+
+      lastGeneratedTeamCode = data.code;
+      const reveal = document.getElementById('team-code-reveal');
+      const revealVal = document.getElementById('team-code-reveal-value');
+      if (reveal && revealVal) {
+        reveal.style.display = 'block';
+        revealVal.textContent = data.code;
+      }
+
+      await loadTeamCodesFromDb();
+      toast('Invite code generated — copy it now', 'success');
+    } catch (e) {
+      toast(`Error: ${e.message}`, 'error');
+    }
+  }
+
+  function formatTeamExpiry(iso) {
+    const d = new Date(iso);
+    return d.toLocaleString(undefined, { dateStyle: 'short', timeStyle: 'short' });
+  }
+
+  function teamCodeStatus(c) {
+    if (!c.isActive) return { text: 'Revoked', cls: 'revoked' };
+    if (new Date(c.expiresAt) <= new Date()) return { text: 'Expired', cls: 'expired' };
+    if (c.usedCount >= c.maxUses) return { text: 'Max uses', cls: 'expired' };
+    return { text: 'Active', cls: 'active' };
+  }
+
+  async function revokeTeamCode(codeId) {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) return toast('Please sign in again', 'error');
+    const { error } = await sb.functions.invoke('manage-teams-code', {
+      headers: { Authorization: `Bearer ${session.access_token}` },
+      body: { action: 'revoke', access_code_id: codeId }
+    });
+    if (error) return toast(error.message, 'error');
+    await loadTeamCodesFromDb();
+    toast('Code revoked', 'success');
+  }
+
+  window.revokeTeamCode = revokeTeamCode;
+
+  function renderTeamCodes() {
+    const list = document.getElementById('team-codes-list');
+    const empty = document.getElementById('team-codes-empty');
+
+    if (!state.teamCodes.length) {
+      list.style.display = 'none';
+      empty.style.display = 'block';
+      return;
+    }
+
+    empty.style.display = 'none';
+    list.style.display = 'block';
+
+    list.innerHTML = state.teamCodes.map(c => {
+      const agent = state.agents.find(a => a.id === c.agentId);
+      const st = teamCodeStatus(c);
+      const label = c.label ? escapeHtml(c.label) + ' · ' : '';
+      return `
+        <div class="team-code-card" style="background:#f5f5f7;border:1px solid rgba(0,0,0,0.06);border-radius:8px;padding:12px 16px;margin-bottom:12px">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
+            <div>
+              <div style="font-weight:600">${escapeHtml(agent?.name || 'Unknown agent')}</div>
+              <div style="font-size:11px;color:#86868b;margin-top:4px">${label}Expires ${formatTeamExpiry(c.expiresAt)} · ${c.usedCount}/${c.maxUses} uses</div>
+              <span class="team-code-badge team-code-badge--${st.cls}" style="display:inline-block;margin-top:8px;font-size:11px;font-weight:600;padding:2px 8px;border-radius:4px">${st.text}</span>
+            </div>
+            ${c.isActive && st.cls === 'active' ? `<button type="button" class="btn btn-secondary" onclick="revokeTeamCode('${c.id}')" style="flex:0;padding:8px 12px">Revoke</button>` : ''}
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // API KEYS
+  document.getElementById('btn-gen-api-key')?.addEventListener('click', generateAPIKey);
+
+  async function generateAPIKey() {
+    if (state.agents.length === 0) {
+      toast('Please create an agent first', 'error');
+      return;
+    }
+
+    try {
+      const firstAgent = state.agents[0];
+      const token = await ensureAgentToken(firstAgent);
+
+      state.apiKeys.push({
+        id: token.token_id || Date.now().toString(),
+        key: token.api_key,
+        agentId: firstAgent.id,
+        created: new Date().toISOString(),
+        lastUsed: null
+      });
+
+      saveState();
+      renderAPIKeys();
+      toast('API key generated!', 'success');
+    } catch (e) {
+      toast(`Error: ${e.message}`, 'error');
+    }
+  }
+
+  function renderAPIKeys() {
+    const list = document.getElementById('api-keys-list');
+    const empty = document.getElementById('api-keys-empty');
+
+    if (state.apiKeys.length === 0) {
+      list.style.display = 'none';
+      empty.style.display = 'block';
+      return;
+    }
+
+    empty.style.display = 'none';
+    list.style.display = 'block';
+
+    list.innerHTML = state.apiKeys.map(k => `
+      <div style="background: #f5f5f7; border: 1px solid rgba(0,0,0,0.06); border-radius: 8px; padding: 12px 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <div style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #156cc2; font-weight: 600;">sk_****${k.key.substring(k.key.length - 8)}</div>
+          <div style="font-size: 11px; color: #86868b; margin-top: 4px;">Created ${new Date(k.created).toLocaleDateString()}</div>
+        </div>
+        <button class="btn btn-danger" onclick="deleteAPIKey('${k.id}')" style="flex: 0; padding: 8px 12px;">Revoke</button>
+      </div>
+    `).join('');
+  }
+
+  window.deleteAPIKey = function(id) {
+    if (confirm('Revoke this API key?')) {
+      state.apiKeys = state.apiKeys.filter(k => k.id !== id);
+      saveState();
+      renderAPIKeys();
+      toast('API key revoked', 'success');
+    }
+  }
+
+  // BILLING
+  function setupBilling() {
+    document.querySelectorAll('.amount-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        selectedAmount = parseInt(e.target.dataset.amount);
+        document.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('active'));
+        e.target.classList.add('active');
+        document.getElementById('custom-amount').value = selectedAmount;
+      });
+    });
+
+    document.getElementById('custom-amount').addEventListener('input', (e) => {
+      selectedAmount = parseInt(e.target.value) || 0;
+      document.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('active'));
+    });
+
+    document.getElementById('btn-checkout').addEventListener('click', checkout);
+  }
+
+  async function checkout() {
+    if (selectedAmount < 1 || selectedAmount > 10000) {
+      toast('Amount must be between $1 and $10,000', 'error');
+      return;
+    }
+
+    try {
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session || !session.access_token) {
+        toast('Session expired. Please sign in again.', 'error');
+        return;
+      }
+
+      const returnUrl = window.location.origin + window.location.pathname;
+
+      // 5s timeout for checkout request
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+      const response = await fetch(`${SUPABASE_URL}/functions/v1/stripe-checkout`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPABASE_KEY,
+          'Authorization': `Bearer ${session.access_token}`
+        },
+        body: JSON.stringify({
+          amount: selectedAmount,
+          userId: currentUser.id,
+          returnUrl: returnUrl
+        }),
+        signal: controller.signal
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        const result = await response.json();
+        toast(result.error || `Checkout failed (${response.status})`, 'error');
+        return;
+      }
+
+      const result = await response.json();
+      if (result.url) {
+        window.location.href = result.url;
+      } else {
+        toast('No checkout URL returned', 'error');
+      }
+    } catch (e) {
+      if (e.name === 'AbortError') {
+        toast('Checkout request timed out. Please try again.', 'error');
+      } else {
+        toast('Checkout error: ' + e.message, 'error');
+      }
+    }
+  }
+
+  // Check for Stripe success
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('success') === 'true') {
+    state.balance += selectedAmount;
+    saveState();
+    updateBalance();
+    toast(`$${selectedAmount} added to your balance!`, 'success');
+    window.history.replaceState({}, '', window.location.pathname);
+  }
+
+  // UTILITIES
+  let lastToastKey = '';
+  let lastToastAt = 0;
+  function toast(msg, type = 'info') {
+    const key = type + ':' + msg;
+    const now = Date.now();
+    if (key === lastToastKey && now - lastToastAt < 4000) return;
+    lastToastKey = key;
+    lastToastAt = now;
+
+    const container = document.getElementById('toast-container');
+    if (type === 'error') {
+      container.querySelectorAll('.toast.error').forEach((t) => t.remove());
+    }
+
+    const el = document.createElement('div');
+    el.className = `toast ${type}`;
+    el.textContent = msg;
+    container.appendChild(el);
+    setTimeout(() => el.remove(), type === 'error' ? 8000 : 3000);
+  }
+
+  window.copyToClipboard = function(text) {
+    navigator.clipboard.writeText(text).then(() => {
+      toast('Copied to clipboard!', 'success');
+    });
+  }
+
+  // SIGN OUT
+  document.getElementById('btn-signout')?.addEventListener('click', async () => {
+    await sb.auth.signOut();
+    document.body.classList.add('fx-page-exit');
+    setTimeout(() => { window.location.href = 'neura_ui.html'; }, 220);
+  });
+
+  init();
+})();
+</script>
+
+</body>
+</html>

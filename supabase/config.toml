@@ -1,0 +1,38 @@
+[functions.teams-auth]
+verify_jwt = false
+
+[functions."generate-teams-code"]
+verify_jwt = false
+
+[functions."manage-teams-code"]
+verify_jwt = false
+
+[functions."create-or-get-agent-token"]
+verify_jwt = false
+
+[functions."agent-invoke"]
+verify_jwt = false
+
+[functions."browserbase-session"]
+verify_jwt = false
+
+[functions."browser-action"]
+verify_jwt = false
+
+[functions."generate-access-code"]
+verify_jwt = false
+
+[functions."stripe-checkout"]
+verify_jwt = false
+
+[functions."stripe-webhook"]
+verify_jwt = false
+
+[functions."oauth-start"]
+verify_jwt = false
+
+[functions."oauth-callback"]
+verify_jwt = false
+
+[functions."oauth-disconnect"]
+verify_jwt = false

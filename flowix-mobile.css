@@ -1,0 +1,297 @@
+/* flowix — mobile & iOS layout (safe areas, touch, narrow screens) */
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body.fx-landing,
+body.fx-tines.fx-app-page {
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Prevent iOS zoom on focus — inputs at least 16px */
+body.fx-landing :is(input, textarea, select),
+body.fx-tines :is(input, textarea, select),
+.fx-modal :is(input, textarea, select) {
+  font-size: 16px;
+}
+
+/* Safe area padding */
+@supports (padding: max(0px)) {
+  body.fx-landing .fx-nav {
+    padding-left: max(16px, env(safe-area-inset-left));
+    padding-right: max(16px, env(safe-area-inset-right));
+    padding-top: max(0px, env(safe-area-inset-top));
+  }
+
+  body.fx-landing .fx-footer {
+    padding-bottom: max(24px, env(safe-area-inset-bottom));
+    padding-left: max(20px, env(safe-area-inset-left));
+    padding-right: max(20px, env(safe-area-inset-right));
+  }
+
+  body.fx-tines header {
+    padding-left: max(12px, env(safe-area-inset-left));
+    padding-right: max(12px, env(safe-area-inset-right));
+    padding-top: max(0px, env(safe-area-inset-top));
+  }
+
+  body.fx-tines main {
+    padding-left: max(16px, env(safe-area-inset-left));
+    padding-right: max(16px, env(safe-area-inset-right));
+    padding-bottom: max(48px, env(safe-area-inset-bottom));
+  }
+
+  #toast-container {
+    right: max(16px, env(safe-area-inset-right));
+    bottom: max(16px, env(safe-area-inset-bottom));
+  }
+}
+
+/* Touch targets */
+.fx-btn,
+.fx-landing .fx-btn,
+body.fx-tines .btn,
+body.fx-tines .nav-btn {
+  min-height: 44px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* — Landing nav — */
+@media (max-width: 900px) {
+  .fx-landing .fx-nav {
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 12px;
+    min-height: var(--fx-nav-h);
+    height: auto;
+    padding-top: max(10px, env(safe-area-inset-top, 0px));
+    padding-bottom: 10px;
+  }
+
+  .fx-landing .fx-nav-links {
+    order: 3;
+    width: 100%;
+    justify-content: center;
+    gap: 20px;
+    padding-top: 4px;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .fx-landing .fx-nav-actions {
+    margin-left: auto;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+
+  .fx-landing .fx-hero {
+    min-height: 100svh;
+    min-height: 100dvh;
+    padding-top: calc(88px + env(safe-area-inset-top, 0px));
+    padding-left: max(16px, env(safe-area-inset-left));
+    padding-right: max(16px, env(safe-area-inset-right));
+  }
+
+  .fx-landing .fx-hero h1 {
+    font-size: clamp(2rem, 11vw, 3.25rem);
+    max-width: 100%;
+  }
+
+  .fx-landing .fx-hero-ctas {
+    flex-direction: column;
+    width: 100%;
+    max-width: 320px;
+    margin: 0 auto;
+  }
+
+  .fx-landing .fx-hero-ctas .fx-btn {
+    width: 100%;
+  }
+
+  .fx-cinematic-section {
+    padding-left: max(12px, env(safe-area-inset-left));
+    padding-right: max(12px, env(safe-area-inset-right));
+  }
+
+  .fx-teams-showcase {
+    padding-left: max(12px, env(safe-area-inset-left));
+    padding-right: max(12px, env(safe-area-inset-right));
+  }
+
+  body.fx-landing.fx-sky .fx-glass-unified {
+    padding: 28px 20px;
+  }
+
+  .fx-section.fx-section-teams {
+    padding: 48px 16px;
+  }
+}
+
+@media (max-width: 520px) {
+  .fx-landing .fx-nav-links {
+    font-size: 13px;
+    gap: 14px;
+  }
+
+  .fx-landing #fx-nav-user-email {
+    display: none;
+  }
+
+  .fx-landing .fx-btn-sm {
+    padding: 10px 14px;
+    font-size: 13px;
+  }
+
+  .fx-teams-download-btns {
+    flex-direction: column;
+  }
+
+  .fx-teams-download-btns .fx-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .fx-landing-plain .fx-hero-ctas {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+/* — Dashboard header — */
+@media (max-width: 960px) {
+  body.fx-tines header {
+    flex-wrap: wrap;
+    height: auto;
+    min-height: var(--fx-nav-h);
+    padding-top: max(8px, env(safe-area-inset-top, 0px));
+    padding-bottom: 8px;
+    gap: 8px;
+  }
+
+  body.fx-tines .header-left {
+    flex: 1 1 100%;
+    gap: 12px;
+    min-width: 0;
+  }
+
+  body.fx-tines .nav-main {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    gap: 4px;
+    max-width: 100%;
+    padding-bottom: 4px;
+  }
+
+  body.fx-tines .nav-main::-webkit-scrollbar {
+    display: none;
+  }
+
+  body.fx-tines .nav-btn {
+    flex-shrink: 0;
+    padding: 8px 12px;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+
+  body.fx-tines .header-right {
+    flex: 1 1 auto;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  body.fx-tines .balance-display {
+    font-size: 12px;
+    padding: 6px 10px;
+  }
+
+  body.fx-tines main {
+    margin-top: calc(var(--fx-nav-h) + 24px);
+    padding-top: 16px;
+  }
+}
+
+@media (max-width: 600px) {
+  body.fx-tines .amount-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  body.fx-tines .card-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .fx-sky-settings-grid {
+    max-width: none;
+  }
+
+  .fx-sky-option {
+    flex-direction: column;
+  }
+
+  .fx-chat-layout,
+  .fx-embed-chat-layout {
+    grid-template-columns: 1fr !important;
+  }
+
+  .fx-chat-sidebar {
+    border-right: none !important;
+    border-bottom: 1px solid var(--fx-border, #e4e4e8);
+    padding-bottom: 12px;
+    margin-bottom: 12px;
+  }
+}
+
+/* Modals — full width on phones */
+@media (max-width: 520px) {
+  .modal-overlay {
+    padding: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right))
+      max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+    align-items: flex-end;
+  }
+
+  .fx-modal {
+    width: 100%;
+    max-width: none;
+    border-radius: 16px 16px 0 0;
+    margin: 0;
+  }
+}
+
+/* Cinematic + Teams demos on small screens */
+@media (max-width: 700px) {
+  .fx-cinematic-frame {
+    min-height: min(48vh, 480px) !important;
+    height: min(48vh, 480px) !important;
+    border-radius: 12px !important;
+  }
+
+  .fx-cinematic-block--create .fx-cinematic-frame {
+    min-height: min(62vh, 640px) !important;
+    height: min(62vh, 640px) !important;
+  }
+
+  .fx-teams-video-frame {
+    min-height: min(50vh, 420px) !important;
+    height: min(50vh, 420px) !important;
+  }
+
+  .fx-teams-showcase-panel {
+    padding: 20px 16px !important;
+    gap: 20px !important;
+  }
+}
+
+/* Reduce cloud motion cost on small screens */
+@media (max-width: 700px) and (prefers-reduced-motion: no-preference) {
+  .fx-cloud.c5,
+  .fx-cloud.c6,
+  .fx-cloud.c7 {
+    display: none;
+  }
+}

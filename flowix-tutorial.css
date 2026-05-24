@@ -1,0 +1,204 @@
+/* flowix dashboard tutorial */
+
+.fx-tutorial-prompt {
+  position: fixed;
+  inset: 0;
+  z-index: 10050;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(18, 18, 26, 0.45);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.fx-tutorial-prompt-card {
+  max-width: 420px;
+  width: 100%;
+  padding: 28px 28px 24px;
+  background: #fff;
+  border-radius: 3px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.18);
+  text-align: center;
+}
+
+.fx-tutorial-prompt-card h2 {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0 0 10px;
+  color: #12121a;
+}
+
+.fx-tutorial-prompt-card p {
+  font-size: 14px;
+  line-height: 1.55;
+  color: #6b7280;
+  margin: 0 0 24px;
+}
+
+.fx-tutorial-prompt-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.fx-tutorial-active {
+  overflow: hidden;
+}
+
+.fx-tutorial-root {
+  position: fixed;
+  inset: 0;
+  z-index: 10040;
+  pointer-events: none;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+.fx-tutorial-root.is-active {
+  pointer-events: auto;
+  visibility: visible;
+  opacity: 1;
+}
+
+.fx-tutorial-edge-glow {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 10041;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  box-shadow:
+    inset 0 0 50px 18px rgba(255, 255, 255, 0.95),
+    inset 0 0 100px 36px rgba(255, 255, 255, 0.45),
+    inset 0 0 160px 56px rgba(255, 255, 255, 0.2);
+  animation: fx-tutorial-edge-pulse 2.8s ease-in-out infinite;
+}
+
+.fx-tutorial-root.is-active .fx-tutorial-edge-glow {
+  opacity: 1;
+}
+
+@keyframes fx-tutorial-edge-pulse {
+  0%, 100% {
+    box-shadow:
+      inset 0 0 50px 18px rgba(255, 255, 255, 0.88),
+      inset 0 0 100px 36px rgba(255, 255, 255, 0.38),
+      inset 0 0 160px 56px rgba(255, 255, 255, 0.16);
+  }
+  50% {
+    box-shadow:
+      inset 0 0 62px 22px rgba(255, 255, 255, 1),
+      inset 0 0 120px 44px rgba(255, 255, 255, 0.52),
+      inset 0 0 180px 64px rgba(255, 255, 255, 0.22);
+  }
+}
+
+.fx-tutorial-spotlight {
+  position: fixed;
+  z-index: 10042;
+  display: none;
+  border-radius: 6px;
+  box-shadow:
+    0 0 0 3px rgba(255, 255, 255, 0.95),
+    0 0 0 9999px rgba(12, 16, 28, 0.58);
+  transition: top 0.3s ease, left 0.3s ease, width 0.3s ease, height 0.3s ease;
+  pointer-events: none;
+}
+
+.fx-tutorial-tooltip {
+  position: fixed;
+  z-index: 10043;
+  width: min(360px, calc(100vw - 32px));
+  max-width: min(360px, calc(100vw - 32px));
+  padding: 18px 20px;
+  background: #fff;
+  border-radius: 3px;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.8);
+  pointer-events: auto;
+  transition: top 0.3s ease, left 0.3s ease, transform 0.3s ease;
+  text-align: left;
+}
+
+.fx-tutorial-tooltip--center {
+  text-align: center;
+}
+
+.fx-tutorial-tooltip--center .fx-tutorial-tooltip-actions {
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+}
+
+.fx-tutorial-tooltip--center .fx-tutorial-tooltip-nav {
+  width: 100%;
+  justify-content: center;
+}
+
+.fx-tutorial-tooltip-step {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #156cc2;
+  margin-bottom: 6px;
+}
+
+.fx-tutorial-tooltip h3 {
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0 0 8px;
+  color: #12121a;
+}
+
+.fx-tutorial-tooltip p {
+  font-size: 13px;
+  line-height: 1.55;
+  color: #4b5563;
+  margin: 0 0 16px;
+}
+
+.fx-tutorial-tooltip-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.fx-tutorial-tooltip-nav {
+  display: flex;
+  gap: 8px;
+}
+
+.fx-tutorial-skip {
+  font-size: 12px;
+  color: #86868b;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px 0;
+  text-decoration: underline;
+}
+
+.fx-tutorial-skip:hover {
+  color: #12121a;
+}
+
+.fx-tutorial-target-pulse {
+  position: relative;
+  z-index: 10044 !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fx-tutorial-edge-glow {
+    animation: none;
+  }
+  .fx-tutorial-spotlight,
+  .fx-tutorial-tooltip {
+    transition: none;
+  }
+}

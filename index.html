@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>flowix — Redirecting</title>
+  <script>
+    (function () {
+      var q = window.location.search || '';
+      var h = window.location.hash || '';
+      var target = 'neura_ui.html' + q + h;
+      if (!q && !h) target = 'neura_ui.html';
+      window.location.replace(target);
+    })();
+  </script>
+  <meta http-equiv="refresh" content="0;url=neura_ui.html"/>
+</head>
+<body>
+  <p style="font-family:system-ui,sans-serif;padding:2rem;color:#5c5c6a">Redirecting to <a href="neura_ui.html">flowix</a>…</p>
+</body>
+</html>

@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<title>Redirecting…</title>
+<script>
+  var dest = 'dashboard.html' + (location.search || '') + '#connections';
+  location.replace(dest);
+</script>
+</head>
+<body>
+<p>Redirecting to <a id="link" href="dashboard.html#connections">Connections</a>…</p>
+<script>document.getElementById('link').href = 'dashboard.html' + (location.search || '') + '#connections';</script>
+</body>
+</html>

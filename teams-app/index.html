@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>flowix Teams</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <script>
+  (function () {
+    var q = location.protocol === 'file:' ? 'teams-paths.js' : '/teams-app/teams-paths.js';
+    document.write('<script src="' + q + '"><\/script>');
+    q = location.protocol === 'file:' ? 'teams-head.js' : '/teams-app/teams-head.js';
+    document.write('<script src="' + q + '"><\/script>');
+  })();
+  </script>
+</head>
+<body class="fx-tines fx-sky teams-app">
+
+<div class="fx-sky-scene" aria-hidden="true">
+  <div class="fx-cloud c1"></div>
+  <div class="fx-cloud c2"></div>
+  <div class="fx-cloud c3"></div>
+  <div class="fx-cloud c4"></div>
+  <div class="fx-cloud c5"></div>
+  <div class="fx-cloud c6"></div>
+  <div class="fx-cloud c7"></div>
+</div>
+
+<div id="view-auth" class="teams-view">
+  <div class="teams-auth-card">
+    <a href="/teams-app/index.html" class="teams-logo" id="link-home">flowix Teams</a>
+    <p class="teams-auth-lead">Enter the invite code from your dashboard. Use in browser or <a href="/teams-app/download.html" id="link-download">download for Mac / Windows</a> — not Microsoft Teams.</p>
+    <div class="form-group">
+      <label class="form-label">First name</label>
+      <input class="form-input" type="text" id="first-name" autocomplete="given-name"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Last name</label>
+      <input class="form-input" type="text" id="last-name" autocomplete="family-name"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Invite code</label>
+      <input class="form-input" type="text" id="invite-code" placeholder="FLOWIX-XXXX-XXXX-XXXX" autocomplete="one-time-code"/>
+    </div>
+    <button type="button" class="btn btn-primary" id="btn-join" style="width:100%;margin-top:8px">Join workspace</button>
+    <p class="teams-auth-foot">Need a code? Ask your admin in the <a href="/dashboard.html#teams" id="link-dashboard">flowix dashboard</a>.</p>
+  </div>
+</div>
+
+<div id="view-chat" class="teams-view hidden">
+  <header class="teams-header">
+    <div>
+      <div class="teams-logo-sm">flowix Teams</div>
+      <div class="teams-agent-name" id="agent-label">Agent</div>
+    </div>
+    <button type="button" class="btn-signout" id="btn-leave">Leave</button>
+  </header>
+  <main class="teams-chat" id="chat-log" aria-live="polite"></main>
+  <footer class="teams-compose">
+    <textarea id="chat-input" rows="2" placeholder="Message your agent…"></textarea>
+    <button type="button" class="btn btn-primary" id="btn-send">Send</button>
+  </footer>
+</div>
+
+<script>
+(function () {
+  var p = window.FLOWIX_TEAMS_PATHS;
+  if (!p) return;
+  var links = [
+    ['link-home', p.nav.home],
+    ['link-download', p.nav.download],
+    ['link-dashboard', p.nav.dashboard],
+  ];
+  links.forEach(function (pair) {
+    var el = document.getElementById(pair[0]);
+    if (el) el.href = pair[1];
+  });
+  function loadScript(src, next) {
+    var s = document.createElement('script');
+    s.src = src;
+    s.onload = next;
+    s.onerror = next;
+    document.body.appendChild(s);
+  }
+  loadScript('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js', function () {
+    loadScript(p.js.config, function () {
+      loadScript(p.js.app);
+    });
+  });
+})();
+</script>
+</body>
+</html>

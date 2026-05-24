@@ -1,0 +1,61 @@
+{
+  "name": "flowix-teams",
+  "version": "1.0.0",
+  "description": "flowix Teams desktop client — invite-code chat with your agents",
+  "main": "main.js",
+  "author": "flowix",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "pack": "electron-builder --dir",
+    "build:win": "cross-env CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --win nsis",
+    "build:win:portable": "cross-env CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --win portable",
+    "build:mac": "cross-env CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --mac dmg"
+  },
+  "build": {
+    "appId": "com.flowix.teams",
+    "productName": "flowix Teams",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js"
+    ],
+    "extraResources": [
+      {
+        "from": "../teams-app",
+        "to": "teams-app",
+        "filter": ["**/*"]
+      },
+      {
+        "from": "../flowix-tines.css",
+        "to": "flowix-tines.css"
+      },
+      {
+        "from": "../flowix-landing.css",
+        "to": "flowix-landing.css"
+      },
+      {
+        "from": "../flowix-config.js",
+        "to": "flowix-config.js"
+      }
+    ],
+    "win": {
+      "target": ["nsis"],
+      "signAndEditExecutable": false
+    },
+    "mac": {
+      "target": ["dmg"],
+      "category": "public.app-category.productivity"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
+  },
+  "devDependencies": {
+    "electron": "^33.2.0",
+    "electron-builder": "^25.1.8"
+  }
+}

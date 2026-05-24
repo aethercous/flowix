@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<title>flowix Teams — Demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="flowix-tines.css"/>
+<link rel="stylesheet" href="flowix-sky.css"/>
+<link rel="stylesheet" href="teams-app/styles.css"/>
+<link rel="stylesheet" href="teams-demo-embed.css"/>
+<link rel="stylesheet" href="flowix-mobile.css"/>
+</head>
+<body class="fx-tines fx-sky teams-app fx-teams-embed-demo">
+
+<div class="fx-sky-scene" aria-hidden="true">
+  <div class="fx-sky-gradient"></div>
+  <div class="fx-cloud c1"></div>
+  <div class="fx-cloud c2"></div>
+  <div class="fx-cloud c3"></div>
+</div>
+
+<div id="fx-teams-embed-stage">
+  <div id="view-auth" class="teams-view">
+    <div class="teams-auth-card">
+      <div class="teams-logo">flowix Teams</div>
+      <p class="teams-auth-lead">Enter the invite code from your dashboard.</p>
+      <div class="form-group">
+        <label class="form-label">First name</label>
+        <input class="form-input" type="text" id="first-name" tabindex="-1" autocomplete="off"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Last name</label>
+        <input class="form-input" type="text" id="last-name" tabindex="-1" autocomplete="off"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Invite code</label>
+        <input class="form-input" type="text" id="invite-code" placeholder="FLOWIX-XXXX-XXXX-XXXX" tabindex="-1" autocomplete="off"/>
+      </div>
+      <button type="button" class="btn btn-primary" id="btn-join" style="width:100%;margin-top:8px" tabindex="-1">Join workspace</button>
+    </div>
+  </div>
+
+  <div id="view-chat" class="teams-view hidden">
+    <header class="teams-header">
+      <div>
+        <div class="teams-logo-sm">flowix Teams</div>
+        <div class="teams-agent-name" id="agent-label">Ops Assistant</div>
+      </div>
+    </header>
+    <main class="teams-chat" id="chat-log" aria-live="polite"></main>
+    <footer class="teams-compose">
+      <textarea id="chat-input" rows="2" placeholder="e.g. What did I send to John about…" tabindex="-1"></textarea>
+      <button type="button" class="btn btn-primary" id="btn-send" tabindex="-1">Send</button>
+    </footer>
+  </div>
+</div>
+
+<div class="fx-teams-embed-overlay" aria-hidden="true">
+  <div class="fx-teams-embed-flash" id="fx-teams-embed-flash"></div>
+  <div class="fx-teams-embed-cursor is-hidden" id="fx-teams-embed-cursor"></div>
+</div>
+
+<script src="flowix-sky.js"></script>
+<script>
+  FlowixSky.init({ mode: 'day' });
+</script>
+<script src="flowix-teams-demo.js"></script>
+</body>
+</html>

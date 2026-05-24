@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8"/>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+<title>flowix — Settings</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+
+<link rel="stylesheet" href="flowix-tines.css"/>
+
+<link rel="stylesheet" href="flowix-landing.css"/>
+
+<link rel="stylesheet" href="flowix-sky.css"/>
+
+<style>
+
+.fx-settings-page { max-width: 720px; margin: 0 auto; padding: 100px 24px 80px; position: relative; z-index: 2; }
+
+.fx-settings-page .fx-nav { position: fixed; top: 0; left: 0; right: 0; }
+
+</style>
+
+</head>
+
+<body class="fx-tines fx-sky fx-app-page">
+
+
+
+<div class="fx-sky-scene" aria-hidden="true" data-layers-ready="1">
+
+  <div class="fx-sky-gradient"></div>
+
+  <div class="fx-sky-stars" aria-hidden="true"></div>
+
+  <div class="fx-cloud c1"></div>
+
+  <div class="fx-cloud c2"></div>
+
+  <div class="fx-cloud c3"></div>
+
+  <div class="fx-cloud c4"></div>
+
+</div>
+
+
+
+<nav class="fx-nav" style="display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:56px">
+
+  <a href="neura_ui.html" class="fx-logo">flowix</a>
+
+  <div style="display:flex;gap:12px;align-items:center">
+
+    <a href="neura_ui.html" class="fx-btn fx-btn-ghost fx-btn-sm">Home</a>
+
+    <a href="dashboard.html#settings" class="fx-btn fx-btn-primary fx-btn-sm">Dashboard</a>
+
+  </div>
+
+</nav>
+
+
+
+<main class="fx-settings-page">
+
+  <p class="fx-eyebrow" style="margin-bottom:8px">Appearance</p>
+
+  <h1 style="font-size:32px;font-weight:700;margin-bottom:12px">Settings</h1>
+
+  <p style="font-size:15px;color:var(--fx-text-secondary);line-height:1.55;margin-bottom:32px">Use the gear icon in the dashboard header for quick access.</p>
+
+
+
+  <div class="form-card" style="padding:24px">
+
+    <div class="form-title">Background</div>
+
+    <label class="fx-perm-option" style="margin-bottom:24px;display:flex">
+      <input type="checkbox" id="sky-cycle-enabled"/>
+      <span>
+        <strong>Day cycle (10 minutes)</strong>
+        <small style="display:block;font-size:12px;color:#6b7280;margin-top:4px;line-height:1.45">Turn off to keep a fixed sky time using the slider below.</small>
+      </span>
+    </label>
+
+    <div class="fx-sky-time-block">
+
+      <div class="fx-sky-time-header">
+
+        <strong>Time of day</strong>
+
+        <div class="fx-sky-time-meta">
+
+          <span id="sky-time-label">12:00 PM</span>
+
+          <span id="sky-time-phase">Daytime</span>
+
+        </div>
+
+      </div>
+
+      <p id="sky-time-hint" style="font-size:13px;color:#6b7280;margin:0 0 12px;line-height:1.5"></p>
+
+      <div class="fx-sky-time-slider-wrap">
+
+        <input type="range" class="fx-sky-time-slider" id="sky-time-slider" min="0" max="1000" value="140" aria-label="Time of day"/>
+
+      </div>
+
+      <div class="fx-sky-time-labels">
+
+        <span>6 AM</span><span>Noon</span><span>Sunset</span><span>8 PM</span>
+
+      </div>
+
+      <div id="sky-time-preview" aria-hidden="true"></div>
+
+    </div>
+
+  </div>
+
+</main>
+
+
+
+<div id="toast-container" style="position:fixed;bottom:24px;right:24px;z-index:100"></div>
+
+
+
+<script src="flowix-sky.js"></script>
+
+<script>
+
+  document.body.classList.add('ready');
+
+  FlowixSky.init();
+
+  FlowixSky.bindTimeSlider();
+
+  FlowixSky.bindCycleToggle();
+
+  FlowixSky.updateTimeSliderState();
+
+</script>
+
+</body>
+
+</html>
+

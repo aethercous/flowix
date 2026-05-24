@@ -1,0 +1,45 @@
+name: Build flowix Teams installers
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, master]
+    paths:
+      - 'flowix-teams-desktop/**'
+      - 'teams-app/**'
+      - 'flowix-tines.css'
+      - 'flowix-landing.css'
+      - 'flowix-config.js'
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Build portable Windows zip
+        run: powershell -ExecutionPolicy Bypass -File scripts/build-teams-portable.ps1
+      - uses: actions/upload-artifact@v4
+        with:
+          name: flowix-teams-windows
+          path: |
+            downloads/flowix-teams-win.zip
+            downloads/flowix-teams-mac.zip
+
+  build-mac:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Build portable Mac zip
+        run: |
+          npm ci --prefix flowix-teams-desktop
+          pwsh -File scripts/build-teams-portable.ps1 || bash -c 'echo use build script on mac'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: flowix-teams-mac
+          path: downloads/flowix-teams-mac.zip
