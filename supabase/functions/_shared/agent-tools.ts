@@ -2,6 +2,8 @@ import { isUrlAllowed } from "./url-allowlist.ts";
 import {
   type BrowserRuntimeContext,
   createBrowserSession,
+  loadConnectionsForCtx,
+  matchConnectionForUrl,
   runBrowserAction,
   type BrowserActionName,
 } from "./browser-runtime.ts";
@@ -28,7 +30,7 @@ export function buildWebToolDefinitions(ctx: BrowserRuntimeContext): ToolDefinit
     {
       name: "start_browser",
       description:
-        `Start a live Browserbase web session. You may only visit connected sites: ${sites}. Call this before other browser tools.`,
+        `Start a live Browserbase web session. You may only visit connected sites: ${sites}. If a connected account exists for that site, the session is automatically signed in using the user's OAuth credentials stored in Supabase. Call this before other browser tools.`,
       parameters: {
         type: "object",
         properties: {
@@ -117,7 +119,7 @@ export function webAccessSystemPromptBlock(ctx: BrowserRuntimeContext): string {
   if (!ctx.perms.can_read_navigate || !ctx.allowedUrls.length) {
     return "\n\nWeb access: DISABLED. You cannot browse the internet for this agent.";
   }
-  return `\n\nWeb access: ENABLED via Browserbase tools. You have live browser tools (start_browser, browse_url, get_page_content, take_screenshot, scroll, etc.). You may ONLY visit these connected websites: ${sites}. Never navigate to URLs outside this list — the server will block them. When you use the web, say so briefly so the user knows you are browsing live data.`;
+  return `\n\nWeb access: ENABLED via Browserbase tools. You have live browser tools (start_browser, browse_url, get_page_content, take_screenshot, scroll, etc.). You may ONLY visit these connected websites: ${sites}. Never navigate to URLs outside this list — the server will block them. When the user has connected an account for a site (Slack, Google, Notion, GitHub, Discord, Teams, LinkedIn, …), the session is automatically signed in via the stored OAuth credentials — do not prompt the user for passwords. When you use the web, say so briefly so the user knows you are browsing live data.`;
 }
 
 export async function executeAgentTool(
@@ -133,13 +135,21 @@ export async function executeAgentTool(
         error: `URL not allowed. Connected sites only: ${ctx.allowedUrls.join(", ")}`,
       };
     }
-    const session = await createBrowserSession(url);
+    const session = await createBrowserSession(ctx, url);
     state.browserSessionId = session.sessionId;
+
+    const connections = await loadConnectionsForCtx(ctx);
+    const accounts = connections.map((c) => c.provider);
+
     return {
       status: "success",
       browserSessionId: session.sessionId,
+      attachedAccounts: session.attachedProviders,
+      availableAccounts: accounts,
       message: url
-        ? `Browser started at ${url}`
+        ? session.attachedProviders.length
+          ? `Browser started at ${url} (signed in via ${session.attachedProviders.join(", ")})`
+          : `Browser started at ${url}`
         : "Browser session started. Use browse_url to open a connected site.",
       allowedSites: ctx.allowedUrls,
     };
@@ -179,6 +189,15 @@ export async function executeAgentTool(
       },
       ctx,
     );
+
+    if (action === "browse_url" && typeof args.url === "string") {
+      const connections = await loadConnectionsForCtx(ctx);
+      const match = matchConnectionForUrl(args.url, connections);
+      if (match) {
+        (result as Record<string, unknown>).signedInAs = match.provider.id;
+      }
+    }
+
     return result;
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);

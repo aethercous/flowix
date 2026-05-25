@@ -6,7 +6,11 @@ import { corsPreflightResponse, jsonResponse } from "../_shared/cors.ts";
 
 import { webAccessSystemPromptBlock } from "../_shared/agent-tools.ts";
 
-import { buildBrowserRuntimeContext } from "../_shared/browser-runtime.ts";
+import {
+  type AgentIdentity,
+  buildBrowserRuntimeContext,
+  describeConnectionsForPrompt,
+} from "../_shared/browser-runtime.ts";
 
 import { parseAllowedUrls } from "../_shared/url-allowlist.ts";
 
@@ -370,15 +374,22 @@ serve(async (req: Request) => {
 
 
 
-  const browserCtx = buildBrowserRuntimeContext(agentRow ?? {
+  const identity: AgentIdentity = {
+    userId: tokenRow.user_id,
+    agentId: tokenRow.agent_id,
+    supabase,
+  };
 
-    allowed_urls: agent_config?.allowedUrls,
+  const browserCtx = buildBrowserRuntimeContext(
+    agentRow ?? {
+      allowed_urls: agent_config?.allowedUrls,
+      can_read_navigate: agent_config?.canReadNavigate,
+      can_send_edit: agent_config?.canSendEdit,
+    },
+    identity,
+  );
 
-    can_read_navigate: agent_config?.canReadNavigate,
-
-    can_send_edit: agent_config?.canSendEdit,
-
-  });
+  const connectionsBlock = await describeConnectionsForPrompt(browserCtx);
 
 
 
@@ -448,7 +459,7 @@ serve(async (req: Request) => {
       providerPrefix,
       model,
       apiKey: llmApiKey,
-      systemPrompt,
+      systemPrompt: systemPrompt + connectionsBlock,
       history,
       message,
       browserCtx,

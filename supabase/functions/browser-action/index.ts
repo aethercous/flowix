@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import {
+  type AgentIdentity,
   buildBrowserRuntimeContext,
   runBrowserAction,
   type BrowserActionName,
@@ -74,7 +75,13 @@ serve(async (req: Request) => {
     .eq("id", tokenRow.agent_id)
     .maybeSingle();
 
-  const ctx = buildBrowserRuntimeContext(agentRow ?? undefined);
+  const identity: AgentIdentity = {
+    userId: tokenRow.user_id,
+    agentId: tokenRow.agent_id,
+    supabase,
+  };
+
+  const ctx = buildBrowserRuntimeContext(agentRow ?? undefined, identity);
 
   try {
     const result = await runBrowserAction(
