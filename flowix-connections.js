@@ -5,18 +5,28 @@
   const SUPABASE_URL = 'https://utofnywijqsozjqmkhcn.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_NFpInIt2anAJxn2slHZIuQ_BsEw4g1n';
 
-  const OAUTH_APPS = [
-    { id: 'slack', label: 'Slack', icon: 'S', color: '#4A154B', desc: 'Read messages, post updates, and respond to mentions in your Slack workspace.' },
-    { id: 'google', label: 'Google Calendar', icon: 'G', color: '#4285F4', desc: 'Check availability, schedule meetings, and manage your calendar.' },
-    { id: 'discord', label: 'Discord', icon: 'D', color: '#5865F2', desc: 'Connect to Discord servers to moderate chats and answer questions.' },
-    { id: 'github', label: 'GitHub', icon: 'G', color: '#181717', desc: 'Analyze code, manage issues, and review pull requests.' },
-    { id: 'notion', label: 'Notion', icon: 'N', color: '#000', desc: 'Read and update Notion pages from your knowledge base.' },
-    { id: 'teams', label: 'Microsoft Teams', icon: 'T', color: '#6264A7', desc: 'Assist your organization in Teams channels and chats.' },
-  ];
+  const catalog = global.FlowixConnectionCatalog;
+  const OAUTH_APPS = catalog
+    ? catalog.getOAuthApps().map(function (c) {
+        return {
+          id: c.oauthProvider || c.id,
+          label: c.label,
+          icon: c.icon,
+          color: c.color,
+          desc: c.desc,
+          catalogId: c.id,
+        };
+      })
+    : [
+        { id: 'slack', label: 'Slack', icon: 'S', color: '#4A154B', desc: 'Slack workspace.' },
+        { id: 'google', label: 'Google Calendar', icon: 'G', color: '#4285F4', desc: 'Google Calendar.' },
+      ];
 
-  const BROWSER_APPS = [
-    { id: 'linkedin', label: 'LinkedIn', icon: 'in', color: '#0A66C2', desc: 'Browse feed, post updates, and reply via Browserbase (per agent).' },
-  ];
+  const BROWSER_APPS = catalog
+    ? catalog.getBrowserApps().map(function (c) {
+        return { id: c.id, label: c.label, icon: c.icon, color: c.color, desc: c.desc };
+      })
+    : [{ id: 'linkedin', label: 'LinkedIn', icon: 'in', color: '#0A66C2', desc: 'LinkedIn via browser.' }];
 
   function createClient() {
     return global.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -43,17 +53,32 @@
   }
 
   async function startOAuth(sb, provider, options = {}) {
-    const { data: { session } } = await sb.auth.getSession();
-    if (!session) throw new Error('Please sign in again');
+    console.info('[FlowixConnections] startOAuth →', provider, options);
 
-    const { data, error } = await sb.functions.invoke('oauth-start', {
-      headers: { Authorization: `Bearer ${session.access_token}` },
-      body: {
-        provider,
-        agentId: options.agentId,
-        returnUrl: options.returnUrl || 'dashboard.html#connections',
-      },
-    });
+    const sessionRes = await sb.auth.getSession();
+    const session = sessionRes?.data?.session;
+    if (!session) {
+      console.warn('[FlowixConnections] startOAuth: no session', sessionRes);
+      throw new Error('Please sign in again');
+    }
+
+    let invokeResult;
+    try {
+      invokeResult = await sb.functions.invoke('oauth-start', {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+        body: {
+          provider,
+          agentId: options.agentId,
+          returnUrl: options.returnUrl || 'dashboard.html#connections',
+        },
+      });
+    } catch (networkErr) {
+      console.error('[FlowixConnections] oauth-start network/fetch failed', networkErr);
+      throw new Error(networkErr?.message || 'Could not reach Supabase oauth-start function');
+    }
+
+    const { data, error } = invokeResult || {};
+    console.info('[FlowixConnections] oauth-start response', { data, error });
 
     if (error) {
       let msg = error.message || 'Failed to start OAuth';
@@ -61,15 +86,40 @@
         try {
           const body = await error.context.json();
           if (body?.error) msg = body.error;
-        } catch (_) { /* ignore */ }
+          console.warn('[FlowixConnections] oauth-start error body', body);
+        } catch (parseErr) {
+          console.warn('[FlowixConnections] oauth-start error body parse failed', parseErr);
+        }
       }
       throw new Error(msg);
     }
     if (data?.ok === false || data?.error) {
-      throw new Error(data.error || 'OAuth is not configured for this provider');
+      const missing = data?.missingSecrets ? ` (missing: ${data.missingSecrets.join(', ')})` : '';
+      throw new Error((data.error || 'OAuth is not configured for this provider') + missing);
     }
-    if (!data?.url) throw new Error('No OAuth URL returned');
-    window.location.href = data.url;
+    if (!data?.url) throw new Error('No OAuth URL returned by oauth-start');
+
+    console.info('[FlowixConnections] redirecting to OAuth provider', data.url);
+    window.location.assign(data.url);
+  }
+
+  let configStatusCache = null;
+  async function loadOAuthConfigStatus(sb, { force = false } = {}) {
+    if (configStatusCache && !force) return configStatusCache;
+    try {
+      const { data, error } = await sb.functions.invoke('oauth-config-status', {
+        method: 'GET',
+      });
+      if (error) {
+        console.warn('[FlowixConnections] oauth-config-status error', error);
+        return null;
+      }
+      configStatusCache = data || null;
+      return configStatusCache;
+    } catch (e) {
+      console.warn('[FlowixConnections] oauth-config-status threw', e);
+      return null;
+    }
   }
 
   async function disconnectOAuth(sb, provider) {
@@ -153,14 +203,28 @@
     window.history.replaceState({}, '', path);
   }
 
+  function searchCatalog(query, options) {
+    if (catalog) return catalog.searchConnections(query, options);
+    return OAUTH_APPS;
+  }
+
+  function getCatalogLabel(providerId) {
+    if (catalog) return catalog.getLabelForProvider(providerId);
+    const app = OAUTH_APPS.find(function (a) { return a.id === providerId; });
+    return app ? app.label : providerId;
+  }
+
   global.FlowixConnections = {
     SUPABASE_URL,
     SUPABASE_KEY,
     OAUTH_APPS,
     BROWSER_APPS,
+    searchCatalog,
+    getCatalogLabel,
     createClient,
     loadUserConnections,
     loadAgentConnections,
+    loadOAuthConfigStatus,
     startOAuth,
     disconnectOAuth,
     saveAgentConnectionLinks,

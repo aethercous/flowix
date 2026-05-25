@@ -36,3 +36,6 @@ verify_jwt = false
 
 [functions."oauth-disconnect"]
 verify_jwt = false
+
+[functions."oauth-config-status"]
+verify_jwt = false
