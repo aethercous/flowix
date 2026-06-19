@@ -95,6 +95,9 @@
     if (/provider is not enabled/i.test(message) || /Unsupported provider/i.test(message)) {
       return 'Google sign-in is not enabled for this project yet. Enable Google under Supabase → Authentication → Providers.';
     }
+    if (/access_denied|verification process/i.test(message)) {
+      return 'Google blocked sign-in. In Google Cloud → OAuth consent screen, add your email under Test users, or Publish app with only email/profile scopes (no Calendar).';
+    }
     return message;
   }
 
@@ -155,14 +158,7 @@
       var result = await client.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: getAuthRedirectUrl(),
-          skipBrowserRedirect: false,
-          scopes:
-            'openid email profile https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/calendar.events',
-          queryParams: {
-            access_type: 'offline',
-            prompt: 'consent'
-          }
+          redirectTo: getAuthRedirectUrl()
         }
       });
       if (result.error) {

@@ -10,7 +10,12 @@ Enable Google in your Supabase project before the buttons work in production or 
 
 1. Open [Google Cloud Console](https://console.cloud.google.com/) → APIs & Services → Credentials.
 2. Create an **OAuth 2.0 Client ID** (Web application).
-3. Add **Authorized JavaScript origins**:
+3. **OAuth consent screen** (no multi-day verification needed for basic login):
+   - User type: **External**
+   - Scopes: keep only **email**, **profile**, **openid** — do **not** add Calendar scopes here
+   - **Testing:** add each sign-in email under **Test users** (up to 100), **or**
+   - **Production:** click **Publish app** — basic email/profile scopes work immediately without Google verification
+4. Add **Authorized JavaScript origins**:
    - `https://flowix.space`
    - `http://localhost:8765` (local preview)
 4. Add **Authorized redirect URIs** (Supabase callback — required):
@@ -38,5 +43,6 @@ Local preview: `python -m http.server 8765` from the repo root, then open http:/
 
 ## Notes
 
-- Google sign-in is separate from **Google Calendar** OAuth used for agent connections (`OAUTH_GOOGLE_*` env vars in Edge Functions).
+- **Sign-in uses only email/profile** — no Calendar scopes, so Google verification is not required for login.
+- **Google Calendar** for agent connections is a separate OAuth flow (`OAUTH_GOOGLE_*` edge function secrets).
 - `/neura_ui.html` redirects to `/` for backwards compatibility.
