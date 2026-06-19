@@ -311,6 +311,13 @@
     cycleRaf = requestAnimationFrame(tick);
   }
 
+  function hideClouds() {
+    if (document.body.classList.contains('fx-landing')) return;
+    document.querySelectorAll('.fx-cloud').forEach(function (el) {
+      el.remove();
+    });
+  }
+
   function applyMode(mode) {
     const body = document.body;
     const scene = getScene();
@@ -318,6 +325,7 @@
 
     currentMode = mode;
     if (scene) ensureLayers(scene);
+    hideClouds();
     body.classList.remove('fx-sky-day', 'fx-sky-night', 'fx-sky-journey', 'fx-sky-cycle');
     PHASES.forEach((p) => body.classList.remove(PHASE_CLASS_PREFIX + p.id));
 
@@ -598,6 +606,7 @@
     const initialT = resolveTargetFromMode(settings);
     displayT = initialT;
     targetT = initialT;
+    hideClouds();
     applyMode(mode);
     bindTimeSlider();
     bindCycleToggle();
@@ -606,13 +615,18 @@
     syncTimeSliderUi(initialT);
 
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', () => applyMode(mode), { once: true });
+      document.addEventListener('DOMContentLoaded', function () {
+        hideClouds();
+        applyMode(mode);
+      }, { once: true });
     }
     window.addEventListener('load', () => {
+      hideClouds();
       if (usesLandingScroll()) updateLandingScroll();
       else updateSkyTarget(true);
     }, { once: true });
     window.addEventListener('pageshow', () => {
+      hideClouds();
       applyMode(getSettings().mode);
     });
     return settings;
@@ -633,6 +647,7 @@
     setCycleEnabled,
     bindSettingsGear,
     updateTimeSliderState,
+    hideClouds,
     formatTimeOfDay,
     samplePhase,
     PHASES,

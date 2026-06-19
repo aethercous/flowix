@@ -109,7 +109,7 @@
       {
         target: () => document.getElementById('oauth-conn-grid') || document.querySelector('#section-connections .form-card'),
         title: 'Your accounts',
-        body: 'Click Connect on each provider. You will need OAuth secrets in Supabase — see the setup box on this page.',
+        body: 'Click Connect on each provider to link your Slack, Google, GitHub, and other accounts. Then assign them to agents when editing.',
       },
       {
         target: () => document.querySelector('[data-section="billing"]'),

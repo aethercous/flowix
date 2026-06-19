@@ -39,3 +39,9 @@ verify_jwt = false
 
 [functions."oauth-config-status"]
 verify_jwt = false
+
+[functions."connection-browser-login"]
+verify_jwt = false
+
+[functions."oauth-link-from-session"]
+verify_jwt = false

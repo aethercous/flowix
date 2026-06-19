@@ -2,6 +2,11 @@
 
 Add these in [Supabase Dashboard → Edge Functions → Secrets](https://supabase.com/dashboard/project/utofnywijqsozjqmkhcn/settings/functions).
 
+**Browserbase** (required for agents to browse with connected accounts):
+
+- `BROWSERBASE_API_KEY`
+- `BROWSERBASE_PROJECT_ID`
+
 **Redirect URL** (same for every provider):
 
 ```
@@ -12,7 +17,7 @@ https://utofnywijqsozjqmkhcn.supabase.co/functions/v1/oauth-callback
 
 1. Create an app at https://api.slack.com/apps
 2. OAuth & Permissions → Redirect URLs → add the URL above
-3. Scopes: `channels:read`, `chat:write`, `users:read`, `team:read`
+3. Bot scopes: `channels:read`, `chat:write`, `users:read`, `team:read` (user scopes are requested automatically for Browserbase)
 4. Secrets:
    - `OAUTH_SLACK_CLIENT_ID` = Client ID
    - `OAUTH_SLACK_CLIENT_SECRET` = Client Secret
@@ -33,4 +38,21 @@ https://utofnywijqsozjqmkhcn.supabase.co/functions/v1/oauth-callback
    - `OAUTH_GITHUB_CLIENT_ID`
    - `OAUTH_GITHUB_CLIENT_SECRET`
 
-After saving secrets, redeploy is not required; retry Connect in the dashboard.
+## Discord
+
+- `OAUTH_DISCORD_CLIENT_ID`
+- `OAUTH_DISCORD_CLIENT_SECRET`
+
+## Notion
+
+Uses Basic auth on token exchange. Secrets:
+
+- `OAUTH_NOTION_CLIENT_ID`
+- `OAUTH_NOTION_CLIENT_SECRET`
+
+## Microsoft Teams
+
+- `OAUTH_MICROSOFT_CLIENT_ID`
+- `OAUTH_MICROSOFT_CLIENT_SECRET`
+
+After saving secrets, redeploy edge functions (`supabase functions deploy`) so callback and Browserbase auth changes take effect. Retry **Connect** in the dashboard. For full web-app login on some sites, use **Browser sign-in** on a connected card.

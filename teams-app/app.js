@@ -1,8 +1,12 @@
 (function () {
   const cfg = window.FLOWIX_CONFIG || {};
   const SUPABASE_URL = cfg.SUPABASE_URL || 'https://utofnywijqsozjqmkhcn.supabase.co';
-  const SUPABASE_KEY = cfg.SUPABASE_KEY || '';
+  const SUPABASE_KEY = cfg.SUPABASE_ANON_KEY || cfg.SUPABASE_KEY || '';
   const SESSION_KEY = 'flowix_teams_session';
+
+  if (!SUPABASE_KEY) {
+    console.error('flowix Teams: missing Supabase anon key in flowix-config.js');
+  }
 
   const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
@@ -14,6 +18,14 @@
 
   let session = null;
   let history = [];
+
+  function fnHeaders() {
+    return {
+      'Content-Type': 'application/json',
+      apikey: SUPABASE_KEY,
+      Authorization: 'Bearer ' + SUPABASE_KEY,
+    };
+  }
 
   function loadSession() {
     try {
@@ -38,7 +50,12 @@
     viewAuth.classList.add('hidden');
     viewChat.classList.remove('hidden');
     agentLabel.textContent = session.agentName || 'Your agent';
-    appendMessage('bot', `You're connected to ${session.agentName}. Ask anything—this agent can use Browserbase to browse the web when needed.`);
+    appendMessage(
+      'bot',
+      "You're connected to " +
+        session.agentName +
+        '. Ask anything—this agent can use Browserbase to browse the web when needed.'
+    );
   }
 
   function showAuth() {
@@ -50,7 +67,7 @@
 
   function appendMessage(role, text) {
     const el = document.createElement('div');
-    el.className = `msg ${role === 'user' ? 'user' : role === 'err' ? 'err bot' : 'bot'}`;
+    el.className = 'msg ' + (role === 'user' ? 'user' : role === 'err' ? 'err bot' : 'bot');
     el.textContent = text;
     chatLog.appendChild(el);
     chatLog.scrollTop = chatLog.scrollHeight;
@@ -71,17 +88,24 @@
     btn.textContent = 'Connecting…';
 
     try {
-      const { data, error } = await sb.functions.invoke('teams-auth', {
-        body: { code, firstName, lastName },
+      const res = await fetch(SUPABASE_URL + '/functions/v1/teams-auth', {
+        method: 'POST',
+        headers: fnHeaders(),
+        body: JSON.stringify({ code, firstName, lastName }),
       });
 
-      if (error) throw new Error(error.message || 'Sign-in failed');
+      let data = null;
+      try {
+        data = await res.json();
+      } catch {
+        data = null;
+      }
+
+      if (!res.ok) {
+        throw new Error((data && data.error) || 'Could not verify invite code (' + res.status + ')');
+      }
       if (!data?.success || !data.agentKey) {
-        const msg = data?.error || 'Invalid invite code';
-        if (/expired|inactive|disabled|max uses/i.test(msg)) {
-          throw new Error(msg);
-        }
-        throw new Error(msg);
+        throw new Error(data?.error || 'Invalid invite code');
       }
 
       session = {
@@ -114,11 +138,10 @@
     sendBtn.disabled = true;
 
     try {
-      const res = await fetch(`${SUPABASE_URL}/functions/v1/agent-invoke`, {
+      const res = await fetch(SUPABASE_URL + '/functions/v1/agent-invoke', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          apikey: SUPABASE_KEY,
+          ...fnHeaders(),
           'X-Agent-Key': session.agentKey,
         },
         body: JSON.stringify({
@@ -129,15 +152,15 @@
 
       const data = await res.json();
       if (!res.ok) {
-        const detail = data.detail ? `: ${data.detail}` : '';
-        throw new Error((data.error || `Request failed (${res.status})`) + detail);
+        const detail = data.detail ? ': ' + data.detail : '';
+        throw new Error((data.error || 'Request failed (' + res.status + ')') + detail);
       }
 
       const reply = data.reply || 'No response.';
       history.push({ role: 'assistant', content: reply });
       appendMessage('bot', reply);
     } catch (e) {
-      appendMessage('err', `Error: ${e.message}`);
+      appendMessage('err', 'Error: ' + e.message);
     } finally {
       sendBtn.disabled = false;
       chatInput.focus();
@@ -146,13 +169,13 @@
 
   document.getElementById('btn-join').addEventListener('click', joinWorkspace);
   document.getElementById('btn-send').addEventListener('click', sendMessage);
-  document.getElementById('btn-leave').addEventListener('click', () => {
+  document.getElementById('btn-leave').addEventListener('click', function () {
     localStorage.removeItem(SESSION_KEY);
     session = null;
     showAuth();
   });
 
-  chatInput.addEventListener('keydown', (e) => {
+  chatInput.addEventListener('keydown', function (e) {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       sendMessage();

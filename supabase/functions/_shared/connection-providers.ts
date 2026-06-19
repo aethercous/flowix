@@ -31,6 +31,8 @@ export interface ProviderHeaderRule {
   name: string;
   /** When true, the value is rendered as `Bearer <token>`. */
   asBearer?: boolean;
+  /** Fixed header value (e.g. Notion-Version) instead of the OAuth access token. */
+  staticValue?: string;
 }
 
 export interface BrowserProvider {
@@ -47,6 +49,22 @@ export interface BrowserProvider {
    * one-time interactive login is remembered across sessions.
    */
   usesContext?: boolean;
+}
+
+/** Default URL to open when seeding a persistent Browserbase context via interactive login. */
+export const PROVIDER_LOGIN_URLS: Record<string, string> = {
+  slack: "https://app.slack.com",
+  google: "https://accounts.google.com",
+  github: "https://github.com/login",
+  notion: "https://www.notion.so",
+  discord: "https://discord.com/login",
+  teams: "https://teams.microsoft.com",
+  linkedin: "https://www.linkedin.com/login",
+  zoom: "https://zoom.us/signin",
+};
+
+export function getProviderLoginUrl(providerId: string): string | null {
+  return PROVIDER_LOGIN_URLS[providerId] ?? null;
 }
 
 export const BROWSER_PROVIDERS: BrowserProvider[] = [
@@ -81,7 +99,7 @@ export const BROWSER_PROVIDERS: BrowserProvider[] = [
     hosts: ["notion.so", "notion.com", "api.notion.com"],
     headers: [
       { name: "Authorization", asBearer: true },
-      { name: "Notion-Version" },
+      { name: "Notion-Version", staticValue: "2022-06-28" },
     ],
     usesContext: true,
   },
@@ -105,6 +123,11 @@ export const BROWSER_PROVIDERS: BrowserProvider[] = [
   {
     id: "linkedin",
     hosts: ["linkedin.com", "www.linkedin.com"],
+    usesContext: true,
+  },
+  {
+    id: "zoom",
+    hosts: ["zoom.us", "zoom.com"],
     usesContext: true,
   },
 ];

@@ -26,7 +26,9 @@ export const OAUTH_PROVIDERS: Record<OAuthProviderId, OAuthProviderConfig> = {
     scopes: ["channels:read", "chat:write", "users:read", "team:read"],
     clientIdEnv: "OAUTH_SLACK_CLIENT_ID",
     clientSecretEnv: "OAUTH_SLACK_CLIENT_SECRET",
-    extraAuthParams: { user_scope: "" },
+    extraAuthParams: {
+      user_scope: "channels:read,users:read,identity.basic,identity.email",
+    },
   },
   google: {
     id: "google",

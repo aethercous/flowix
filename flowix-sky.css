@@ -56,7 +56,11 @@
   50% { opacity: 1; transform: scale(1); }
 }
 
-/* Night + journey: clouds pick up moonlight */
+/* Clouds only on landing (see neura_ui.html) */
+body:not(.fx-landing) .fx-cloud {
+  display: none !important;
+}
+
 body.fx-sky-night .fx-cloud,
 body.fx-sky-journey.fx-sky-phase-night .fx-cloud,
 .fx-sky-scene[data-phase="night"] .fx-cloud,

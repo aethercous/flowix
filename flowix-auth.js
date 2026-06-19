@@ -153,9 +153,11 @@
         options: {
           redirectTo: getAuthRedirectUrl(),
           skipBrowserRedirect: false,
+          scopes:
+            'openid email profile https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/calendar.events',
           queryParams: {
             access_type: 'offline',
-            prompt: 'select_account'
+            prompt: 'consent'
           }
         }
       });

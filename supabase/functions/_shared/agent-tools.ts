@@ -137,6 +137,7 @@ export async function executeAgentTool(
     }
     const session = await createBrowserSession(ctx, url);
     state.browserSessionId = session.sessionId;
+    ctx.activeSessionConnectUrl = session.connectUrl ?? ctx.activeSessionConnectUrl ?? null;
 
     const connections = await loadConnectionsForCtx(ctx);
     const accounts = connections.map((c) => c.provider);

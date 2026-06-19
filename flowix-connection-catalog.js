@@ -41,10 +41,12 @@
       keywords: ['microsoft', 'teams', 'web app', 'chat', 'channels', 'enterprise'],
     }),
     entry('google_workspace', 'Google Workspace', 'Communication', {
+      status: 'oauth',
+      oauthProvider: 'google',
       priority: 'enterprise',
       color: '#4285F4',
       icon: 'G',
-      desc: 'Gmail, Drive, Docs, and admin workflows across Google Workspace. OAuth and browser automation for web-based enterprise workflows.',
+      desc: 'Gmail, Drive, Docs, and Calendar via your Google account. Connect once to use across agents.',
       keywords: ['gmail', 'docs', 'sheets', 'admin', 'workspace', 'enterprise', 'google'],
     }),
     entry('google_chat', 'Google Chat', 'Communication', {
@@ -289,11 +291,22 @@
   }
 
   function getOAuthApps() {
-    return CONNECTIONS.filter(function (c) { return c.status === 'oauth'; });
+    return CONNECTIONS.filter(function (c) { return c.status === 'oauth'; }).sort(compareConnections);
   }
 
   function getBrowserApps() {
-    return CONNECTIONS.filter(function (c) { return c.status === 'browser'; });
+    return CONNECTIONS.filter(function (c) { return c.status === 'browser'; }).sort(compareConnections);
+  }
+
+  /** Primary connections page: live OAuth + browser automation apps. */
+  function getConnectionsPageApps() {
+    return getOAuthApps().concat(getBrowserApps());
+  }
+
+  function getCatalogBrowseApps() {
+    return CONNECTIONS.filter(function (c) {
+      return c.status !== 'oauth' && c.status !== 'browser';
+    }).sort(compareConnections);
   }
 
   function getById(id) {
@@ -315,6 +328,8 @@
     searchConnections: searchConnections,
     getOAuthApps: getOAuthApps,
     getBrowserApps: getBrowserApps,
+    getConnectionsPageApps: getConnectionsPageApps,
+    getCatalogBrowseApps: getCatalogBrowseApps,
     getById: getById,
     getEnterpriseCommunicationApps: getEnterpriseCommunicationApps,
     compareConnections: compareConnections,

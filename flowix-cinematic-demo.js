@@ -398,10 +398,6 @@
   function scrollMessagesContainer(container) {
     if (!container) return;
     container.scrollTop = container.scrollHeight;
-    const last = container.lastElementChild;
-    if (last && typeof last.scrollIntoView === 'function') {
-      last.scrollIntoView({ block: 'nearest', inline: 'nearest' });
-    }
   }
 
   function ensureDemoContentVisible() {
@@ -409,9 +405,6 @@
     const input = document.getElementById('chat-message-input');
     if (input) {
       input.scrollTop = input.scrollHeight;
-      if (typeof input.scrollIntoView === 'function') {
-        input.scrollIntoView({ block: 'nearest', inline: 'nearest' });
-      }
     }
     fitEmbedScene();
     requestAnimationFrame(() => {

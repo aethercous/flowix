@@ -4,6 +4,12 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>flowix — Demo</title>
+<style>
+  html, body.fx-sky {
+    background: linear-gradient(180deg, #5eb3e8 0%, #87ceeb 42%, #e8f4fc 100%);
+    min-height: 100%;
+  }
+</style>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="flowix-tines.css"/>
@@ -18,13 +24,6 @@
 <div class="fx-sky-scene" aria-hidden="true" data-layers-ready="1">
   <div class="fx-sky-gradient"></div>
   <div class="fx-sky-stars" aria-hidden="true"></div>
-  <div class="fx-cloud c1"></div>
-  <div class="fx-cloud c2"></div>
-  <div class="fx-cloud c3"></div>
-  <div class="fx-cloud c4"></div>
-  <div class="fx-cloud c5"></div>
-  <div class="fx-cloud c6"></div>
-  <div class="fx-cloud c7"></div>
 </div>
 
 <header>
@@ -133,11 +132,6 @@
     <div class="page-subtitle">Integrations</div>
     <div class="page-title">Connections</div>
     <p class="fx-page-desc" style="margin-top:12px;margin-bottom:0">Connect Slack, Gmail, and GitHub so agents can search what you sent in past chats and threads.</p>
-  </div>
-
-  <div id="oauth-setup-banner" class="form-card fx-embed-extra" style="margin-bottom:24px;border-color:rgba(21,108,194,0.25);background:rgba(232,240,246,0.9)">
-    <div class="form-title" style="font-size:15px">OAuth setup required</div>
-    <p style="font-size:13px;color:#6b7280;line-height:1.6;margin:0">Add provider secrets in Supabase Edge Functions to enable Connect.</p>
   </div>
 
   <div class="form-card fx-embed-conn-panel" style="margin-bottom:24px">

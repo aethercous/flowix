@@ -45,9 +45,7 @@ serve(async (req: Request) => {
     // 200 so supabase-js returns body in `data` (non-2xx often hides the message)
     return jsonResponse({
       ok: false,
-      error: `${config.label} is not configured yet. In Supabase Dashboard → Edge Functions → Secrets, add ${config.clientIdEnv} and ${config.clientSecretEnv}. Then set redirect URL to ${getCallbackUrl(supabaseUrl)} in your ${config.label} OAuth app.`,
-      missingSecrets: [config.clientIdEnv, config.clientSecretEnv],
-      redirectUri: getCallbackUrl(supabaseUrl),
+      error: `${config.label} isn't available right now. Please try again later.`,
     });
   }
 

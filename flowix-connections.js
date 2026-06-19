@@ -62,6 +62,20 @@
       throw new Error('Please sign in again');
     }
 
+    if (provider === 'google') {
+      try {
+        const linkRes = await sb.functions.invoke('oauth-link-from-session', {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+          body: { provider: 'google' },
+        });
+        if (linkRes.data?.ok) {
+          return { linked: true, provider: 'google' };
+        }
+      } catch (linkErr) {
+        console.info('[FlowixConnections] google session link skipped', linkErr);
+      }
+    }
+
     let invokeResult;
     try {
       invokeResult = await sb.functions.invoke('oauth-start', {
@@ -74,7 +88,7 @@
       });
     } catch (networkErr) {
       console.error('[FlowixConnections] oauth-start network/fetch failed', networkErr);
-      throw new Error(networkErr?.message || 'Could not reach Supabase oauth-start function');
+      throw new Error(networkErr?.message || 'Could not reach the connection service. Check your network and try again.');
     }
 
     const { data, error } = invokeResult || {};
@@ -94,8 +108,7 @@
       throw new Error(msg);
     }
     if (data?.ok === false || data?.error) {
-      const missing = data?.missingSecrets ? ` (missing: ${data.missingSecrets.join(', ')})` : '';
-      throw new Error((data.error || 'OAuth is not configured for this provider') + missing);
+      throw new Error(data.error || 'This integration is not available right now.');
     }
     if (!data?.url) throw new Error('No OAuth URL returned by oauth-start');
 
@@ -120,6 +133,24 @@
       console.warn('[FlowixConnections] oauth-config-status threw', e);
       return null;
     }
+  }
+
+  async function openBrowserLogin(sb, provider) {
+    const sessionRes = await sb.auth.getSession();
+    const session = sessionRes?.data?.session;
+    if (!session) throw new Error('Please sign in again');
+
+    const { data, error } = await sb.functions.invoke('connection-browser-login', {
+      headers: { Authorization: `Bearer ${session.access_token}` },
+      body: { provider },
+    });
+    if (error) throw new Error(error.message || 'Failed to open browser login');
+    if (data?.error) throw new Error(data.error);
+
+    const url = data?.debugUrl || data?.connectUrl;
+    if (!url) throw new Error('No browser login URL returned');
+    window.open(url, '_blank', 'noopener,noreferrer');
+    return data;
   }
 
   async function disconnectOAuth(sb, provider) {
@@ -226,6 +257,7 @@
     loadAgentConnections,
     loadOAuthConfigStatus,
     startOAuth,
+    openBrowserLogin,
     disconnectOAuth,
     saveAgentConnectionLinks,
     parseOAuthCallbackParams,

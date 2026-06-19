@@ -4,27 +4,32 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>flowix Teams</title>
+  <style>
+    html, body.teams-app {
+      background: linear-gradient(180deg, #5eb3e8 0%, #87ceeb 42%, #e8f4fc 100%);
+      min-height: 100%;
+      margin: 0;
+    }
+  </style>
+  <script>
+  if (location.protocol !== 'file:') {
+    var b = document.createElement('base');
+    b.href = location.pathname.indexOf('/teams-app') === 0
+      ? '/teams-app/'
+      : location.pathname.replace(/[^/]+$/, '');
+    document.head.appendChild(b);
+  }
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-  <script>
-  (function () {
-    var q = location.protocol === 'file:' ? 'teams-paths.js' : '/teams-app/teams-paths.js';
-    document.write('<script src="' + q + '"><\/script>');
-    q = location.protocol === 'file:' ? 'teams-head.js' : '/teams-app/teams-head.js';
-    document.write('<script src="' + q + '"><\/script>');
-  })();
-  </script>
+  <script src="teams-paths.js"></script>
+  <script src="teams-head.js"></script>
 </head>
 <body class="fx-tines fx-sky teams-app">
 
 <div class="fx-sky-scene" aria-hidden="true">
-  <div class="fx-cloud c1"></div>
-  <div class="fx-cloud c2"></div>
-  <div class="fx-cloud c3"></div>
-  <div class="fx-cloud c4"></div>
-  <div class="fx-cloud c5"></div>
-  <div class="fx-cloud c6"></div>
-  <div class="fx-cloud c7"></div>
+  <div class="fx-sky-gradient"></div>
+  <div class="fx-sky-stars" aria-hidden="true"></div>
 </div>
 
 <div id="view-auth" class="teams-view">
@@ -66,16 +71,16 @@
 <script>
 (function () {
   var p = window.FLOWIX_TEAMS_PATHS;
-  if (!p) return;
-  var links = [
-    ['link-home', p.nav.home],
-    ['link-download', p.nav.download],
-    ['link-dashboard', p.nav.dashboard],
-  ];
-  links.forEach(function (pair) {
-    var el = document.getElementById(pair[0]);
-    if (el) el.href = pair[1];
-  });
+  if (p) {
+    [
+      ['link-home', p.nav.home],
+      ['link-download', p.nav.download],
+      ['link-dashboard', p.nav.dashboard],
+    ].forEach(function (pair) {
+      var el = document.getElementById(pair[0]);
+      if (el) el.href = pair[1];
+    });
+  }
   function loadScript(src, next) {
     var s = document.createElement('script');
     s.src = src;
@@ -83,9 +88,11 @@
     s.onerror = next;
     document.body.appendChild(s);
   }
+  var cfgSrc = (p && p.js.config) || '/flowix-config.js';
+  var appSrc = (p && p.js.app) || '/teams-app/app.js';
   loadScript('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js', function () {
-    loadScript(p.js.config, function () {
-      loadScript(p.js.app);
+    loadScript(cfgSrc, function () {
+      loadScript(appSrc);
     });
   });
 })();

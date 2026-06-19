@@ -81,8 +81,15 @@ body.fx-sky .fx-cinematic-section {
   border: none;
   border-radius: 16px !important;
   box-shadow: 0 8px 32px rgba(45, 90, 135, 0.18);
-  overscroll-behavior: contain;
+  overscroll-behavior: auto;
   isolation: isolate;
+  scroll-margin: 0;
+  overflow-anchor: none;
+}
+
+body.fx-landing .fx-cinematic-section,
+body.fx-landing .fx-teams-video-frame {
+  overflow-anchor: none;
 }
 
 .fx-cinematic-block--create .fx-cinematic-frame {

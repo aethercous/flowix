@@ -6,6 +6,12 @@
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="mobile-web-app-capable" content="yes"/>
 <title>flowix — Dashboard</title>
+<style>
+  html, body.fx-sky {
+    background: linear-gradient(180deg, #5eb3e8 0%, #87ceeb 42%, #e8f4fc 100%);
+    min-height: 100%;
+  }
+</style>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="flowix-tines.css"/>
@@ -930,29 +936,21 @@ main {
     <p class="fx-page-desc" style="margin-top:12px;margin-bottom:0">Connect your application accounts here. When you create or edit an agent, choose which connected accounts that agent can use.</p>
   </div>
 
-  <div id="oauth-setup-banner" class="form-card" style="display:none;margin-bottom:24px;border-color:rgba(245,158,11,0.4);background:rgba(254,243,199,0.9)">
-    <div class="form-title" style="font-size:15px;color:#92400e">OAuth setup needed for some providers</div>
-    <p style="font-size:13px;color:#6b7280;line-height:1.6;margin-bottom:12px">
-      Add the missing Client ID and Secret in
-      <a href="https://supabase.com/dashboard/project/utofnywijqsozjqmkhcn/settings/functions" target="_blank" rel="noopener" style="color:#92400e;font-weight:700;text-decoration:underline">Supabase → Edge Functions → Secrets</a>,
-      and set the provider&apos;s OAuth redirect URL to:
-    </p>
-    <code style="display:block;padding:10px 12px;background:#fff;border:1px solid rgba(0,0,0,0.08);border-radius:8px;font-size:12px;word-break:break-all;margin-bottom:12px">https://utofnywijqsozjqmkhcn.supabase.co/functions/v1/oauth-callback</code>
-    <div style="font-size:12px;color:#6b4314">
-      <div style="font-weight:600;margin-bottom:6px">Currently missing:</div>
-      <ul data-missing-list style="margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px"></ul>
-    </div>
+  <div class="form-card" style="margin-bottom:24px">
+    <div class="form-title">Connect your accounts</div>
+    <p style="font-size:13px;color:#6b7280;margin-bottom:16px">Link Slack, Microsoft Teams, Google, Discord, GitHub, Notion, and more. After connecting, assign accounts to each agent when you edit them.</p>
+    <div id="oauth-conn-grid" class="card-grid"></div>
   </div>
 
   <div class="form-card" style="margin-bottom:24px">
-    <div class="form-title">Integration catalog</div>
-    <p style="font-size:13px;color:#6b7280;margin-bottom:16px">Search communication and business apps. Enterprise priorities—Slack, Microsoft Teams, Google Workspace, Google Chat, Discord, and Zoom—appear first. OAuth is live for Slack, Teams, Discord, GitHub, Notion, and Google Calendar; browser automation works for web apps like Zoom.</p>
+    <div class="form-title">More integrations</div>
+    <p style="font-size:13px;color:#6b7280;margin-bottom:16px">Browse additional apps coming soon to flowix.</p>
     <div class="fx-conn-search-bar">
-      <input type="search" id="conn-search-input" class="fx-conn-search-input" placeholder="Search connections (e.g. Slack, Teams, Google Chat, Zoom)…" autocomplete="off" aria-label="Search connections"/>
+      <input type="search" id="conn-search-input" class="fx-conn-search-input" placeholder="Search integrations…" autocomplete="off" aria-label="Search integrations"/>
       <span id="conn-search-meta" class="fx-conn-search-meta"></span>
     </div>
-    <div id="oauth-conn-grid" class="card-grid"></div>
-    <div id="conn-no-results" class="fx-conn-empty-grid" style="display:none">No connections match your search. Try another name or category.</div>
+    <div id="oauth-catalog-grid" class="card-grid"></div>
+    <div id="conn-no-results" class="fx-conn-empty-grid" style="display:none">No integrations match your search.</div>
   </div>
 
 </div>
@@ -1559,74 +1557,39 @@ main {
     });
   }
 
-  function renderOAuthConnectionsGrid() {
-    const grid = document.getElementById('oauth-conn-grid');
-    const noResults = document.getElementById('conn-no-results');
-    const meta = document.getElementById('conn-search-meta');
-    if (!grid) return;
+  function renderConnectionCard(app, byProvider, mode) {
+    const oauthId = app.oauthProvider || app.id;
+    const isOAuth = app.status === 'oauth';
+    const isBrowser = app.status === 'browser';
+    const conn = isOAuth ? byProvider[oauthId] : null;
+    const connected = !!conn;
 
-    const byProvider = {};
-    (state.userConnections || []).forEach(c => { byProvider[c.provider] = c; });
-    const cfgStatus = state.oauthConfigStatus?.providers || {};
-
-    const catalog = window.FlowixConnectionCatalog;
-    const list = catalog
-      ? catalog.searchConnections(state.connectionSearch)
-      : FlowixConnections.OAUTH_APPS;
-
-    const total = catalog ? catalog.CONNECTIONS.length : list.length;
-    if (meta) {
-      meta.textContent = list.length === total
-        ? total + ' integrations'
-        : 'Showing ' + list.length + ' of ' + total;
+    let badge = '<div class="card-badge">Coming soon</div>';
+    if (isOAuth) {
+      badge = connected
+        ? `<div class="card-badge fx-conn-status-connected">${escapeHtml(conn.account_label || 'Connected')}</div>`
+        : '<div class="card-badge">Not connected</div>';
+    } else if (isBrowser) {
+      badge = '<div class="card-badge">Browser agent</div>';
     }
 
-    if (!list.length) {
-      grid.innerHTML = '';
-      if (noResults) noResults.style.display = 'block';
-      return;
+    let footerBtn = '<button type="button" class="btn btn-secondary" disabled>Coming soon</button>';
+    if (mode === 'catalog') {
+      /* browse-only cards */
+    } else if (isOAuth) {
+      if (connected) {
+        footerBtn = `<div style="display:flex;gap:8px;flex-wrap:wrap;width:100%">
+            <button type="button" class="btn btn-secondary" style="flex:1;min-width:120px" data-browser-login-btn="${escapeHtml(oauthId)}">Browser sign-in</button>
+            <button type="button" class="btn btn-secondary" style="flex:1;min-width:100px" data-oauth-btn="${escapeHtml(oauthId)}">Disconnect</button>
+          </div>`;
+      } else {
+        footerBtn = `<button type="button" class="btn btn-primary" data-oauth-btn="${escapeHtml(oauthId)}">Connect</button>`;
+      }
+    } else if (isBrowser) {
+      footerBtn = `<button type="button" class="btn btn-secondary" data-browser-login-btn="${escapeHtml(oauthId)}">Open browser sign-in</button>`;
     }
-    if (noResults) noResults.style.display = 'none';
 
-    grid.innerHTML = list.map(app => {
-      const oauthId = app.oauthProvider || app.id;
-      const isOAuth = app.status === 'oauth';
-      const isBrowser = app.status === 'browser';
-      const conn = isOAuth ? byProvider[oauthId] : null;
-      const connected = !!conn;
-      const providerCfg = isOAuth ? cfgStatus[oauthId] : null;
-      const needsSecrets = isOAuth && providerCfg && providerCfg.configured === false;
-
-      let badge = '<div class="card-badge">Coming soon</div>';
-      if (isOAuth) {
-        if (connected) {
-          badge = `<div class="card-badge fx-conn-status-connected">${escapeHtml(conn.account_label || 'Connected')}</div>`;
-        } else if (needsSecrets) {
-          badge = '<div class="card-badge fx-conn-status-needs-setup">Needs setup</div>';
-        } else {
-          badge = '<div class="card-badge">Not connected</div>';
-        }
-      } else if (isBrowser) {
-        badge = '<div class="card-badge">Browser agent</div>';
-      }
-
-      let footerBtn = '<button type="button" class="btn btn-secondary" disabled>Coming soon</button>';
-      if (isOAuth) {
-        if (needsSecrets) {
-          const missing = (providerCfg.missing || []).join(' & ') || 'OAuth secrets';
-          footerBtn = `<button type="button" class="btn btn-warn" data-oauth-btn="${escapeHtml(oauthId)}" title="Add ${escapeHtml(missing)} in Supabase Edge Functions → Secrets">
-              Configure secrets
-            </button>`;
-        } else {
-          footerBtn = `<button type="button" class="btn ${connected ? 'btn-secondary' : 'btn-primary'}" data-oauth-btn="${escapeHtml(oauthId)}">
-              ${connected ? 'Disconnect' : 'Connect'}
-            </button>`;
-        }
-      } else if (isBrowser) {
-        footerBtn = '<button type="button" class="btn btn-secondary" disabled>Configure per agent</button>';
-      }
-
-      return `
+    return `
       <div class="card fx-conn-card${connected ? ' fx-conn-card--connected' : ''}" data-conn-id="${escapeHtml(app.id)}">
         <div class="card-header">
           <div class="card-title" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
@@ -1640,7 +1603,51 @@ main {
         <div class="card-description">${escapeHtml(app.desc)}</div>
         <div class="card-footer">${footerBtn}</div>
       </div>`;
-    }).join('');
+  }
+
+  function renderOAuthConnectionsGrid() {
+    const primaryGrid = document.getElementById('oauth-conn-grid');
+    const catalogGrid = document.getElementById('oauth-catalog-grid');
+    const noResults = document.getElementById('conn-no-results');
+    const meta = document.getElementById('conn-search-meta');
+    if (!primaryGrid) return;
+
+    const byProvider = {};
+    (state.userConnections || []).forEach(c => { byProvider[c.provider] = c; });
+
+    const catalog = window.FlowixConnectionCatalog;
+    const primaryList = catalog
+      ? catalog.getConnectionsPageApps()
+      : FlowixConnections.OAUTH_APPS;
+
+    primaryGrid.innerHTML = primaryList
+      .map(app => renderConnectionCard(app, byProvider, 'primary'))
+      .join('');
+
+    if (catalogGrid && catalog) {
+      const q = state.connectionSearch || '';
+      let browseList = catalog.getCatalogBrowseApps();
+      if (q.trim()) {
+        browseList = catalog.searchConnections(q).filter(function (c) {
+          return c.status !== 'oauth' && c.status !== 'browser';
+        });
+      }
+      const totalBrowse = catalog.getCatalogBrowseApps().length;
+      if (meta) {
+        meta.textContent = q.trim()
+          ? 'Showing ' + browseList.length + ' match' + (browseList.length === 1 ? '' : 'es')
+          : totalBrowse + ' coming soon';
+      }
+      if (!browseList.length) {
+        catalogGrid.innerHTML = '';
+        if (noResults) noResults.style.display = 'block';
+      } else {
+        if (noResults) noResults.style.display = 'none';
+        catalogGrid.innerHTML = browseList
+          .map(app => renderConnectionCard(app, byProvider, 'catalog'))
+          .join('');
+      }
+    }
   }
 
   let connSearchBound = false;
@@ -1656,14 +1663,26 @@ main {
 
   let oauthGridClickBound = false;
   function bindOAuthGridClicks() {
-    const grid = document.getElementById('oauth-conn-grid');
-    if (!grid) {
-      console.warn('[dashboard] bindOAuthGridClicks: #oauth-conn-grid not found in DOM');
+    const section = document.getElementById('section-connections');
+    if (!section) {
+      console.warn('[dashboard] bindOAuthGridClicks: #section-connections not found');
       return;
     }
     if (oauthGridClickBound) return;
     oauthGridClickBound = true;
-    grid.addEventListener('click', (e) => {
+    section.addEventListener('click', (e) => {
+      const browserBtn = e.target.closest('[data-browser-login-btn]');
+      if (browserBtn) {
+        e.preventDefault();
+        const provider = browserBtn.dataset.browserLoginBtn;
+        FlowixConnections.openBrowserLogin(sb, provider)
+          .then(() => toast('Opened browser sign-in — complete login in the new tab', 'success'))
+          .catch(err => {
+            console.error('[dashboard] browser login failed', err);
+            toast(err?.message || 'Browser sign-in failed', 'error');
+          });
+        return;
+      }
       const btn = e.target.closest('[data-oauth-btn]');
       if (!btn) return;
       if (btn.disabled) {
@@ -1715,13 +1734,20 @@ main {
       btnEl.textContent = 'Connecting…';
     }
     try {
-      await FlowixConnections.startOAuth(sb, provider, { returnUrl: 'dashboard.html#connections' });
+      const result = await FlowixConnections.startOAuth(sb, provider, { returnUrl: 'dashboard.html#connections' });
+      if (result?.linked) {
+        await loadUserConnections();
+        renderOAuthConnectionsGrid();
+        renderAgentConnectionsPicker();
+        toast('Google connected', 'success');
+        return;
+      }
     } catch (e) {
       console.error('[dashboard] startOAuth failed', e);
       const label = FlowixConnections.getCatalogLabel(provider) || provider;
       const raw = e?.message || 'Connection failed';
-      const short = raw.includes('not configured')
-        ? `${label} needs OAuth secrets in Supabase. Go to Supabase → Edge Functions → Secrets and add OAUTH_${provider.toUpperCase()}_CLIENT_ID / _SECRET, then set the redirect URL shown above.`
+      const short = raw.includes('not configured') || raw.includes('not available')
+        ? `${label} isn't available right now. Please try again later.`
         : raw;
       toast(short, 'error');
     } finally {
@@ -1736,8 +1762,6 @@ main {
   async function refreshConnectionsPage() {
     await loadUserConnections();
     await loadAgentConnectionsMap();
-    state.oauthConfigStatus = await FlowixConnections.loadOAuthConfigStatus(sb);
-    updateOAuthSetupBanner();
     const input = document.getElementById('conn-search-input');
     if (input && input.value !== state.connectionSearch) {
       input.value = state.connectionSearch;
@@ -1746,25 +1770,6 @@ main {
     bindOAuthGridClicks();
     bindConnectionSearch();
     renderAgentConnectionsPicker();
-  }
-
-  function updateOAuthSetupBanner() {
-    const banner = document.getElementById('oauth-setup-banner');
-    if (!banner) return;
-    const providers = state.oauthConfigStatus?.providers;
-    if (!providers) return;
-    const missing = Object.entries(providers)
-      .filter(([, v]) => v && v.configured === false)
-      .map(([id, v]) => ({ id, label: v.label, vars: v.missing }));
-    const allConfigured = missing.length === 0;
-    banner.style.display = allConfigured ? 'none' : '';
-    if (!allConfigured) {
-      const list = missing
-        .map(m => `<li><strong>${escapeHtml(m.label)}</strong>: <code>${m.vars.map(escapeHtml).join('</code> · <code>')}</code></li>`)
-        .join('');
-      const slot = banner.querySelector('[data-missing-list]');
-      if (slot) slot.innerHTML = list;
-    }
   }
 
   function showConnectionsForAgent(agentId) {

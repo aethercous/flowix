@@ -4,23 +4,18 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Download flowix Teams</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-  <script>
-  (function () {
-    var q = location.protocol === 'file:' ? 'teams-paths.js' : '/teams-app/teams-paths.js';
-    document.write('<script src="' + q + '"><\/script>');
-    q = location.protocol === 'file:' ? 'teams-head.js' : '/teams-app/teams-head.js';
-    document.write('<script src="' + q + '"><\/script>');
-  })();
-  </script>
   <style>
+    html, body.teams-app {
+      background: linear-gradient(180deg, #5eb3e8 0%, #87ceeb 42%, #e8f4fc 100%);
+      min-height: 100%;
+      margin: 0;
+    }
     .teams-dl-grid { display: grid; gap: 12px; margin: 24px 0; }
     @media (min-width: 520px) { .teams-dl-grid { grid-template-columns: 1fr 1fr; } }
     .teams-dl-card {
       display: flex; flex-direction: column; gap: 8px; padding: 20px;
       border: 1px solid var(--fx-border); border-radius: var(--fx-radius-lg);
-      background: rgba(255,255,255,0.65); text-decoration: none; color: inherit;
+      background: rgba(255, 255, 255, 0.92); text-decoration: none; color: inherit;
       transition: border-color 0.15s, box-shadow 0.15s; cursor: pointer;
     }
     a.teams-dl-card:hover { border-color: var(--fx-border-strong); box-shadow: var(--fx-shadow-sm); }
@@ -30,12 +25,22 @@
     .teams-dl-card.is-disabled { opacity: 0.55; cursor: not-allowed; pointer-events: none; }
     .teams-browser-cta { margin-top: 8px; padding-top: 20px; border-top: 1px solid var(--fx-border); }
   </style>
+  <script>
+  if (location.protocol !== 'file:') {
+    var b = document.createElement('base');
+    b.href = '/teams-app/';
+    document.head.appendChild(b);
+  }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <script src="teams-paths.js"></script>
+  <script src="teams-head.js"></script>
 </head>
 <body class="fx-tines fx-sky teams-app">
 <div class="fx-sky-scene" aria-hidden="true">
-  <div class="fx-cloud c1"></div>
-  <div class="fx-cloud c2"></div>
-  <div class="fx-cloud c3"></div>
+  <div class="fx-sky-gradient"></div>
+  <div class="fx-sky-stars" aria-hidden="true"></div>
 </div>
 <div class="teams-view">
   <div class="teams-auth-card" style="max-width:580px">

@@ -138,19 +138,29 @@ async function refreshAccessToken(
   const clientSecret = Deno.env.get(cfg.clientSecretEnv);
   if (!clientId || !clientSecret) return null;
 
-  const body = new URLSearchParams({
-    client_id: clientId,
-    client_secret: clientSecret,
-    grant_type: "refresh_token",
-    refresh_token: refreshToken,
-  });
+  const headers: Record<string, string> = { Accept: "application/json" };
+  let body: string | URLSearchParams;
+
+  if (providerId === "notion") {
+    headers["Content-Type"] = "application/json";
+    headers.Authorization = `Basic ${btoa(`${clientId}:${clientSecret}`)}`;
+    body = JSON.stringify({
+      grant_type: "refresh_token",
+      refresh_token: refreshToken,
+    });
+  } else {
+    headers["Content-Type"] = "application/x-www-form-urlencoded";
+    body = new URLSearchParams({
+      client_id: clientId,
+      client_secret: clientSecret,
+      grant_type: "refresh_token",
+      refresh_token: refreshToken,
+    });
+  }
 
   const res = await fetch(cfg.tokenUrl, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      Accept: "application/json",
-    },
+    headers,
     body,
   });
 

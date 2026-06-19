@@ -107,12 +107,8 @@
       div.textContent = text;
       log.appendChild(div);
       log.scrollTop = log.scrollHeight;
-      if (typeof div.scrollIntoView === 'function') {
-        div.scrollIntoView({ block: 'nearest', inline: 'nearest' });
-      }
       requestAnimationFrame(() => {
         log.scrollTop = log.scrollHeight;
-        div.scrollIntoView({ block: 'nearest', inline: 'nearest' });
       });
     }
 
@@ -121,16 +117,9 @@
       const input = q('#chat-input');
       if (log) {
         log.scrollTop = log.scrollHeight;
-        const last = log.lastElementChild;
-        if (last && typeof last.scrollIntoView === 'function') {
-          last.scrollIntoView({ block: 'nearest', inline: 'nearest' });
-        }
       }
       if (input) {
         input.scrollTop = input.scrollHeight;
-        if (typeof input.scrollIntoView === 'function') {
-          input.scrollIntoView({ block: 'nearest', inline: 'nearest' });
-        }
       }
     }
 

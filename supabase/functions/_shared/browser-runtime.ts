@@ -10,10 +10,10 @@ import {
   loadAgentConnections,
 } from "./agent-connections.ts";
 import {
-  applyCookiesToSession,
-  buildAuthCookies,
-  buildAuthHeaders,
+  applyProviderAuthToSession,
   ensureContextForUserConnection,
+  getSessionConnectUrl,
+  providerAuthIsActive,
 } from "./browserbase-contexts.ts";
 import {
   type BrowserProvider,
@@ -48,6 +48,8 @@ export interface BrowserRuntimeContext {
    * context id we attach to new sessions.
    */
   connections?: AgentConnection[];
+  /** WebSocket URL for the active Browserbase session (for CDP header injection). */
+  activeSessionConnectUrl?: string | null;
 }
 
 export interface CreateSessionResult {
@@ -142,14 +144,17 @@ export async function createBrowserSession(
     }
   }
 
-  if (primaryConnection && ctx.identity) {
-    contextId = await ensureContextForUserConnection(
-      ctx.identity.supabase,
-      primaryConnection.user_connection_id,
-      primaryConnection.browserbase_context_id,
-    );
-    if (contextId && contextId !== primaryConnection.browserbase_context_id) {
-      primaryConnection.browserbase_context_id = contextId;
+  if (ctx.identity) {
+    for (const connection of connections) {
+      const prov = getBrowserProvider(connection.provider);
+      if (!prov?.usesContext) continue;
+      const ctxId = await ensureContextForUserConnection(
+        ctx.identity.supabase,
+        connection.user_connection_id,
+        connection.browserbase_context_id,
+      );
+      if (ctxId) connection.browserbase_context_id = ctxId;
+      if (connection === primaryConnection) contextId = ctxId;
     }
   }
 
@@ -178,19 +183,42 @@ export async function createBrowserSession(
 
   const data = await res.json();
   const sessionId = data.id as string;
+  let connectUrl = (data.connectUrl as string | undefined) ?? null;
+  if (!connectUrl) {
+    connectUrl = await getSessionConnectUrl(sessionId);
+  }
+  ctx.activeSessionConnectUrl = connectUrl;
+
   const attachedProviders: string[] = [];
 
-  if (primaryProvider && primaryConnection?.access_token) {
-    const cookies = buildAuthCookies(primaryProvider, primaryConnection.access_token);
-    const applied = await applyCookiesToSession(sessionId, cookies);
-    if (applied || cookies.length === 0) {
-      attachedProviders.push(primaryProvider.id);
+  const authTargets: Array<{ connection: AgentConnection; provider: BrowserProvider }> = [];
+  if (primaryProvider && primaryConnection) {
+    authTargets.push({ connection: primaryConnection, provider: primaryProvider });
+  } else if (connections.length === 1) {
+    const only = connections[0];
+    const prov = getBrowserProvider(only.provider);
+    if (prov && only.access_token) {
+      authTargets.push({ connection: only, provider: prov });
+    }
+  }
+
+  for (const { connection, provider } of authTargets) {
+    if (!connection.access_token) continue;
+    const authResult = await applyProviderAuthToSession(
+      sessionId,
+      connectUrl,
+      provider,
+      connection.access_token,
+      connection.browserbase_context_id,
+    );
+    if (providerAuthIsActive(authResult) && !attachedProviders.includes(provider.id)) {
+      attachedProviders.push(provider.id);
     }
   }
 
   return {
     sessionId,
-    connectUrl: data.connectUrl as string | undefined,
+    connectUrl: connectUrl ?? undefined,
     debugUrl: data.debugViewerUrl as string | undefined,
     attachedProviders,
   };
@@ -235,10 +263,16 @@ async function ensureAuthForUrl(
   if (!match) return;
   if (!match.connection.access_token) return;
 
-  const cookies = buildAuthCookies(match.provider, match.connection.access_token);
-  if (cookies.length) {
-    await applyCookiesToSession(sessionId, cookies);
-  }
+  const connectUrl = ctx.activeSessionConnectUrl ?? await getSessionConnectUrl(sessionId);
+  if (connectUrl) ctx.activeSessionConnectUrl = connectUrl;
+
+  await applyProviderAuthToSession(
+    sessionId,
+    connectUrl,
+    match.provider,
+    match.connection.access_token,
+    match.connection.browserbase_context_id,
+  );
 }
 
 export async function runBrowserAction(
@@ -400,8 +434,8 @@ export async function describeConnectionsForPrompt(
   const names = connections
     .map((c) => `${c.provider}${c.account_label ? ` (${c.account_label})` : ""}`)
     .join(", ");
-  return `\n\nConnected accounts available to the agent: ${names}. When you open a website that matches a connected account, you will already be logged in via Browserbase using the stored OAuth credentials. Never ask the user for passwords.`;
+  return `\n\nConnected accounts available to the agent: ${names}. When you browse a matching site, the server injects the stored OAuth access token into the Browserbase session (bearer headers and/or a persistent browser context). For full web-app login on some sites, the user may need a one-time interactive sign-in in the browser context. Never ask the user for passwords.`;
 }
 
 /** Re-export so other modules don't need to depend on the helper directly. */
-export { hostFromUrl, getBrowserProvider, buildAuthHeaders };
+export { hostFromUrl, getBrowserProvider };

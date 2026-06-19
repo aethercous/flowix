@@ -1,4 +1,5 @@
 .claude/
+oauth-secrets.local.env
 flowix-teams-desktop/node_modules/
 flowix-teams-desktop/dist/
 flowix-teams-desktop/dist-pack/

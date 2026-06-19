@@ -107,9 +107,121 @@ export function buildAuthHeaders(
   const headers: Record<string, string> = {};
   if (!provider.headers?.length) return headers;
   for (const rule of provider.headers as ProviderHeaderRule[]) {
-    headers[rule.name] = rule.asBearer ? `Bearer ${accessToken}` : accessToken;
+    if (rule.staticValue) {
+      headers[rule.name] = rule.staticValue;
+    } else {
+      headers[rule.name] = rule.asBearer ? `Bearer ${accessToken}` : accessToken;
+    }
   }
   return headers;
+}
+
+/** Fetch connectUrl for an existing session (fallback if create response omitted it). */
+export async function getSessionConnectUrl(sessionId: string): Promise<string | null> {
+  const res = await fetch(`${BB_API}/sessions/${sessionId}`, {
+    headers: { "X-BB-API-Key": bbApiKey() },
+  });
+  if (!res.ok) return null;
+  const data = await res.json() as { connectUrl?: string };
+  return data.connectUrl ?? null;
+}
+
+/**
+ * Apply OAuth bearer headers via CDP on the live Browserbase session. Headers are
+ * global per CDP connection, so callers should invoke this right before navigating
+ * to a provider host (see ensureAuthForUrl in browser-runtime.ts).
+ */
+export async function applyAuthHeadersViaCdp(
+  connectUrl: string,
+  headers: Record<string, string>,
+  timeoutMs = 10_000,
+): Promise<boolean> {
+  if (!connectUrl || !Object.keys(headers).length) return false;
+
+  return await new Promise((resolve) => {
+    let settled = false;
+    const finish = (ok: boolean) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      try {
+        ws.close();
+      } catch {
+        /* ignore */
+      }
+      resolve(ok);
+    };
+
+    const timer = setTimeout(() => finish(false), timeoutMs);
+    let ws: WebSocket;
+    try {
+      ws = new WebSocket(connectUrl);
+    } catch (err) {
+      console.warn("CDP WebSocket connect failed:", err);
+      finish(false);
+      return;
+    }
+
+    let msgId = 1;
+    const send = (method: string, params: Record<string, unknown> = {}) => {
+      try {
+        ws.send(JSON.stringify({ id: msgId++, method, params }));
+      } catch (err) {
+        console.warn(`CDP send ${method} failed:`, err);
+      }
+    };
+
+    ws.onopen = () => {
+      send("Network.enable");
+      send("Network.setExtraHTTPHeaders", { headers });
+      setTimeout(() => finish(true), 400);
+    };
+
+    ws.onerror = () => finish(false);
+    ws.onclose = () => {
+      if (!settled) finish(false);
+    };
+  });
+}
+
+export interface ApplyProviderAuthResult {
+  cookiesApplied: boolean;
+  headersApplied: boolean;
+  hasContext: boolean;
+}
+
+/**
+ * Seed a Browserbase session with cookies and/or bearer headers for one connected
+ * provider. Returns which auth mechanisms succeeded.
+ */
+export async function applyProviderAuthToSession(
+  sessionId: string,
+  connectUrl: string | null | undefined,
+  provider: BrowserProvider,
+  accessToken: string,
+  browserbaseContextId: string | null | undefined,
+): Promise<ApplyProviderAuthResult> {
+  const cookies = buildAuthCookies(provider, accessToken);
+  const cookiesApplied = cookies.length
+    ? await applyCookiesToSession(sessionId, cookies)
+    : false;
+
+  const headers = buildAuthHeaders(provider, accessToken);
+  let headersApplied = false;
+  if (Object.keys(headers).length) {
+    const url = connectUrl || await getSessionConnectUrl(sessionId);
+    if (url) {
+      headersApplied = await applyAuthHeadersViaCdp(url, headers);
+    }
+  }
+
+  const hasContext = Boolean(provider.usesContext && browserbaseContextId);
+  return { cookiesApplied, headersApplied, hasContext };
+}
+
+/** True when the provider has usable auth wired for Browserbase. */
+export function providerAuthIsActive(result: ApplyProviderAuthResult): boolean {
+  return result.cookiesApplied || result.headersApplied || result.hasContext;
 }
 
 /**

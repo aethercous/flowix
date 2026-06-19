@@ -2,7 +2,7 @@
 (function () {
   var p = window.FLOWIX_TEAMS_PATHS;
   if (!p) return;
-  ['tines', 'landing', 'app'].forEach(function (k) {
+  ['tines', 'landing', 'sky', 'app'].forEach(function (k) {
     var link = document.createElement('link');
     link.rel = 'stylesheet';
     link.href = p.css[k];

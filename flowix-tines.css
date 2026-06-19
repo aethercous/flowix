@@ -61,7 +61,7 @@ body.fx-tines {
 }
 
 body.fx-tines.fx-sky {
-  background: transparent;
+  background: linear-gradient(180deg, #5eb3e8 0%, #87ceeb 42%, #e8f4fc 100%);
 }
 
 body.fx-tines a {

@@ -19,7 +19,7 @@
 .fx-sky-scene {
   position: fixed;
   inset: 0;
-  z-index: -1;
+  z-index: 0;
   overflow: hidden;
   pointer-events: none;
   background: transparent;
@@ -1234,17 +1234,17 @@
 
 /* — Site-wide sky + glass (landing + dashboard + connections) — */
 body.fx-sky {
-  background: transparent;
+  background: linear-gradient(180deg, #5eb3e8 0%, #87ceeb 42%, #e8f4fc 100%);
 }
 
 body.fx-sky.fx-tines {
-  background: transparent;
+  background: linear-gradient(180deg, #5eb3e8 0%, #87ceeb 42%, #e8f4fc 100%);
 }
 
 .fx-sky .fx-sky-scene {
   position: fixed;
   inset: 0;
-  z-index: -1;
+  z-index: 0;
   overflow: hidden;
   pointer-events: none;
   background: transparent;

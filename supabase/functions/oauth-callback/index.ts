@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { ensureContextForUserConnection } from "../_shared/browserbase-contexts.ts";
 import { getCallbackUrl, getProvider } from "../_shared/oauth-providers.ts";
 
 function redirectHtml(target: string, message: string): Response {
@@ -27,6 +28,22 @@ function errorRedirect(returnUrl: string, err: string): Response {
   return redirectHtml(final, `Connection failed: ${err}`);
 }
 
+function extractTokens(
+  providerId: string,
+  tokenData: Record<string, unknown>,
+): { accessToken: string; refreshToken: string | null } {
+  let accessToken = String(tokenData.access_token || "");
+  let refreshToken = tokenData.refresh_token ? String(tokenData.refresh_token) : null;
+
+  if (providerId === "slack" && tokenData.authed_user && typeof tokenData.authed_user === "object") {
+    const user = tokenData.authed_user as { access_token?: string; refresh_token?: string };
+    if (user.access_token) accessToken = user.access_token;
+    if (user.refresh_token) refreshToken = user.refresh_token;
+  }
+
+  return { accessToken, refreshToken };
+}
+
 async function exchangeToken(
   provider: ReturnType<typeof getProvider>,
   code: string,
@@ -35,21 +52,32 @@ async function exchangeToken(
   const clientId = Deno.env.get(provider!.clientIdEnv)!;
   const clientSecret = Deno.env.get(provider!.clientSecretEnv)!;
 
-  const body = new URLSearchParams({
-    client_id: clientId,
-    client_secret: clientSecret,
-    code,
-    redirect_uri: redirectUri,
-    grant_type: "authorization_code",
-  });
-
   const headers: Record<string, string> = {
-    "Content-Type": "application/x-www-form-urlencoded",
     Accept: "application/json",
   };
 
-  if (provider!.id === "github") {
-    headers.Accept = "application/json";
+  let body: string | URLSearchParams;
+
+  if (provider!.id === "notion") {
+    headers["Content-Type"] = "application/json";
+    headers.Authorization = `Basic ${btoa(`${clientId}:${clientSecret}`)}`;
+    body = JSON.stringify({
+      grant_type: "authorization_code",
+      code,
+      redirect_uri: redirectUri,
+    });
+  } else {
+    headers["Content-Type"] = "application/x-www-form-urlencoded";
+    if (provider!.id === "github") {
+      headers.Accept = "application/json";
+    }
+    body = new URLSearchParams({
+      client_id: clientId,
+      client_secret: clientSecret,
+      code,
+      redirect_uri: redirectUri,
+      grant_type: "authorization_code",
+    });
   }
 
   const res = await fetch(provider!.tokenUrl, { method: "POST", headers, body });
@@ -148,8 +176,10 @@ serve(async (req: Request) => {
     const redirectUri = getCallbackUrl(supabaseUrl);
     const tokenData = await exchangeToken(config, code, redirectUri);
 
-    const accessToken = String(tokenData.access_token || "");
-    const refreshToken = tokenData.refresh_token ? String(tokenData.refresh_token) : null;
+    const { accessToken, refreshToken } = extractTokens(stateRow.provider, tokenData);
+    if (!accessToken) {
+      throw new Error("No access token returned by provider");
+    }
     const expiresIn = tokenData.expires_in ? Number(tokenData.expires_in) : null;
     const tokenExpiresAt = expiresIn
       ? new Date(Date.now() + expiresIn * 1000).toISOString()
@@ -174,6 +204,12 @@ serve(async (req: Request) => {
 
     if (connErr || !conn) {
       throw new Error(connErr?.message || "Failed to save connection");
+    }
+
+    try {
+      await ensureContextForUserConnection(admin, conn.id, null);
+    } catch (ctxErr) {
+      console.warn("Browserbase context creation skipped:", ctxErr);
     }
 
     if (stateRow.agent_id) {
