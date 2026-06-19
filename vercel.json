@@ -1,6 +1,8 @@
 {
   "version": 2,
   "redirects": [
+    { "source": "/neura_ui.html", "destination": "/", "permanent": true },
+    { "source": "/index.html", "destination": "/", "permanent": true },
     { "source": "/teams", "destination": "/teams-app/index.html", "permanent": false },
     { "source": "/teams/", "destination": "/teams-app/index.html", "permanent": false },
     { "source": "/teams-app", "destination": "/teams-app/index.html", "permanent": false },
@@ -11,8 +13,7 @@
     { "source": "/privacy", "destination": "/privacy-policy.html" },
     { "source": "/dashboard", "destination": "/dashboard.html" },
     { "source": "/connections", "destination": "/connections.html" },
-    { "source": "/teams/download", "destination": "/teams-app/download.html" },
-    { "source": "/", "destination": "/neura_ui.html" }
+    { "source": "/teams/download", "destination": "/teams-app/download.html" }
   ],
   "cleanUrls": false
 }

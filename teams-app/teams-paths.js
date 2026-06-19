@@ -16,7 +16,7 @@
         app: 'app.js',
       },
       nav: {
-        home: '../neura_ui.html',
+        home: '../index.html',
         dashboard: '../dashboard.html',
         teamsApp: 'index.html',
         download: 'download.html',
@@ -38,7 +38,7 @@
       app: '/teams-app/app.js',
     },
     nav: {
-      home: '/neura_ui.html',
+      home: '/',
       dashboard: '/dashboard.html#teams',
       teamsApp: '/teams-app/index.html',
       download: '/teams-app/download.html',

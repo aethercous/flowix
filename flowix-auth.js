@@ -5,7 +5,7 @@
   const SUPABASE_URL = 'https://utofnywijqsozjqmkhcn.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_NFpInIt2anAJxn2slHZIuQ_BsEw4g1n';
   const DASHBOARD = 'dashboard.html';
-  const LANDING = 'neura_ui.html';
+  const LANDING = '/';
 
   let sb = null;
   let redirectAfterAuth = DASHBOARD;
@@ -109,7 +109,11 @@
     url.searchParams.delete('code');
     url.searchParams.delete('error');
     url.searchParams.delete('error_description');
-    return url.origin + url.pathname + url.search;
+    var path = url.pathname;
+    if (path === '/neura_ui.html' || path.endsWith('/neura_ui.html')) {
+      path = '/';
+    }
+    return url.origin + path + url.search;
   }
 
   function cleanAuthUrl() {

@@ -12,6 +12,6 @@
     TEAMS_APP_PATH: '/teams-app/index.html',
     TEAMS_DOWNLOAD_PATH: '/teams-app/download.html',
     DASHBOARD_PATH: 'dashboard.html',
-    LANDING_PATH: 'neura_ui.html',
+    LANDING_PATH: '/',
   };
 })(typeof window !== 'undefined' ? window : globalThis);

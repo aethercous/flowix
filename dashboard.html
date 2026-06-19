@@ -750,7 +750,7 @@ main {
 
 <header>
   <div class="header-left">
-    <a href="neura_ui.html" class="logo" style="text-decoration:none">flowix</a>
+    <a href="/" class="logo" style="text-decoration:none">flowix</a>
     <nav class="nav-main">
       <button data-section="agents" class="nav-btn active">
         <svg class="nav-icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3"/><path d="M12 15c-4 0-7 2-7 5v2h14v-2c0-3-3-5-7-5z"/></svg>
@@ -1155,7 +1155,7 @@ main {
       <div id="sky-time-preview" aria-hidden="true"></div>
     </div>
 
-    <p style="font-size:12px;color:#86868b;margin-top:20px"><a href="neura_ui.html" style="color:#156cc2;font-weight:600">Open homepage</a> to preview your background.</p>
+    <p style="font-size:12px;color:#86868b;margin-top:20px"><a href="/" style="color:#156cc2;font-weight:600">Open homepage</a> to preview your background.</p>
     <p style="font-size:12px;color:#86868b;margin-top:12px">
       <button type="button" class="fx-tutorial-skip" id="btn-replay-tutorial" style="padding:0">Replay dashboard tour</button>
     </p>
@@ -1386,7 +1386,7 @@ main {
   async function init() {
     const { data: { session } } = await sb.auth.getSession();
     if (!session) {
-      window.location.href = 'neura_ui.html?signin=1';
+      window.location.href = '/?signin=1';
       return;
     }
 
@@ -2483,7 +2483,7 @@ main {
   document.getElementById('btn-signout')?.addEventListener('click', async () => {
     await sb.auth.signOut();
     document.body.classList.add('fx-page-exit');
-    setTimeout(() => { window.location.href = 'neura_ui.html'; }, 220);
+    setTimeout(() => { window.location.href = '/'; }, 220);
   });
 
   init();
