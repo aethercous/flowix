@@ -9,7 +9,7 @@ function createWindow() {
     height: 780,
     minWidth: 480,
     minHeight: 560,
-    title: 'flowix Teams',
+    title: 'worlo Teams',
     backgroundColor: '#f6f6f8',
     webPreferences: {
       contextIsolation: true,
@@ -18,8 +18,8 @@ function createWindow() {
     },
   });
 
-  if (process.env.FLOWIX_TEAMS_URL) {
-    win.loadURL(process.env.FLOWIX_TEAMS_URL);
+  if (process.env.WORLO_TEAMS_URL) {
+    win.loadURL(process.env.WORLO_TEAMS_URL);
   } else if (isDev) {
     win.loadFile(path.join(__dirname, '..', 'teams-app', 'index.html'));
   } else {

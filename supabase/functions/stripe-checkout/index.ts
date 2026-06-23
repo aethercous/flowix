@@ -1,4 +1,4 @@
-// Stripe Checkout Edge Function - flowix
+// Stripe Checkout Edge Function - worlo
 // Creates a checkout session for adding funds to user wallet
 
 import { serve } from 'https://deno.land/std@0.177.0/http/server.ts';
@@ -49,7 +49,7 @@ serve(async (req) => {
     const params = new URLSearchParams({
       'mode': 'payment',
       'line_items[0][price_data][currency]': 'usd',
-      'line_items[0][price_data][product_data][name]': `Add $${amount} to flowix wallet`,
+      'line_items[0][price_data][product_data][name]': `Add $${amount} to worlo wallet`,
       'line_items[0][price_data][unit_amount]': String(Math.round(amount * 100)), // cents
       'line_items[0][quantity]': '1',
       'success_url': `${returnUrl}?success=true&session_id={CHECKOUT_SESSION_ID}`,

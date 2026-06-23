@@ -307,5 +307,5 @@
     refresh();
   }
 
-  global.FlowixDashboardChat = { init, refresh };
+  global.WorloDashboardChat = { init, refresh };
 })(window);

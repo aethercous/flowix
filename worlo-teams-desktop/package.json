@@ -1,9 +1,9 @@
 {
-  "name": "flowix-teams",
+  "name": "worlo-teams",
   "version": "1.0.0",
-  "description": "flowix Teams desktop client — invite-code chat with your agents",
+  "description": "worlo Teams desktop client — invite-code chat with your agents",
   "main": "main.js",
-  "author": "flowix",
+  "author": "worlo",
   "license": "MIT",
   "scripts": {
     "start": "electron .",
@@ -13,8 +13,8 @@
     "build:mac": "cross-env CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --mac dmg"
   },
   "build": {
-    "appId": "com.flowix.teams",
-    "productName": "flowix Teams",
+    "appId": "com.worlo.teams",
+    "productName": "worlo Teams",
     "directories": {
       "output": "dist"
     },
@@ -29,16 +29,16 @@
         "filter": ["**/*"]
       },
       {
-        "from": "../flowix-tines.css",
-        "to": "flowix-tines.css"
+        "from": "../worlo-tines.css",
+        "to": "worlo-tines.css"
       },
       {
-        "from": "../flowix-landing.css",
-        "to": "flowix-landing.css"
+        "from": "../worlo-landing.css",
+        "to": "worlo-landing.css"
       },
       {
-        "from": "../flowix-config.js",
-        "to": "flowix-config.js"
+        "from": "../worlo-config.js",
+        "to": "worlo-config.js"
       }
     ],
     "win": {

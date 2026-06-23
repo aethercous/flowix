@@ -1,5 +1,5 @@
 /**
- * Shared Flowix auth — Supabase sign in/up modals and redirects.
+ * Shared Worlo auth — Supabase sign in/up modals and redirects.
  */
 (function (global) {
   const SUPABASE_URL = 'https://utofnywijqsozjqmkhcn.supabase.co';
@@ -535,7 +535,7 @@
     return session;
   }
 
-  global.FlowixAuth = {
+  global.WorloAuth = {
     init: init,
     showSignIn: showSignIn,
     showSignUp: showSignUp,

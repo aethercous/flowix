@@ -3,7 +3,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { corsPreflightResponse, jsonResponse } from "../_shared/cors.ts";
 
 function generateRandomCode(): string {
-  // Generate human-friendly code: FLOWIX-XXXX-XXXX-XXXX
+  // Generate human-friendly code: WORLO-XXXX-XXXX-XXXX
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
   const segments = [];
   for (let i = 0; i < 4; i++) {
@@ -13,7 +13,7 @@ function generateRandomCode(): string {
     }
     segments.push(segment);
   }
-  return "FLOWIX-" + segments.join("-");
+  return "WORLO-" + segments.join("-");
 }
 
 async function hashCode(code: string): Promise<string> {

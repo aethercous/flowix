@@ -1,11 +1,11 @@
 (function () {
-  const cfg = window.FLOWIX_CONFIG || {};
+  const cfg = window.WORLO_CONFIG || {};
   const SUPABASE_URL = cfg.SUPABASE_URL || 'https://utofnywijqsozjqmkhcn.supabase.co';
   const SUPABASE_KEY = cfg.SUPABASE_ANON_KEY || cfg.SUPABASE_KEY || '';
-  const SESSION_KEY = 'flowix_teams_session';
+  const SESSION_KEY = 'worlo_teams_session';
 
   if (!SUPABASE_KEY) {
-    console.error('flowix Teams: missing Supabase anon key in flowix-config.js');
+    console.error('worlo Teams: missing Supabase anon key in worlo-config.js');
   }
 
   const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);

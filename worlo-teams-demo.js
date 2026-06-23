@@ -1,5 +1,5 @@
 /**
- * Animated flowix Teams demo — landing page inline + teams-demo.html iframe.
+ * Animated worlo Teams demo — landing page inline + teams-demo.html iframe.
  */
 (function (global) {
   const CURSOR_SVG = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -9,7 +9,7 @@
   const reduced = global.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const CURSOR_PAD = 18;
   const CURSOR_SIZE = 24;
-  const DEMO_CODE = 'FLOWIX-DEMO-TEAM-CODE';
+  const DEMO_CODE = 'WORLO-DEMO-TEAM-CODE';
 
   function wait(ms) {
     return new Promise((r) => setTimeout(r, ms));
@@ -253,5 +253,5 @@
     init();
   }
 
-  global.FlowixTeamsDemo = { init, startRoot };
+  global.WorloTeamsDemo = { init, startRoot };
 })(window);

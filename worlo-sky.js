@@ -1,9 +1,9 @@
 /**
- * flowix sky — time-of-day sky (no sun/moon sprites).
+ * worlo sky — time-of-day sky (no sun/moon sprites).
  * Settings: { mode: 'day'|'night'|'journey', timeOfDay: 0..1 }
  */
 (function (global) {
-  const STORAGE_KEY = 'flowix_sky_settings';
+  const STORAGE_KEY = 'worlo_sky_settings';
   const DEFAULT_MODE = 'journey';
   const VALID_MODES = ['day', 'night', 'journey', 'cycle'];
   const MODE_TIME = { day: 0.14, night: 0.86, journey: 0.14, cycle: 0.14 };
@@ -634,7 +634,7 @@
 
   global.__fxShowSection = null;
 
-  global.FlowixSky = {
+  global.WorloSky = {
     getSettings,
     saveSettings,
     setMode,

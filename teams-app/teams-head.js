@@ -1,6 +1,6 @@
-/** Inject CSS from FLOWIX_TEAMS_PATHS (load teams-paths.js first). */
+/** Inject CSS from WORLO_TEAMS_PATHS (load teams-paths.js first). */
 (function () {
-  var p = window.FLOWIX_TEAMS_PATHS;
+  var p = window.WORLO_TEAMS_PATHS;
   if (!p) return;
   ['tines', 'landing', 'sky', 'app'].forEach(function (k) {
     var link = document.createElement('link');

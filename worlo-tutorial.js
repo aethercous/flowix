@@ -2,7 +2,7 @@
  * First-visit dashboard tutorial — offer once, optional spotlight tour.
  */
 (function (global) {
-  const STORAGE_PREFIX = 'flowix_tutorial_v1_';
+  const STORAGE_PREFIX = 'worlo_tutorial_v1_';
 
   let root = null;
   let spotlight = null;
@@ -80,8 +80,8 @@
       },
       {
         target: () => document.querySelector('[data-section="teams"]'),
-        title: 'flowix Teams',
-        body: 'Generate invite codes so teammates can chat with an agent in the flowix Teams desktop app (not Microsoft Teams).',
+        title: 'worlo Teams',
+        body: 'Generate invite codes so teammates can chat with an agent in the worlo Teams desktop app (not Microsoft Teams).',
         before: () => hooks.showSection('teams'),
       },
       {
@@ -189,7 +189,7 @@
     overlay.className = 'fx-tutorial-prompt';
     overlay.innerHTML = `
       <div class="fx-tutorial-prompt-card" role="dialog" aria-labelledby="fx-tutorial-prompt-title">
-        <h2 id="fx-tutorial-prompt-title">Welcome to flowix</h2>
+        <h2 id="fx-tutorial-prompt-title">Welcome to worlo</h2>
         <p>Would you like a quick tour of the dashboard? We will highlight each area and explain what it does.</p>
         <div class="fx-tutorial-prompt-actions">
           <button type="button" class="btn btn-primary" id="fx-tutorial-yes">Yes, show me around</button>
@@ -415,7 +415,7 @@
     startTour();
   }
 
-  global.FlowixTutorial = {
+  global.WorloTutorial = {
     offerIfNeeded,
     startTour,
     endTour,

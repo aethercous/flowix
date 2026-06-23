@@ -1,11 +1,11 @@
 /**
- * Shared OAuth connections helpers for flowix dashboard & connections pages.
+ * Shared OAuth connections helpers for worlo dashboard & connections pages.
  */
 (function (global) {
   const SUPABASE_URL = 'https://utofnywijqsozjqmkhcn.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_NFpInIt2anAJxn2slHZIuQ_BsEw4g1n';
 
-  const catalog = global.FlowixConnectionCatalog;
+  const catalog = global.WorloConnectionCatalog;
   const OAUTH_APPS = catalog
     ? catalog.getOAuthApps().map(function (c) {
         return {
@@ -53,12 +53,12 @@
   }
 
   async function startOAuth(sb, provider, options = {}) {
-    console.info('[FlowixConnections] startOAuth →', provider, options);
+    console.info('[WorloConnections] startOAuth →', provider, options);
 
     const sessionRes = await sb.auth.getSession();
     const session = sessionRes?.data?.session;
     if (!session) {
-      console.warn('[FlowixConnections] startOAuth: no session', sessionRes);
+      console.warn('[WorloConnections] startOAuth: no session', sessionRes);
       throw new Error('Please sign in again');
     }
 
@@ -72,7 +72,7 @@
           return { linked: true, provider: 'google' };
         }
       } catch (linkErr) {
-        console.info('[FlowixConnections] google session link skipped', linkErr);
+        console.info('[WorloConnections] google session link skipped', linkErr);
       }
     }
 
@@ -87,12 +87,12 @@
         },
       });
     } catch (networkErr) {
-      console.error('[FlowixConnections] oauth-start network/fetch failed', networkErr);
+      console.error('[WorloConnections] oauth-start network/fetch failed', networkErr);
       throw new Error(networkErr?.message || 'Could not reach the connection service. Check your network and try again.');
     }
 
     const { data, error } = invokeResult || {};
-    console.info('[FlowixConnections] oauth-start response', { data, error });
+    console.info('[WorloConnections] oauth-start response', { data, error });
 
     if (error) {
       let msg = error.message || 'Failed to start OAuth';
@@ -100,9 +100,9 @@
         try {
           const body = await error.context.json();
           if (body?.error) msg = body.error;
-          console.warn('[FlowixConnections] oauth-start error body', body);
+          console.warn('[WorloConnections] oauth-start error body', body);
         } catch (parseErr) {
-          console.warn('[FlowixConnections] oauth-start error body parse failed', parseErr);
+          console.warn('[WorloConnections] oauth-start error body parse failed', parseErr);
         }
       }
       throw new Error(msg);
@@ -112,7 +112,7 @@
     }
     if (!data?.url) throw new Error('No OAuth URL returned by oauth-start');
 
-    console.info('[FlowixConnections] redirecting to OAuth provider', data.url);
+    console.info('[WorloConnections] redirecting to OAuth provider', data.url);
     window.location.assign(data.url);
   }
 
@@ -124,13 +124,13 @@
         method: 'GET',
       });
       if (error) {
-        console.warn('[FlowixConnections] oauth-config-status error', error);
+        console.warn('[WorloConnections] oauth-config-status error', error);
         return null;
       }
       configStatusCache = data || null;
       return configStatusCache;
     } catch (e) {
-      console.warn('[FlowixConnections] oauth-config-status threw', e);
+      console.warn('[WorloConnections] oauth-config-status threw', e);
       return null;
     }
   }
@@ -245,7 +245,7 @@
     return app ? app.label : providerId;
   }
 
-  global.FlowixConnections = {
+  global.WorloConnections = {
     SUPABASE_URL,
     SUPABASE_KEY,
     OAUTH_APPS,

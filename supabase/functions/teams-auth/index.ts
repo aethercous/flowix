@@ -13,7 +13,7 @@ async function hashCode(code: string): Promise<string> {
 /** Normalize user input so hashing matches generate-access-code values. */
 function normalizeAccessCode(raw: string): string {
   let s = raw.trim().toUpperCase().replace(/\s+/g, "");
-  // Accept FLOWIX-ABC-DEF-GHI or FLOWIX_ABC...
+  // Accept WORLO-ABC-DEF-GHI or WORLO_ABC...
   if (s.includes("_")) {
     s = s.replace(/_/g, "-");
   }
@@ -289,7 +289,7 @@ serve(async (req: Request) => {
       userId: agentTokenData.user_id,
       firstName,
       lastName,
-      email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}@teams.flowix.local`,
+      email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}@teams.worlo.local`,
       agentId: agentTokenData.agent_id,
       agentName:
         agentRow?.name ||

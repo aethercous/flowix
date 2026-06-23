@@ -1,7 +1,7 @@
 .claude/
 oauth-secrets.local.env
-flowix-teams-desktop/node_modules/
-flowix-teams-desktop/dist/
-flowix-teams-desktop/dist-pack/
-downloads/flowix-teams-setup.exe
-downloads/flowix-teams-mac.dmg
+worlo-teams-desktop/node_modules/
+worlo-teams-desktop/dist/
+worlo-teams-desktop/dist-pack/
+downloads/worlo-teams-setup.exe
+downloads/worlo-teams-mac.dmg

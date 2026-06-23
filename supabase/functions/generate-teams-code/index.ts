@@ -17,7 +17,7 @@ function generateRandomCode(): string {
     }
     segments.push(segment);
   }
-  return "FLOWIX-" + segments.join("-");
+  return "WORLO-" + segments.join("-");
 }
 
 async function hashCode(code: string): Promise<string> {

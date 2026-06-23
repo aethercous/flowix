@@ -1,4 +1,4 @@
-// Stripe Webhook Edge Function - flowix
+// Stripe Webhook Edge Function - worlo
 // Handles checkout.session.completed to add funds to user wallet
 
 import { serve } from 'https://deno.land/std@0.177.0/http/server.ts';

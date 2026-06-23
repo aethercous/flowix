@@ -68,7 +68,7 @@ function buildAgentConfig(body: CreateOrGetAgentTokenRequest): Record<string, un
     }
     agentConfig.systemPrompt = prompt;
   } else {
-    agentConfig.systemPrompt = "You are a Flowix assistant." + browserHint;
+    agentConfig.systemPrompt = "You are a Worlo assistant." + browserHint;
   }
 
   if (body.model) agentConfig.model = body.model;

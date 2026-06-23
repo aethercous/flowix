@@ -1,4 +1,4 @@
--- Flowix: Add missing RLS policies for all tables
+-- Worlo: Add missing RLS policies for all tables
 -- Run this in Supabase SQL Editor
 
 -- ============================================================================

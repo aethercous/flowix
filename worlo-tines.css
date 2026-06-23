@@ -1,4 +1,4 @@
-/* Flowix — Tines-inspired design system (white primary) */
+/* Worlo — Tines-inspired design system (white primary) */
 :root {
   --fx-bg: #ffffff;
   --fx-bg-soft: #f6f6f8;
@@ -23,7 +23,7 @@
   --fx-nav-h: 72px;
 }
 
-/* Display headings — same style as “flowix Teams for your org” */
+/* Display headings — same style as “worlo Teams for your org” */
 .fx-display-title {
   font-family: var(--fx-font);
   font-size: clamp(22px, 2.5vw, 28px);

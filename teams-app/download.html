@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Download flowix Teams</title>
+  <title>Download worlo Teams</title>
   <style>
     html, body.teams-app {
       background: linear-gradient(180deg, #5eb3e8 0%, #87ceeb 42%, #e8f4fc 100%);
@@ -44,38 +44,38 @@
 </div>
 <div class="teams-view">
   <div class="teams-auth-card" style="max-width:580px">
-    <a href="/" class="teams-logo" id="link-home">flowix Teams</a>
-    <p class="teams-auth-lead">Download for Windows 11 or Mac, or open flowix Teams in your browser with your dashboard invite code.</p>
+    <a href="/" class="teams-logo" id="link-home">worlo Teams</a>
+    <p class="teams-auth-lead">Download for Windows 11 or Mac, or open worlo Teams in your browser with your dashboard invite code.</p>
 
     <div class="teams-dl-grid">
-      <a class="teams-dl-card" id="dl-win" href="/downloads/flowix-teams-win.zip">
+      <a class="teams-dl-card" id="dl-win" href="/downloads/worlo-teams-win.zip">
         <strong>Windows 11</strong>
-        <span>Zip (~1 MB). Unzip and double-click <em>Open flowix Teams.bat</em>.</span>
+        <span>Zip (~1 MB). Unzip and double-click <em>Open worlo Teams.bat</em>.</span>
         <span class="fx-btn fx-btn-primary">Download for Windows</span>
       </a>
-      <a class="teams-dl-card" id="dl-mac" href="/downloads/flowix-teams-mac.zip">
+      <a class="teams-dl-card" id="dl-mac" href="/downloads/worlo-teams-mac.zip">
         <strong>macOS</strong>
-        <span>Zip (~20 KB). Unzip, then double-click <em>Open flowix Teams.command</em>.</span>
+        <span>Zip (~20 KB). Unzip, then double-click <em>Open worlo Teams.command</em>.</span>
         <span class="fx-btn fx-btn-primary">Download for Mac</span>
       </a>
     </div>
 
     <div class="teams-browser-cta">
       <p style="font-size:14px;color:var(--fx-text-secondary);margin:0 0 12px">Prefer no download?</p>
-      <a href="/teams-app/index.html" class="fx-btn fx-btn-primary fx-action" id="link-browser">Open flowix Teams in browser</a>
+      <a href="/teams-app/index.html" class="fx-btn fx-btn-primary fx-action" id="link-browser">Open worlo Teams in browser</a>
     </div>
 
     <ol style="font-size:14px;color:var(--fx-text-secondary);line-height:1.6;padding-left:20px;margin:24px 0 0">
-      <li>Sign in to the <a href="/dashboard.html#teams" id="link-dashboard">flowix dashboard</a></li>
+      <li>Sign in to the <a href="/dashboard.html#teams" id="link-dashboard">worlo dashboard</a></li>
       <li>Generate an invite code for your agent</li>
-      <li>Paste the code in flowix Teams and start chatting</li>
+      <li>Paste the code in worlo Teams and start chatting</li>
     </ol>
-    <p class="teams-auth-foot">Not Microsoft Teams — a separate flowix product.</p>
+    <p class="teams-auth-foot">Not Microsoft Teams — a separate worlo product.</p>
   </div>
 </div>
 <script>
 (function () {
-  var p = window.FLOWIX_TEAMS_PATHS;
+  var p = window.WORLO_TEAMS_PATHS;
   if (p) {
     document.getElementById('link-home').href = p.nav.home;
     document.getElementById('link-browser').href = p.nav.teamsApp;
@@ -99,8 +99,8 @@
         el.removeAttribute('href');
       });
     }
-    check('/downloads/flowix-teams-win.zip', document.getElementById('dl-win'));
-    check('/downloads/flowix-teams-mac.zip', document.getElementById('dl-mac'));
+    check('/downloads/worlo-teams-win.zip', document.getElementById('dl-win'));
+    check('/downloads/worlo-teams-mac.zip', document.getElementById('dl-mac'));
   }
 })();
 </script>

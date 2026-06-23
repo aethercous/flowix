@@ -311,7 +311,7 @@ export async function runAgentWithOptionalTools(opts: RunAgentOptions): Promise<
           enableReasoning: opts.enableReasoning,
           enableWebSearch: opts.enableWebSearch,
           promptVariables: {
-            agent_name: opts.agentName || "Flowix Agent",
+            agent_name: opts.agentName || "Worlo Agent",
           },
         });
       } catch (responsesErr) {

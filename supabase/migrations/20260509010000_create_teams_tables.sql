@@ -1,7 +1,7 @@
--- Flowix Teams Authentication Tables
+-- Worlo Teams Authentication Tables
 
 -- 1. Team access codes table
--- This stores codes that users get from the Flowix website to log into the Teams app
+-- This stores codes that users get from the Worlo website to log into the Teams app
 create table if not exists public.team_access_codes (
   id                uuid        primary key default gen_random_uuid(),
   code              text        not null unique,

@@ -186,7 +186,7 @@ function buildSystemPrompt(
 
 ): string {
 
-  let basePrompt = agentRow?.system_prompt?.trim() || baseFromToken || "You are a helpful Flowix assistant.";
+  let basePrompt = agentRow?.system_prompt?.trim() || baseFromToken || "You are a helpful Worlo assistant.";
 
 
 

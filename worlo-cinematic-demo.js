@@ -1,5 +1,5 @@
 /**
- * Cinematic demos on real flowix dashboard UI (dashboard-demo.html embed).
+ * Cinematic demos on real worlo dashboard UI (dashboard-demo.html embed).
  */
 (function (global) {
   const CURSOR_SVG = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -536,5 +536,5 @@
     init();
   }
 
-  global.FlowixCinematicDemo = { init, initEmbed, fitEmbedScene };
+  global.WorloCinematicDemo = { init, initEmbed, fitEmbedScene };
 })(window);

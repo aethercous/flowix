@@ -1,15 +1,15 @@
-name: Build flowix Teams installers
+name: Build worlo Teams installers
 
 on:
   workflow_dispatch:
   push:
     branches: [main, master]
     paths:
-      - 'flowix-teams-desktop/**'
+      - 'worlo-teams-desktop/**'
       - 'teams-app/**'
-      - 'flowix-tines.css'
-      - 'flowix-landing.css'
-      - 'flowix-config.js'
+      - 'worlo-tines.css'
+      - 'worlo-landing.css'
+      - 'worlo-config.js'
 
 jobs:
   build-windows:
@@ -23,10 +23,10 @@ jobs:
         run: powershell -ExecutionPolicy Bypass -File scripts/build-teams-portable.ps1
       - uses: actions/upload-artifact@v4
         with:
-          name: flowix-teams-windows
+          name: worlo-teams-windows
           path: |
-            downloads/flowix-teams-win.zip
-            downloads/flowix-teams-mac.zip
+            downloads/worlo-teams-win.zip
+            downloads/worlo-teams-mac.zip
 
   build-mac:
     runs-on: macos-latest
@@ -37,9 +37,9 @@ jobs:
           node-version: '20'
       - name: Build portable Mac zip
         run: |
-          npm ci --prefix flowix-teams-desktop
+          npm ci --prefix worlo-teams-desktop
           pwsh -File scripts/build-teams-portable.ps1 || bash -c 'echo use build script on mac'
       - uses: actions/upload-artifact@v4
         with:
-          name: flowix-teams-mac
-          path: downloads/flowix-teams-mac.zip
+          name: worlo-teams-mac
+          path: downloads/worlo-teams-mac.zip

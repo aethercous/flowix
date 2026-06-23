@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>flowix Teams</title>
+  <title>worlo Teams</title>
   <style>
     html, body.teams-app {
       background: linear-gradient(180deg, #5eb3e8 0%, #87ceeb 42%, #e8f4fc 100%);
@@ -34,7 +34,7 @@
 
 <div id="view-auth" class="teams-view">
   <div class="teams-auth-card">
-    <a href="/teams-app/index.html" class="teams-logo" id="link-home">flowix Teams</a>
+    <a href="/teams-app/index.html" class="teams-logo" id="link-home">worlo Teams</a>
     <p class="teams-auth-lead">Enter the invite code from your dashboard. Use in browser or <a href="/teams-app/download.html" id="link-download">download for Mac / Windows</a> — not Microsoft Teams.</p>
     <div class="form-group">
       <label class="form-label">First name</label>
@@ -46,17 +46,17 @@
     </div>
     <div class="form-group">
       <label class="form-label">Invite code</label>
-      <input class="form-input" type="text" id="invite-code" placeholder="FLOWIX-XXXX-XXXX-XXXX" autocomplete="one-time-code"/>
+      <input class="form-input" type="text" id="invite-code" placeholder="WORLO-XXXX-XXXX-XXXX" autocomplete="one-time-code"/>
     </div>
     <button type="button" class="btn btn-primary" id="btn-join" style="width:100%;margin-top:8px">Join workspace</button>
-    <p class="teams-auth-foot">Need a code? Ask your admin in the <a href="/dashboard.html#teams" id="link-dashboard">flowix dashboard</a>.</p>
+    <p class="teams-auth-foot">Need a code? Ask your admin in the <a href="/dashboard.html#teams" id="link-dashboard">worlo dashboard</a>.</p>
   </div>
 </div>
 
 <div id="view-chat" class="teams-view hidden">
   <header class="teams-header">
     <div>
-      <div class="teams-logo-sm">flowix Teams</div>
+      <div class="teams-logo-sm">worlo Teams</div>
       <div class="teams-agent-name" id="agent-label">Agent</div>
     </div>
     <button type="button" class="btn-signout" id="btn-leave">Leave</button>
@@ -70,7 +70,7 @@
 
 <script>
 (function () {
-  var p = window.FLOWIX_TEAMS_PATHS;
+  var p = window.WORLO_TEAMS_PATHS;
   if (p) {
     [
       ['link-home', p.nav.home],
@@ -88,7 +88,7 @@
     s.onerror = next;
     document.body.appendChild(s);
   }
-  var cfgSrc = (p && p.js.config) || '/flowix-config.js';
+  var cfgSrc = (p && p.js.config) || '/worlo-config.js';
   var appSrc = (p && p.js.app) || '/teams-app/app.js';
   loadScript('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js', function () {
     loadScript(cfgSrc, function () {

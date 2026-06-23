@@ -1,11 +1,11 @@
-# flowix Teams downloads
+# worlo Teams downloads
 
 These files are served at `/downloads/` on your deployed site.
 
 | File | Platform |
 |------|----------|
-| `flowix-teams-win.zip` | Windows 11 — unzip, run `Open flowix Teams.bat` |
-| `flowix-teams-mac.zip` | macOS — unzip, run `Open flowix Teams.command` |
+| `worlo-teams-win.zip` | Windows 11 — unzip, run `Open worlo Teams.bat` |
+| `worlo-teams-mac.zip` | macOS — unzip, run `Open worlo Teams.command` |
 
 ## Rebuild
 

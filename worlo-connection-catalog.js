@@ -1,5 +1,5 @@
 /**
- * flowix integration catalog — browse & search all supported connections.
+ * worlo integration catalog — browse & search all supported connections.
  */
 (function (global) {
   function entry(id, label, category, opts) {
@@ -20,7 +20,7 @@
   }
 
   const WEB_COMM_DESC =
-    'Most teams already use the browser app. Flowix connects via OAuth/API where available, or Browserbase browser automation for secure web workflows.';
+    'Most teams already use the browser app. Worlo connects via OAuth/API where available, or Browserbase browser automation for secure web workflows.';
 
   const CONNECTIONS = [
     entry('slack', 'Slack Web App', 'Communication', {
@@ -322,7 +322,7 @@
     return match ? match.label : providerId;
   }
 
-  global.FlowixConnectionCatalog = {
+  global.WorloConnectionCatalog = {
     CONNECTIONS: CONNECTIONS,
     CATEGORIES: CATEGORIES,
     searchConnections: searchConnections,

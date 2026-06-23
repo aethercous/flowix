@@ -1,6 +1,6 @@
-# flowix Teams (desktop)
+# worlo Teams (desktop)
 
-Electron wrapper for the flowix Teams web app. Same UI and invite-code flow as the browser version at `/teams-app`.
+Electron wrapper for the worlo Teams web app. Same UI and invite-code flow as the browser version at `/teams-app`.
 
 ## Requirements
 
@@ -28,8 +28,8 @@ powershell -ExecutionPolicy Bypass -File scripts/build-teams-portable.ps1
 
 This produces:
 
-- `downloads/flowix-teams-win.zip` — Windows 11 portable (unzip, run `flowix Teams.exe`)
-- `downloads/flowix-teams-mac.zip` — macOS portable (unzip, run `Open flowix Teams.command`)
+- `downloads/worlo-teams-win.zip` — Windows 11 portable (unzip, run `worlo Teams.exe`)
+- `downloads/worlo-teams-mac.zip` — macOS portable (unzip, run `Open worlo Teams.command`)
 
 Deploy those files with your static site (Vercel). The Windows zip is ~110 MB; run the script before each deploy that should offer Windows downloads.
 
@@ -43,18 +43,18 @@ npm run build:win
 
 ## Hosted URL override
 
-Set `FLOWIX_TEAMS_URL` to load a deployed build instead of bundled files, for example:
+Set `WORLO_TEAMS_URL` to load a deployed build instead of bundled files, for example:
 
 ```bash
-set FLOWIX_TEAMS_URL=https://your-site.vercel.app/teams-app/index.html
+set WORLO_TEAMS_URL=https://your-site.vercel.app/teams-app/index.html
 npm start
 ```
 
 ## How teammates use it
 
-1. Admin signs in to the [flowix dashboard](../dashboard.html#teams).
+1. Admin signs in to the [worlo dashboard](../dashboard.html#teams).
 2. Generates an invite code for an agent (expiration down to the minute).
-3. Teammates install flowix Teams or open it in the browser.
-4. Paste `FLOWIX-XXXX-XXXX-XXXX` and chat.
+3. Teammates install worlo Teams or open it in the browser.
+4. Paste `WORLO-XXXX-XXXX-XXXX` and chat.
 
 Admins can revoke codes or disable Teams for an agent anytime in the dashboard.

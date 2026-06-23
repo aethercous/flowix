@@ -3,16 +3,16 @@
   var isFile = typeof location !== 'undefined' && location.protocol === 'file:';
 
   if (isFile) {
-    global.FLOWIX_TEAMS_PATHS = {
+    global.WORLO_TEAMS_PATHS = {
       isFile: true,
       css: {
-        tines: '../flowix-tines.css',
-        landing: '../flowix-landing.css',
-        sky: '../flowix-sky.css',
+        tines: '../worlo-tines.css',
+        landing: '../worlo-landing.css',
+        sky: '../worlo-sky.css',
         app: 'styles.css',
       },
       js: {
-        config: '../flowix-config.js',
+        config: '../worlo-config.js',
         app: 'app.js',
       },
       nav: {
@@ -25,16 +25,16 @@
     return;
   }
 
-  global.FLOWIX_TEAMS_PATHS = {
+  global.WORLO_TEAMS_PATHS = {
     isFile: false,
     css: {
-      tines: '/flowix-tines.css',
-      landing: '/flowix-landing.css',
-      sky: '/flowix-sky.css',
+      tines: '/worlo-tines.css',
+      landing: '/worlo-landing.css',
+      sky: '/worlo-sky.css',
       app: '/teams-app/styles.css',
     },
     js: {
-      config: '/flowix-config.js',
+      config: '/worlo-config.js',
       app: '/teams-app/app.js',
     },
     nav: {

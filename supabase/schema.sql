@@ -1,4 +1,4 @@
-﻿-- flowix - database schema
+﻿-- worlo - database schema
 -- Paste this into Supabase Dashboard ->’ SQL Editor and click Run.
 -- Safe to run multiple times.
 

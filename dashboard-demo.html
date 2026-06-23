@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
-<title>flowix — Demo</title>
+<title>worlo — Demo</title>
 <style>
   html, body.fx-sky {
     background: linear-gradient(180deg, #5eb3e8 0%, #87ceeb 42%, #e8f4fc 100%);
@@ -12,12 +12,12 @@
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-<link rel="stylesheet" href="flowix-tines.css"/>
-<link rel="stylesheet" href="flowix-landing.css"/>
-<link rel="stylesheet" href="flowix-sky.css"/>
-<link rel="stylesheet" href="flowix-dashboard-chat.css"/>
+<link rel="stylesheet" href="worlo-tines.css"/>
+<link rel="stylesheet" href="worlo-landing.css"/>
+<link rel="stylesheet" href="worlo-sky.css"/>
+<link rel="stylesheet" href="worlo-dashboard-chat.css"/>
 <link rel="stylesheet" href="dashboard-demo-embed.css"/>
-<link rel="stylesheet" href="flowix-mobile.css"/>
+<link rel="stylesheet" href="worlo-mobile.css"/>
 </head>
 <body class="fx-tines fx-sky fx-app-page fx-embed-demo">
 
@@ -28,7 +28,7 @@
 
 <header>
   <div class="header-left">
-    <a href="/" class="logo" style="text-decoration:none" tabindex="-1">flowix</a>
+    <a href="/" class="logo" style="text-decoration:none" tabindex="-1">worlo</a>
     <nav class="nav-main">
       <button type="button" data-section="agents" class="nav-btn" tabindex="-1">
         <svg class="nav-icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3"/><path d="M12 15c-4 0-7 2-7 5v2h14v-2c0-3-3-5-7-5z"/></svg>
@@ -40,7 +40,7 @@
       </button>
       <button type="button" data-section="teams" class="nav-btn" tabindex="-1">
         <svg class="nav-icon" viewBox="0 0 24 24"><circle cx="8" cy="8" r="2.5"/><circle cx="16" cy="8" r="2.5"/><circle cx="12" cy="17" r="2.5"/><path d="M8 11v3m8-3v3M12 11v6"/></svg>
-        flowix Teams
+        worlo Teams
       </button>
       <button type="button" data-section="api" class="nav-btn" tabindex="-1">
         <svg class="nav-icon" viewBox="0 0 24 24"><rect x="5" y="6" width="14" height="12" rx="2"/><line x1="9" y1="11" x2="15" y2="11"/><line x1="9" y1="15" x2="12" y2="15"/></svg>
@@ -187,10 +187,10 @@
   <div class="fx-embed-demo-toast" id="fx-embed-toast">Agent saved</div>
 </div>
 
-<script src="flowix-sky.js"></script>
+<script src="worlo-sky.js"></script>
 <script>
-  FlowixSky.init({ mode: 'day' });
+  WorloSky.init({ mode: 'day' });
 </script>
-<script src="flowix-cinematic-demo.js"></script>
+<script src="worlo-cinematic-demo.js"></script>
 </body>
 </html>

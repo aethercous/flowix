@@ -1,4 +1,4 @@
-/* flowix landing — patterns adapted from FreeFrontend (MIT) + Tines-like layout */
+/* worlo landing — patterns adapted from FreeFrontend (MIT) + Tines-like layout */
 
 .fx-landing {
   --fx-display-weight: 500;
@@ -15,7 +15,7 @@
   --fx-radius-ui: 3px;
 }
 
-/* Sky + drifting clouds (gradient via flowix-sky.css / flowix-sky.js) */
+/* Sky + drifting clouds (gradient via worlo-sky.css / worlo-sky.js) */
 .fx-sky-scene {
   position: fixed;
   inset: 0;
@@ -188,7 +188,7 @@
   border-bottom: none;
 }
 
-/* Unified Flowix typography (Inter — matches “flowix Teams for your org”) */
+/* Unified Worlo typography (Inter — matches “worlo Teams for your org”) */
 .fx-landing,
 .fx-landing :is(p, li, a, button, input, textarea, select) {
   font-family: var(--fx-font, "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="mobile-web-app-capable" content="yes"/>
-<title>flowix — Dashboard</title>
+<title>worlo — Dashboard</title>
 <style>
   html, body.fx-sky {
     background: linear-gradient(180deg, #5eb3e8 0%, #87ceeb 42%, #e8f4fc 100%);
@@ -14,12 +14,12 @@
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-<link rel="stylesheet" href="flowix-tines.css"/>
-<link rel="stylesheet" href="flowix-landing.css"/>
-<link rel="stylesheet" href="flowix-sky.css"/>
-<link rel="stylesheet" href="flowix-tutorial.css"/>
-<link rel="stylesheet" href="flowix-dashboard-chat.css"/>
-<link rel="stylesheet" href="flowix-mobile.css"/>
+<link rel="stylesheet" href="worlo-tines.css"/>
+<link rel="stylesheet" href="worlo-landing.css"/>
+<link rel="stylesheet" href="worlo-sky.css"/>
+<link rel="stylesheet" href="worlo-tutorial.css"/>
+<link rel="stylesheet" href="worlo-dashboard-chat.css"/>
+<link rel="stylesheet" href="worlo-mobile.css"/>
 <style>
 #toast-container {
   position: fixed;
@@ -750,7 +750,7 @@ main {
 
 <header>
   <div class="header-left">
-    <a href="/" class="logo" style="text-decoration:none">flowix</a>
+    <a href="/" class="logo" style="text-decoration:none">worlo</a>
     <nav class="nav-main">
       <button data-section="agents" class="nav-btn active">
         <svg class="nav-icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3"/><path d="M12 15c-4 0-7 2-7 5v2h14v-2c0-3-3-5-7-5z"/></svg>
@@ -762,7 +762,7 @@ main {
       </button>
       <button data-section="teams" class="nav-btn">
         <svg class="nav-icon" viewBox="0 0 24 24"><circle cx="8" cy="8" r="2.5"/><circle cx="16" cy="8" r="2.5"/><circle cx="12" cy="17" r="2.5"/><path d="M8 11v3m8-3v3M12 11v6"/></svg>
-        flowix Teams
+        worlo Teams
       </button>
       <button data-section="api" class="nav-btn">
         <svg class="nav-icon" viewBox="0 0 24 24"><rect x="5" y="6" width="14" height="12" rx="2"/><line x1="9" y1="11" x2="15" y2="11"/><line x1="9" y1="15" x2="12" y2="15"/></svg>
@@ -795,7 +795,7 @@ main {
 <!-- AGENTS SECTION -->
 <div id="section-agents" class="section active">
   <div class="page-header">
-    <div class="page-subtitle">flowix platform</div>
+    <div class="page-subtitle">worlo platform</div>
     <div class="page-title">My Agents</div>
     <p class="fx-page-desc" style="margin-top:12px;margin-bottom:0">Build, deploy, and manage intelligent agents across your stack.</p>
   </div>
@@ -807,7 +807,7 @@ main {
   <div id="empty-agents" class="empty-state">
     <div class="empty-icon"><svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2c5.5 0 10 4.5 10 10s-4.5 10-10 10S2 17.5 2 12 6.5 2 12 2z"/><path d="M12 8v8m-4-4h8"/></svg></div>
     <div class="empty-title">No Agents Yet</div>
-    <div class="empty-text">Create your first flowix agent. Deploy to Slack, Discord, or the flowix Teams desktop app.</div>
+    <div class="empty-text">Create your first worlo agent. Deploy to Slack, Discord, or the worlo Teams desktop app.</div>
     <button class="btn btn-primary btn-large" id="btn-new-agent-alt">Create First Agent</button>
   </div>
 
@@ -904,7 +904,7 @@ main {
         <input type="checkbox" id="agent-use-custom-key" style="width:auto"/>
         Use my own LLM API key (optional)
       </label>
-      <div class="form-hint">When enabled, Flowix uses your key for this agent instead of platform defaults. Leave blank when editing to keep the existing key.</div>
+      <div class="form-hint">When enabled, Worlo uses your key for this agent instead of platform defaults. Leave blank when editing to keep the existing key.</div>
     </div>
 
     <div id="custom-key-section" style="display:none;padding:16px;border-radius:12px;margin:12px 0;border:1px solid rgba(0,0,0,0.08);background:rgba(255,255,255,0.5)">
@@ -944,7 +944,7 @@ main {
 
   <div class="form-card" style="margin-bottom:24px">
     <div class="form-title">More integrations</div>
-    <p style="font-size:13px;color:#6b7280;margin-bottom:16px">Browse additional apps coming soon to flowix.</p>
+    <p style="font-size:13px;color:#6b7280;margin-bottom:16px">Browse additional apps coming soon to worlo.</p>
     <div class="fx-conn-search-bar">
       <input type="search" id="conn-search-input" class="fx-conn-search-input" placeholder="Search integrations…" autocomplete="off" aria-label="Search integrations"/>
       <span id="conn-search-meta" class="fx-conn-search-meta"></span>
@@ -958,16 +958,16 @@ main {
 <!-- TEAMS SECTION -->
 <div id="section-teams" class="section">
   <div class="page-header">
-    <div class="page-subtitle">flowix Teams</div>
+    <div class="page-subtitle">worlo Teams</div>
     <div class="page-title">Desktop app &amp; invite codes</div>
-    <p class="fx-page-desc" style="margin-top:12px;margin-bottom:0">flowix Teams is a separate app your organization downloads — not Microsoft Teams. Generate invite codes below to connect agents.</p>
+    <p class="fx-page-desc" style="margin-top:12px;margin-bottom:0">worlo Teams is a separate app your organization downloads — not Microsoft Teams. Generate invite codes below to connect agents.</p>
   </div>
 
   <div class="fx-teams-hero">
     <div>
       <div class="fx-eyebrow">Download the app</div>
-      <h3 class="fx-display-title">flowix Teams for your org</h3>
-      <p style="font-size:15px;color:var(--fx-text-secondary);line-height:1.55;margin-bottom:16px">Install the flowix Teams desktop app on Windows or Mac. Share invite codes from below so teammates can join your workspace.</p>
+      <h3 class="fx-display-title">worlo Teams for your org</h3>
+      <p style="font-size:15px;color:var(--fx-text-secondary);line-height:1.55;margin-bottom:16px">Install the worlo Teams desktop app on Windows or Mac. Share invite codes from below so teammates can join your workspace.</p>
       <div class="fx-dl-btns">
       <a href="/teams-app/index.html" class="fx-dl-btn fx-action">Open in browser</a>
       <a href="/teams-app/download.html" class="fx-dl-btn outline fx-action">Download Mac / Windows</a>
@@ -984,7 +984,7 @@ main {
   </div>
 
   <div class="form-card">
-    <div class="form-title">Generate flowix Teams invite code</div>
+    <div class="form-title">Generate worlo Teams invite code</div>
     <div class="form-grid">
       <div class="form-group">
         <label class="form-label">Select Agent *</label>
@@ -1168,11 +1168,11 @@ main {
 
 <!-- SUPABASE -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-<script src="flowix-connection-catalog.js"></script>
-<script src="flowix-connections.js"></script>
-<script src="flowix-sky.js"></script>
-<script src="flowix-tutorial.js"></script>
-<script src="flowix-dashboard-chat.js"></script>
+<script src="worlo-connection-catalog.js"></script>
+<script src="worlo-connections.js"></script>
+<script src="worlo-sky.js"></script>
+<script src="worlo-tutorial.js"></script>
+<script src="worlo-dashboard-chat.js"></script>
 
 <script>
 (function() {
@@ -1186,7 +1186,7 @@ main {
   let agentLinkedConnectionIds = [];
 
   const DEFAULT_AGENT_PROMPT =
-    'You are a Flowix assistant for this team. Be direct and practical. When a task needs the live web, use Browserbase (Flowix can open a remote browser session and run navigate/click/type/screenshot actions).';
+    'You are a Worlo assistant for this team. Be direct and practical. When a task needs the live web, use Browserbase (Worlo can open a remote browser session and run navigate/click/type/screenshot actions).';
 
   function escapeHtml(str) {
     return String(str)
@@ -1274,7 +1274,7 @@ main {
 
     await loadAgentTokensFromDb();
     saveState();
-    if (typeof FlowixDashboardChat !== 'undefined') FlowixDashboardChat.refresh();
+    if (typeof WorloDashboardChat !== 'undefined') WorloDashboardChat.refresh();
   }
 
   async function loadAgentTokensFromDb() {
@@ -1291,7 +1291,7 @@ main {
 
   async function loadUserConnections() {
     try {
-      state.userConnections = await FlowixConnections.loadUserConnections(sb, currentUser.id);
+      state.userConnections = await WorloConnections.loadUserConnections(sb, currentUser.id);
     } catch (e) {
       console.warn('loadUserConnections', e);
       state.userConnections = [];
@@ -1303,7 +1303,7 @@ main {
       agentLinkedConnectionIds = [];
       return;
     }
-    const rows = await FlowixConnections.loadAgentConnections(sb, currentUser.id, agentId);
+    const rows = await WorloConnections.loadAgentConnections(sb, currentUser.id, agentId);
     agentLinkedConnectionIds = rows
       .filter(r => r.user_connection_id)
       .map(r => r.user_connection_id);
@@ -1330,7 +1330,7 @@ main {
 
     picker.innerHTML = state.userConnections.map(c => {
       const checked = agentLinkedConnectionIds.includes(c.id) ? 'checked' : '';
-      const appLabel = FlowixConnections.getCatalogLabel(c.provider);
+      const appLabel = WorloConnections.getCatalogLabel(c.provider);
       return `
         <label class="fx-conn-option">
           <input type="checkbox" value="${c.id}" ${checked}/>
@@ -1343,7 +1343,7 @@ main {
   }
 
   async function migrateLocalAgentsIfNeeded() {
-    const saved = localStorage.getItem(`flowix_${currentUser.id}`);
+    const saved = localStorage.getItem(`worlo_${currentUser.id}`);
     if (!saved) return;
     let local;
     try { local = JSON.parse(saved); } catch { return; }
@@ -1393,7 +1393,7 @@ main {
     try {
     currentUser = session.user;
 
-    const saved = localStorage.getItem(`flowix_${currentUser.id}`);
+    const saved = localStorage.getItem(`worlo_${currentUser.id}`);
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
@@ -1420,7 +1420,7 @@ main {
     }
 
     renderAgents();
-    FlowixDashboardChat.init({
+    WorloDashboardChat.init({
       sb,
       state,
       currentUser,
@@ -1438,22 +1438,22 @@ main {
     setupNavigation();
     setupBilling();
     bindOAuthGridClicks();
-    if (typeof FlowixSky !== 'undefined') {
+    if (typeof WorloSky !== 'undefined') {
       try {
-        FlowixSky.init();
+        WorloSky.init();
       } catch (skyErr) {
-        console.warn('FlowixSky init failed:', skyErr);
+        console.warn('WorloSky init failed:', skyErr);
       }
     }
 
-    const cb = FlowixConnections.parseOAuthCallbackParams();
+    const cb = WorloConnections.parseOAuthCallbackParams();
     if (cb.oauth === 'success' && cb.provider) {
       await loadUserConnections();
       toast(`Successfully connected ${cb.provider}!`, 'success');
-      FlowixConnections.clearOAuthCallbackParams();
+      WorloConnections.clearOAuthCallbackParams();
     } else if (cb.oauth === 'error') {
       toast(cb.message || 'OAuth connection failed', 'error');
-      FlowixConnections.clearOAuthCallbackParams();
+      WorloConnections.clearOAuthCallbackParams();
     }
 
     const hashSection = (location.hash || '').replace(/^#/, '').split('?')[0];
@@ -1465,15 +1465,15 @@ main {
       showSection('connections');
     });
 
-    if (typeof FlowixTutorial !== 'undefined') {
-      FlowixTutorial.offerIfNeeded(currentUser.id, {
+    if (typeof WorloTutorial !== 'undefined') {
+      WorloTutorial.offerIfNeeded(currentUser.id, {
         showSection,
         openCreateAgent: () => openCreateAgentForm(),
       });
     }
     document.getElementById('btn-replay-tutorial')?.addEventListener('click', () => {
-      if (typeof FlowixTutorial !== 'undefined') {
-        FlowixTutorial.restart({
+      if (typeof WorloTutorial !== 'undefined') {
+        WorloTutorial.restart({
           userId: currentUser.id,
           showSection,
           openCreateAgent: () => openCreateAgentForm(),
@@ -1489,7 +1489,7 @@ main {
   }
 
   function saveState() {
-    localStorage.setItem(`flowix_${currentUser.id}`, JSON.stringify(state));
+    localStorage.setItem(`worlo_${currentUser.id}`, JSON.stringify(state));
   }
 
   function updateBalance() {
@@ -1518,15 +1518,15 @@ main {
     section.classList.add('active');
     const gear = document.getElementById('btn-open-settings');
     if (gear) gear.classList.toggle('is-active', name === 'settings');
-    if (typeof FlowixSky !== 'undefined') {
-      FlowixSky.applyMode(FlowixSky.getSettings().mode);
-      FlowixSky.updateTimeSliderState();
+    if (typeof WorloSky !== 'undefined') {
+      WorloSky.applyMode(WorloSky.getSettings().mode);
+      WorloSky.updateTimeSliderState();
     }
     const navBtn = document.querySelector(`[data-section="${name}"]`);
     if (navBtn) navBtn.classList.add('active');
     if (name === 'connections') refreshConnectionsPage();
-    if (name === 'chat' && typeof FlowixDashboardChat !== 'undefined') {
-      FlowixDashboardChat.refresh();
+    if (name === 'chat' && typeof WorloDashboardChat !== 'undefined') {
+      WorloDashboardChat.refresh();
     }
     if (name === 'teams') {
       initTeamExpiryPicker();
@@ -1615,10 +1615,10 @@ main {
     const byProvider = {};
     (state.userConnections || []).forEach(c => { byProvider[c.provider] = c; });
 
-    const catalog = window.FlowixConnectionCatalog;
+    const catalog = window.WorloConnectionCatalog;
     const primaryList = catalog
       ? catalog.getConnectionsPageApps()
-      : FlowixConnections.OAUTH_APPS;
+      : WorloConnections.OAUTH_APPS;
 
     primaryGrid.innerHTML = primaryList
       .map(app => renderConnectionCard(app, byProvider, 'primary'))
@@ -1675,7 +1675,7 @@ main {
       if (browserBtn) {
         e.preventDefault();
         const provider = browserBtn.dataset.browserLoginBtn;
-        FlowixConnections.openBrowserLogin(sb, provider)
+        WorloConnections.openBrowserLogin(sb, provider)
           .then(() => toast('Opened browser sign-in — complete login in the new tab', 'success'))
           .catch(err => {
             console.error('[dashboard] browser login failed', err);
@@ -1715,7 +1715,7 @@ main {
     if (conn) {
       if (!confirm(`Disconnect ${provider}? Agents using this account will lose access.`)) return;
       try {
-        await FlowixConnections.disconnectOAuth(sb, provider);
+        await WorloConnections.disconnectOAuth(sb, provider);
         await loadUserConnections();
         renderOAuthConnectionsGrid();
         renderAgentConnectionsPicker();
@@ -1734,7 +1734,7 @@ main {
       btnEl.textContent = 'Connecting…';
     }
     try {
-      const result = await FlowixConnections.startOAuth(sb, provider, { returnUrl: 'dashboard.html#connections' });
+      const result = await WorloConnections.startOAuth(sb, provider, { returnUrl: 'dashboard.html#connections' });
       if (result?.linked) {
         await loadUserConnections();
         renderOAuthConnectionsGrid();
@@ -1744,7 +1744,7 @@ main {
       }
     } catch (e) {
       console.error('[dashboard] startOAuth failed', e);
-      const label = FlowixConnections.getCatalogLabel(provider) || provider;
+      const label = WorloConnections.getCatalogLabel(provider) || provider;
       const raw = e?.message || 'Connection failed';
       const short = raw.includes('not configured') || raw.includes('not available')
         ? `${label} isn't available right now. Please try again later.`
@@ -1967,7 +1967,7 @@ main {
 
       try {
         const selectedConnIds = getSelectedAgentConnectionIds();
-        await FlowixConnections.saveAgentConnectionLinks(
+        await WorloConnections.saveAgentConnectionLinks(
           sb, currentUser.id, agent.id, selectedConnIds
         );
       } catch (linkErr) {

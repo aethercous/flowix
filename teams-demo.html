@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
-<title>flowix Teams — Demo</title>
+<title>worlo Teams — Demo</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-<link rel="stylesheet" href="flowix-tines.css"/>
-<link rel="stylesheet" href="flowix-sky.css"/>
+<link rel="stylesheet" href="worlo-tines.css"/>
+<link rel="stylesheet" href="worlo-sky.css"/>
 <link rel="stylesheet" href="teams-app/styles.css"/>
 <link rel="stylesheet" href="teams-demo-embed.css"/>
-<link rel="stylesheet" href="flowix-mobile.css"/>
+<link rel="stylesheet" href="worlo-mobile.css"/>
 </head>
 <body class="fx-tines fx-sky teams-app fx-teams-embed-demo">
 
@@ -21,7 +21,7 @@
 <div id="fx-teams-embed-stage">
   <div id="view-auth" class="teams-view">
     <div class="teams-auth-card">
-      <div class="teams-logo">flowix Teams</div>
+      <div class="teams-logo">worlo Teams</div>
       <p class="teams-auth-lead">Enter the invite code from your dashboard.</p>
       <div class="form-group">
         <label class="form-label">First name</label>
@@ -33,7 +33,7 @@
       </div>
       <div class="form-group">
         <label class="form-label">Invite code</label>
-        <input class="form-input" type="text" id="invite-code" placeholder="FLOWIX-XXXX-XXXX-XXXX" tabindex="-1" autocomplete="off"/>
+        <input class="form-input" type="text" id="invite-code" placeholder="WORLO-XXXX-XXXX-XXXX" tabindex="-1" autocomplete="off"/>
       </div>
       <button type="button" class="btn btn-primary" id="btn-join" style="width:100%;margin-top:8px" tabindex="-1">Join workspace</button>
     </div>
@@ -42,7 +42,7 @@
   <div id="view-chat" class="teams-view hidden">
     <header class="teams-header">
       <div>
-        <div class="teams-logo-sm">flowix Teams</div>
+        <div class="teams-logo-sm">worlo Teams</div>
         <div class="teams-agent-name" id="agent-label">Ops Assistant</div>
       </div>
     </header>
@@ -59,10 +59,10 @@
   <div class="fx-teams-embed-cursor is-hidden" id="fx-teams-embed-cursor"></div>
 </div>
 
-<script src="flowix-sky.js"></script>
+<script src="worlo-sky.js"></script>
 <script>
-  FlowixSky.init({ mode: 'day' });
+  WorloSky.init({ mode: 'day' });
 </script>
-<script src="flowix-teams-demo.js"></script>
+<script src="worlo-teams-demo.js"></script>
 </body>
 </html>

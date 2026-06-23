@@ -1,4 +1,4 @@
-# Build small flowix Teams portable zips (web + launcher) for /downloads/
+# Build small worlo Teams portable zips (web + launcher) for /downloads/
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
 $downloads = Join-Path $root 'downloads'
@@ -8,16 +8,16 @@ function Write-TeamsPortable($stageDir, $launcherName, $launcherBody) {
   if (Test-Path $stageDir) { Remove-Item -Recurse -Force $stageDir }
   New-Item -ItemType Directory -Path $stageDir | Out-Null
   Copy-Item -Recurse -Force (Join-Path $root 'teams-app') (Join-Path $stageDir 'teams-app')
-  Copy-Item -Force (Join-Path $root 'flowix-tines.css') $stageDir
-  Copy-Item -Force (Join-Path $root 'flowix-landing.css') $stageDir
-  Copy-Item -Force (Join-Path $root 'flowix-config.js') $stageDir
+  Copy-Item -Force (Join-Path $root 'worlo-tines.css') $stageDir
+  Copy-Item -Force (Join-Path $root 'worlo-landing.css') $stageDir
+  Copy-Item -Force (Join-Path $root 'worlo-config.js') $stageDir
   [System.IO.File]::WriteAllText((Join-Path $stageDir $launcherName), $launcherBody.Replace("`r`n", "`n"))
   $readme = @"
-flowix Teams portable
+worlo Teams portable
 =====================
 1. Unzip this folder anywhere.
 2. Run "$launcherName".
-3. Your browser opens flowix Teams — paste your FLOWIX invite code from the dashboard.
+3. Your browser opens worlo Teams — paste your WORLO invite code from the dashboard.
 
 Chat requires an internet connection (Supabase).
 "@
@@ -31,8 +31,8 @@ $winBat = @'
 cd /d "%~dp0"
 start "" "%~dp0teams-app\index.html"
 '@
-Write-TeamsPortable $winStage 'Open flowix Teams.bat' $winBat
-$winZip = Join-Path $downloads 'flowix-teams-win.zip'
+Write-TeamsPortable $winStage 'Open worlo Teams.bat' $winBat
+$winZip = Join-Path $downloads 'worlo-teams-win.zip'
 if (Test-Path $winZip) { Remove-Item $winZip -Force }
 Compress-Archive -Path (Join-Path $winStage '*') -DestinationPath $winZip -CompressionLevel Optimal
 Remove-Item -Recurse -Force $winStage
@@ -46,8 +46,8 @@ DIR="$(cd "$(dirname "$0")" && pwd)"
 FILE="file://${DIR}/teams-app/index.html"
 open -a Safari "$FILE" 2>/dev/null || open "$FILE"
 '@
-Write-TeamsPortable $macStage 'Open flowix Teams.command' $macCmd
-$macZip = Join-Path $downloads 'flowix-teams-mac.zip'
+Write-TeamsPortable $macStage 'Open worlo Teams.command' $macCmd
+$macZip = Join-Path $downloads 'worlo-teams-mac.zip'
 if (Test-Path $macZip) { Remove-Item $macZip -Force }
 Compress-Archive -Path (Join-Path $macStage '*') -DestinationPath $macZip -CompressionLevel Optimal
 Remove-Item -Recurse -Force $macStage

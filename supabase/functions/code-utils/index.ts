@@ -13,7 +13,7 @@ export function generateRandomCode(format: 'human' | 'machine' = 'human'): strin
       }
       segments.push(segment);
     }
-    return 'FLOWIX-' + segments.join('-');
+    return 'WORLO-' + segments.join('-');
   } else {
     // Generate machine-friendly code: sk_live_xxxxx
     const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
