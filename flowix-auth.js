@@ -178,6 +178,27 @@
     }
   }
 
+  async function waitForSession(client, attempts, delayMs) {
+    for (var i = 0; i < attempts; i++) {
+      var res = await client.auth.getSession();
+      if (res.data && res.data.session) return res.data.session;
+      if (i < attempts - 1) {
+        await new Promise(function (resolve) { setTimeout(resolve, delayMs); });
+      }
+    }
+    return null;
+  }
+
+  async function finishOAuthReturn(client) {
+    var session = await waitForSession(client, 6, 100);
+    cleanAuthUrl();
+    if (session) {
+      completeAuthSuccess(session);
+      return true;
+    }
+    return false;
+  }
+
   async function handleOAuthReturn() {
     var client = getClient();
     if (!client) return false;
@@ -192,36 +213,36 @@
     var code = params.get('code');
     if (code) {
       try {
-        var exchanged = await client.auth.exchangeCodeForSession(code);
-        cleanAuthUrl();
-        if (exchanged.error) {
-          toast(exchanged.error.message || 'Could not complete Google sign-in', 'error');
-          return false;
+        // detectSessionInUrl may already have exchanged the code.
+        var existing = await waitForSession(client, 4, 75);
+        if (existing) {
+          cleanAuthUrl();
+          completeAuthSuccess(existing);
+          return true;
         }
+
+        var exchanged = await client.auth.exchangeCodeForSession(code);
         if (exchanged.data && exchanged.data.session) {
+          cleanAuthUrl();
           completeAuthSuccess(exchanged.data.session);
           return true;
         }
-        toast('Sign-in completed but no session was created', 'error');
+        if (exchanged.error) {
+          return await finishOAuthReturn(client);
+        }
+
+        cleanAuthUrl();
         return false;
       } catch (e) {
-        cleanAuthUrl();
-        toast('Could not complete Google sign-in', 'error');
-        return false;
+        return await finishOAuthReturn(client);
       }
     }
 
     if (window.location.hash && window.location.hash.indexOf('access_token') !== -1) {
       try {
-        var res = await client.auth.getSession();
-        cleanAuthUrl();
-        if (res.data && res.data.session) {
-          completeAuthSuccess(res.data.session);
-          return true;
-        }
+        return await finishOAuthReturn(client);
       } catch (e) {
         cleanAuthUrl();
-        toast('Could not complete Google sign-in', 'error');
         return false;
       }
     }
