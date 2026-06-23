@@ -2,7 +2,7 @@
 
 worlo uses **Supabase Auth** with `signInWithOAuth({ provider: 'google' })`.
 
-**Production homepage:** https://worlo.space
+**Production homepage:** https://flowix.space
 
 Enable Google in your Supabase project before the buttons work in production or locally.
 
@@ -16,7 +16,7 @@ Enable Google in your Supabase project before the buttons work in production or 
    - **Testing:** add each sign-in email under **Test users** (up to 100), **or**
    - **Production:** click **Publish app** — basic email/profile scopes work immediately without Google verification
 4. Add **Authorized JavaScript origins**:
-   - `https://worlo.space`
+   - `https://flowix.space`
    - `http://localhost:8765` (local preview)
 4. Add **Authorized redirect URIs** (Supabase callback — required):
    - `https://utofnywijqsozjqmkhcn.supabase.co/auth/v1/callback`
@@ -27,16 +27,16 @@ Enable Google in your Supabase project before the buttons work in production or 
 1. Project → **Authentication** → **Providers** → **Google**.
 2. Enable Google and paste the Client ID and Client secret.
 3. Under **Authentication** → **URL Configuration**:
-   - **Site URL:** `https://worlo.space`
+   - **Site URL:** `https://flowix.space`
    - **Redirect URLs:**
-     - `https://worlo.space`
-     - `https://worlo.space/`
+     - `https://flowix.space`
+     - `https://flowix.space/`
      - `http://localhost:8765`
      - `http://localhost:8765/`
 
 ## 3. Verify
 
-1. Open https://worlo.space → **Sign in** → **Continue with Google**.
+1. Open https://flowix.space → **Sign in** → **Continue with Google**.
 2. After approving Google, you should return signed in on the homepage.
 
 Local preview: `python -m http.server 8765` from the repo root, then open http://localhost:8765/
