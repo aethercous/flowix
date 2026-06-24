@@ -1456,6 +1456,20 @@ main {
       WorloConnections.clearOAuthCallbackParams();
     }
 
+    const connectGoogle = new URLSearchParams(window.location.search).get('connect') === 'google';
+    if (connectGoogle) {
+      const linked = await WorloConnections.linkGoogleFromSession(sb);
+      const url = new URL(window.location.href);
+      url.searchParams.delete('connect');
+      window.history.replaceState({}, '', url.pathname + url.search + (url.hash || '#connections'));
+      if (linked.ok) {
+        await loadUserConnections();
+        toast('Google Workspace connected', 'success');
+      } else if (!linked.needsConsent) {
+        toast(linked.error || 'Google Workspace connection failed', 'error');
+      }
+    }
+
     const hashSection = (location.hash || '').replace(/^#/, '').split('?')[0];
     if (hashSection && document.getElementById(`section-${hashSection}`)) {
       showSection(hashSection);
@@ -1739,9 +1753,10 @@ main {
         await loadUserConnections();
         renderOAuthConnectionsGrid();
         renderAgentConnectionsPicker();
-        toast('Google connected', 'success');
+        toast(provider === 'google' ? 'Google Workspace connected' : 'Connected', 'success');
         return;
       }
+      if (result?.redirecting) return;
     } catch (e) {
       console.error('[dashboard] startOAuth failed', e);
       const label = WorloConnections.getCatalogLabel(provider) || provider;

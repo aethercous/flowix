@@ -28,6 +28,78 @@
       })
     : [{ id: 'linkedin', label: 'LinkedIn', icon: 'in', color: '#0A66C2', desc: 'LinkedIn via browser.' }];
 
+  /** Same Google OAuth app as Supabase Auth sign-in — requested when user clicks Connect. */
+  const GOOGLE_WORKSPACE_SCOPES = [
+    'openid',
+    'email',
+    'profile',
+    'https://www.googleapis.com/auth/gmail.readonly',
+    'https://www.googleapis.com/auth/drive.readonly',
+    'https://www.googleapis.com/auth/documents.readonly',
+    'https://www.googleapis.com/auth/calendar.readonly',
+    'https://www.googleapis.com/auth/calendar.events',
+  ].join(' ');
+
+  function googleConnectReturnUrl(returnUrl) {
+    const base = returnUrl || 'dashboard.html?connect=google#connections';
+    if (base.indexOf('connect=google') !== -1) return base;
+    const hashIdx = base.indexOf('#');
+    const beforeHash = hashIdx >= 0 ? base.slice(0, hashIdx) : base;
+    const hash = hashIdx >= 0 ? base.slice(hashIdx) : '#connections';
+    const joiner = beforeHash.indexOf('?') >= 0 ? '&' : '?';
+    return beforeHash + joiner + 'connect=google' + hash;
+  }
+
+  async function linkGoogleFromSession(sb) {
+    const sessionRes = await sb.auth.getSession();
+    const session = sessionRes?.data?.session;
+    if (!session) return { ok: false, error: 'Please sign in again' };
+
+    const linkRes = await sb.functions.invoke('oauth-link-from-session', {
+      headers: { Authorization: 'Bearer ' + session.access_token },
+      body: { provider: 'google' },
+    });
+
+    if (linkRes.error) {
+      let msg = linkRes.error.message || 'Failed to link Google account';
+      if (linkRes.error.context && typeof linkRes.error.context.json === 'function') {
+        try {
+          const body = await linkRes.error.context.json();
+          if (body?.error) msg = body.error;
+        } catch (_e) { /* ignore */ }
+      }
+      return { ok: false, error: msg, needsConsent: false };
+    }
+
+    const data = linkRes.data || {};
+    if (data.ok) return { ok: true, provider: 'google', connectionId: data.connectionId };
+    return {
+      ok: false,
+      error: data.error || 'Could not link Google Workspace',
+      needsConsent: !!data.needsConsent,
+    };
+  }
+
+  async function startGoogleWorkspaceOAuth(sb, options) {
+    const returnUrl = googleConnectReturnUrl(options.returnUrl);
+    const redirectTo = new URL(returnUrl, window.location.origin).href;
+    const { data, error } = await sb.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: redirectTo,
+        scopes: GOOGLE_WORKSPACE_SCOPES,
+        queryParams: {
+          access_type: 'offline',
+          prompt: 'consent',
+        },
+      },
+    });
+    if (error) throw new Error(error.message || 'Failed to start Google authorization');
+    if (!data?.url) throw new Error('No Google authorization URL returned');
+    window.location.assign(data.url);
+    return { redirecting: true, provider: 'google' };
+  }
+
   function createClient() {
     return global.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
   }
@@ -63,17 +135,12 @@
     }
 
     if (provider === 'google') {
-      try {
-        const linkRes = await sb.functions.invoke('oauth-link-from-session', {
-          headers: { Authorization: `Bearer ${session.access_token}` },
-          body: { provider: 'google' },
-        });
-        if (linkRes.data?.ok) {
-          return { linked: true, provider: 'google' };
-        }
-      } catch (linkErr) {
-        console.info('[WorloConnections] google session link skipped', linkErr);
+      const linked = await linkGoogleFromSession(sb);
+      if (linked.ok) {
+        return { linked: true, provider: 'google', connectionId: linked.connectionId };
       }
+      console.info('[WorloConnections] google session link:', linked.error || 'needs consent');
+      return startGoogleWorkspaceOAuth(sb, options);
     }
 
     let invokeResult;
@@ -250,12 +317,14 @@
     SUPABASE_KEY,
     OAUTH_APPS,
     BROWSER_APPS,
+    GOOGLE_WORKSPACE_SCOPES,
     searchCatalog,
     getCatalogLabel,
     createClient,
     loadUserConnections,
     loadAgentConnections,
     loadOAuthConfigStatus,
+    linkGoogleFromSession,
     startOAuth,
     openBrowserLogin,
     disconnectOAuth,

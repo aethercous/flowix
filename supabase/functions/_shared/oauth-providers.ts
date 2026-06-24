@@ -6,6 +6,18 @@ export type OAuthProviderId =
   | "notion"
   | "teams";
 
+/** Scopes for Google Workspace connections (Gmail, Drive, Docs, Calendar). */
+export const GOOGLE_WORKSPACE_SCOPES = [
+  "openid",
+  "email",
+  "profile",
+  "https://www.googleapis.com/auth/gmail.readonly",
+  "https://www.googleapis.com/auth/drive.readonly",
+  "https://www.googleapis.com/auth/documents.readonly",
+  "https://www.googleapis.com/auth/calendar.readonly",
+  "https://www.googleapis.com/auth/calendar.events",
+];
+
 export interface OAuthProviderConfig {
   id: OAuthProviderId;
   label: string;
@@ -32,16 +44,10 @@ export const OAUTH_PROVIDERS: Record<OAuthProviderId, OAuthProviderConfig> = {
   },
   google: {
     id: "google",
-    label: "Google Calendar",
+    label: "Google Workspace",
     authUrl: "https://accounts.google.com/o/oauth2/v2/auth",
     tokenUrl: "https://oauth2.googleapis.com/token",
-    scopes: [
-      "https://www.googleapis.com/auth/calendar.readonly",
-      "https://www.googleapis.com/auth/calendar.events",
-      "openid",
-      "email",
-      "profile",
-    ],
+    scopes: GOOGLE_WORKSPACE_SCOPES,
     clientIdEnv: "OAUTH_GOOGLE_CLIENT_ID",
     clientSecretEnv: "OAUTH_GOOGLE_CLIENT_SECRET",
     extraAuthParams: { access_type: "offline", prompt: "consent" },

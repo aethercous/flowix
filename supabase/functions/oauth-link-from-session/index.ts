@@ -6,6 +6,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { corsPreflightResponse, jsonResponse } from "../_shared/cors.ts";
 import { ensureContextForUserConnection } from "../_shared/browserbase-contexts.ts";
+import { GOOGLE_WORKSPACE_SCOPES } from "../_shared/oauth-providers.ts";
 
 serve(async (req: Request) => {
   if (req.method === "OPTIONS") return corsPreflightResponse();
@@ -46,15 +47,18 @@ serve(async (req: Request) => {
   if (!accessToken) {
     return jsonResponse({
       ok: false,
-      error: "Sign in with Google first, then connect Google Calendar here.",
+      needsConsent: true,
+      error: "Approve Google Workspace access to connect Gmail, Drive, and Docs.",
     });
   }
 
   const googleIdentity = (user.identities ?? []).find((i) => i.provider === "google");
   const externalId = googleIdentity?.id ?? user.email ?? "default";
   const label = user.user_metadata?.full_name
-    ? `${user.user_metadata.full_name} (Google)`
-    : "Google Calendar";
+    ? `${user.user_metadata.full_name} (Google Workspace)`
+    : user.email
+    ? `${user.email} (Google Workspace)`
+    : "Google Workspace";
 
   const admin = createClient(supabaseUrl, serviceKey, {
     auth: { autoRefreshToken: false, persistSession: false, detectSessionInUrl: false },
@@ -75,13 +79,7 @@ serve(async (req: Request) => {
       access_token: accessToken,
       refresh_token: refreshToken,
       token_expires_at: expiresAt,
-      scopes: [
-        "https://www.googleapis.com/auth/calendar.readonly",
-        "https://www.googleapis.com/auth/calendar.events",
-        "openid",
-        "email",
-        "profile",
-      ],
+      scopes: GOOGLE_WORKSPACE_SCOPES,
       metadata: { linked_from: "auth_session" },
       updated_at: new Date().toISOString(),
     }, { onConflict: "user_id,provider,external_account_id" })

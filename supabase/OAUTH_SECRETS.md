@@ -22,13 +22,22 @@ https://utofnywijqsozjqmkhcn.supabase.co/functions/v1/oauth-callback
    - `OAUTH_SLACK_CLIENT_ID` = Client ID
    - `OAUTH_SLACK_CLIENT_SECRET` = Client Secret
 
-## Google Calendar
+## Google Workspace (Connections)
 
-1. Google Cloud Console → APIs & Services → Credentials → OAuth client
-2. Authorized redirect URI = URL above
-3. Secrets:
-   - `OAUTH_GOOGLE_CLIENT_ID`
-   - `OAUTH_GOOGLE_CLIENT_SECRET`
+Connections reuse the **same** Google OAuth client as Supabase Auth sign-in. No separate redirect URI.
+
+1. In Google Cloud → OAuth consent screen, add scopes when you are ready for agents:
+   - Gmail API (readonly)
+   - Google Drive API (readonly)
+   - Google Docs API (readonly)
+   - Google Calendar API (readonly + events)
+2. Enable those APIs under APIs & Services → Library.
+3. Users connect from **Dashboard → Connections → Google Workspace**.
+
+Optional edge secrets (same Client ID/secret as Auth — refreshes tokens for agents):
+
+- `OAUTH_GOOGLE_CLIENT_ID`
+- `OAUTH_GOOGLE_CLIENT_SECRET`
 
 ## GitHub
 

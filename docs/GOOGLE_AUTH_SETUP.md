@@ -43,6 +43,10 @@ Local preview: `python -m http.server 8765` from the repo root, then open http:/
 
 ## Notes
 
-- **Sign-in uses only email/profile** — no Calendar scopes, so Google verification is not required for login.
-- **Google Calendar** for agent connections is a separate OAuth flow (`OAUTH_GOOGLE_*` edge function secrets).
+- **Sign-in uses only email/profile** — no Gmail/Drive scopes, so Google verification is not required for login alone.
+- **Google Workspace connections** reuse this same OAuth client via Supabase Auth (no second Google app).
+  - User clicks **Connect** on the Connections page → Google consent for Gmail, Drive, Docs, Calendar.
+  - Redirect URI stays `https://utofnywijqsozjqmkhcn.supabase.co/auth/v1/callback` (not the edge-function callback).
+- Optional: set `OAUTH_GOOGLE_CLIENT_ID` and `OAUTH_GOOGLE_CLIENT_SECRET` in Edge Function secrets to the **same** Client ID/secret (used only to refresh tokens during agent runs).
+- Gmail/Drive scopes may require [Google app verification](https://support.google.com/cloud/answer/9110914) before public launch.
 - `/neura_ui.html` redirects to `/` for backwards compatibility.
