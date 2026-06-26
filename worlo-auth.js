@@ -155,6 +155,18 @@
 
     setGoogleLoading(true);
     try {
+      var cfg = global.WORLO_CONFIG;
+      if (cfg && typeof cfg.startBrandedGoogleAuth === 'function') {
+        var branded = await cfg.startBrandedGoogleAuth({
+          mode: 'signin',
+          returnUrl: getAuthRedirectUrl(),
+        });
+        if (branded && branded.url) {
+          window.location.assign(branded.url);
+          return;
+        }
+      }
+
       var result = await client.auth.signInWithOAuth({
         provider: 'google',
         options: {

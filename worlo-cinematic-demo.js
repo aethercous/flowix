@@ -336,6 +336,18 @@
     ].filter(Boolean);
   }
 
+  function getEmbedViewport() {
+    // Use the iframe document's own client box as the source of truth.
+    // iOS Safari reports the *outer* page in `visualViewport` when this runs
+    // inside an iframe, which would scale the demo to the wrong height.
+    const doc = document.documentElement;
+    const vv = global.visualViewport;
+    return {
+      width: doc.clientWidth || (vv ? vv.width : window.innerWidth),
+      height: doc.clientHeight || (vv ? vv.height : window.innerHeight),
+    };
+  }
+
   function unionRect(elements) {
     let top = Infinity;
     let left = Infinity;
@@ -371,27 +383,39 @@
     if (savedPrompt !== null) promptEl.value = savedPrompt;
     if (!bounds) return false;
 
-    const navH = parseInt(
-      getComputedStyle(document.documentElement).getPropertyValue('--fx-nav-h'),
-      10
-    ) || 72;
+    const viewport = getEmbedViewport();
+    const narrow = viewport.width < 520;
+    const navH = narrow
+      ? 0
+      : parseInt(
+          getComputedStyle(document.documentElement).getPropertyValue('--fx-nav-h'),
+          10
+        ) || 72;
     const pad =
       scene === 'create'
-        ? { top: 6, right: 10, bottom: 10, left: 10 }
+        ? narrow
+          ? { top: 4, right: 6, bottom: 6, left: 6 }
+          : { top: 6, right: 10, bottom: 10, left: 10 }
         : scene === 'connections'
-          ? { top: 10, right: 16, bottom: 16, left: 16 }
-          : { top: 12, right: 20, bottom: 20, left: 20 };
-    const availW = window.innerWidth - pad.left - pad.right;
-    const availH = window.innerHeight - navH - pad.top - pad.bottom;
+          ? narrow
+            ? { top: 6, right: 8, bottom: 8, left: 8 }
+            : { top: 10, right: 16, bottom: 16, left: 16 }
+          : narrow
+            ? { top: 8, right: 10, bottom: 10, left: 10 }
+            : { top: 12, right: 20, bottom: 20, left: 20 };
+    const availW = viewport.width - pad.left - pad.right;
+    const availH = viewport.height - navH - pad.top - pad.bottom;
     const scale = Math.min(1, availW / bounds.width, availH / bounds.height);
+    const maxScale = narrow ? Math.min(1, availW / bounds.width) : 1;
+    const fitScale = narrow ? Math.min(scale, maxScale * 0.98) : scale;
 
-    const scaledW = bounds.width * scale;
-    const scaledH = bounds.height * scale;
-    const tx = pad.left + (availW - scaledW) / 2 - bounds.left * scale;
-    const ty = navH + pad.top + (availH - scaledH) / 2 - bounds.top * scale;
+    const scaledW = bounds.width * fitScale;
+    const scaledH = bounds.height * fitScale;
+    const tx = pad.left + (availW - scaledW) / 2 - bounds.left * fitScale;
+    const ty = navH + pad.top + (availH - scaledH) / 2 - bounds.top * fitScale;
 
-    stage.style.transform = 'translate(' + tx + 'px,' + ty + 'px) scale(' + scale + ')';
-    global.__fxEmbedFit = { scale, tx, ty };
+    stage.style.transform = 'translate(' + tx + 'px,' + ty + 'px) scale(' + fitScale + ')';
+    global.__fxEmbedFit = { scale: fitScale, tx, ty };
     return true;
   }
 
@@ -469,6 +493,12 @@
     };
     scheduleFit();
     window.addEventListener('resize', scheduleFit, { passive: true });
+    if (global.visualViewport) {
+      global.visualViewport.addEventListener('resize', scheduleFit, { passive: true });
+    }
+    window.addEventListener('message', (event) => {
+      if (event.data && event.data.type === 'fx-embed-resize') scheduleFit();
+    });
     if (document.fonts && document.fonts.ready) {
       document.fonts.ready.then(scheduleFit);
     }
@@ -498,6 +528,16 @@
       iframe.classList.add('is-loaded');
     }
 
+    function notifyEmbedResize() {
+      iframes.forEach((iframe) => {
+        try {
+          iframe.contentWindow?.postMessage({ type: 'fx-embed-resize' }, '*');
+        } catch (_) {
+          /* cross-origin guard */
+        }
+      });
+    }
+
     iframes.forEach((iframe) => {
       iframe.setAttribute('tabindex', '-1');
       iframe.addEventListener('load', () => {
@@ -506,6 +546,7 @@
           return;
         }
         window.setTimeout(() => markLoaded(iframe), 2200);
+        window.setTimeout(notifyEmbedResize, 80);
       });
     });
 
@@ -520,6 +561,20 @@
       });
       if (match) markLoaded(match);
     });
+
+    const frames = document.querySelectorAll('.fx-cinematic-frame');
+    if (typeof ResizeObserver !== 'undefined') {
+      const ro = new ResizeObserver(() => notifyEmbedResize());
+      frames.forEach((frame) => ro.observe(frame));
+    }
+    window.addEventListener('resize', notifyEmbedResize, { passive: true });
+    if (global.visualViewport) {
+      global.visualViewport.addEventListener('resize', notifyEmbedResize, { passive: true });
+    }
+    global.addEventListener('orientationchange', () => {
+      window.setTimeout(notifyEmbedResize, 120);
+    });
+    window.setTimeout(notifyEmbedResize, 200);
   }
 
   function init() {

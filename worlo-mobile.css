@@ -265,25 +265,95 @@ body.fx-tines .nav-btn {
 
 /* Cinematic + Teams demos on small screens */
 @media (max-width: 700px) {
+  .fx-cinematic-section {
+    max-width: 100%;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .fx-cinematic-grid {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .fx-cinematic-block {
+    min-width: 0;
+  }
+
   .fx-cinematic-frame {
-    min-height: min(48vh, 480px) !important;
-    height: min(48vh, 480px) !important;
+    width: 100%;
+    max-width: 100%;
+    min-height: min(48svh, 48dvh, 480px) !important;
+    height: min(48svh, 48dvh, 480px) !important;
     border-radius: 12px !important;
+    box-sizing: border-box;
   }
 
   .fx-cinematic-block--create .fx-cinematic-frame {
-    min-height: min(62vh, 640px) !important;
-    height: min(62vh, 640px) !important;
+    min-height: min(58svh, 58dvh, 560px) !important;
+    height: min(58svh, 58dvh, 560px) !important;
+  }
+
+  .fx-cinematic-iframe {
+    width: 100%;
+    max-width: 100%;
+    border-radius: 12px !important;
   }
 
   .fx-teams-video-frame {
-    min-height: min(50vh, 420px) !important;
-    height: min(50vh, 420px) !important;
+    width: 100%;
+    max-width: 100%;
+    min-height: min(50svh, 50dvh, 420px) !important;
+    height: min(50svh, 50dvh, 420px) !important;
+    box-sizing: border-box;
   }
 
   .fx-teams-showcase-panel {
     padding: 20px 16px !important;
     gap: 20px !important;
+  }
+}
+
+/* iPhone-width — tighter preview frames that match the viewport */
+@media (max-width: 430px) {
+  .fx-cinematic-section {
+    padding-left: max(10px, env(safe-area-inset-left));
+    padding-right: max(10px, env(safe-area-inset-right));
+    padding-bottom: 64px;
+  }
+
+  .fx-cinematic-grid {
+    gap: 28px;
+  }
+
+  .fx-cinematic-block h3 {
+    font-size: 1.25rem;
+    margin-bottom: 10px;
+  }
+
+  .fx-cinematic-frame {
+    min-height: clamp(280px, 52vw, 400px) !important;
+    height: clamp(280px, 52vw, 400px) !important;
+  }
+
+  .fx-cinematic-block--create .fx-cinematic-frame {
+    min-height: clamp(340px, 68vw, 480px) !important;
+    height: clamp(340px, 68vw, 480px) !important;
+  }
+
+  .fx-cinematic-block--connect .fx-cinematic-frame {
+    min-height: clamp(300px, 58vw, 420px) !important;
+    height: clamp(300px, 58vw, 420px) !important;
+  }
+
+  .fx-teams-video-frame {
+    min-height: clamp(300px, 75vw, 440px) !important;
+    height: clamp(300px, 75vw, 440px) !important;
+  }
+
+  .fx-teams-showcase {
+    padding-left: max(10px, env(safe-area-inset-left));
+    padding-right: max(10px, env(safe-area-inset-right));
   }
 }
 

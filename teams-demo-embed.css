@@ -260,3 +260,41 @@ body.fx-teams-embed-demo .fx-teams-embed-cursor {
   0% { opacity: 0.12; }
   100% { opacity: 0; }
 }
+
+@media (max-width: 430px) {
+  .fx-teams-inline-demo #fx-teams-embed-stage {
+    padding: 12px 10px;
+  }
+
+  .fx-teams-inline-demo .teams-auth-card {
+    padding: 20px 16px;
+    max-width: 100%;
+  }
+
+  .fx-teams-inline-demo .teams-logo {
+    font-size: 1.15rem;
+  }
+
+  .fx-teams-inline-demo .teams-auth-lead {
+    font-size: 13px;
+    margin-bottom: 12px;
+  }
+
+  .fx-teams-inline-demo #view-chat {
+    max-width: 100%;
+  }
+
+  .fx-teams-inline-demo #view-chat .teams-header {
+    height: 46px;
+    padding: 0 10px;
+  }
+
+  .fx-teams-inline-demo #view-chat .teams-chat {
+    min-height: 140px;
+    padding: 10px;
+  }
+
+  .fx-teams-inline-demo #view-chat .teams-compose {
+    padding: 10px;
+  }
+}

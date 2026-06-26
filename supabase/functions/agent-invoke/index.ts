@@ -352,7 +352,7 @@ serve(async (req: Request) => {
 
     .from("agents")
 
-    .select("id, system_prompt, allowed_urls, can_read_navigate, can_send_edit, name, model")
+    .select("id, system_prompt, allowed_urls, can_read_navigate, can_send_edit, use_worlo_backend_prompt, name, model")
 
     .eq("id", tokenRow.agent_id)
 
@@ -361,7 +361,9 @@ serve(async (req: Request) => {
 
 
   const agentName = agentRow?.name ?? (agent_config?.agentName as string) ?? "Agent";
-
+  const useBackendPrompt = typeof agentRow?.use_worlo_backend_prompt === "boolean"
+    ? agentRow.use_worlo_backend_prompt
+    : agent_config?.useWorloBackendPrompt !== false;
   const systemPrompt = buildSystemPrompt(
 
     (agent_config?.systemPrompt as string) ?? "",
@@ -467,6 +469,7 @@ serve(async (req: Request) => {
       openaiPromptVersion: agent_config?.openaiPromptVersion as string | undefined,
       enableReasoning: agent_config?.enableReasoning !== false,
       enableWebSearch: agent_config?.enableWebSearch !== false,
+      useBackendPrompt,
       agentName,
     });
 

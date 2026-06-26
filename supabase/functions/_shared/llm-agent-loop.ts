@@ -8,6 +8,7 @@ import {
 import type { BrowserRuntimeContext } from "./browser-runtime.ts";
 import { runOpenAiResponses } from "./openai-responses.ts";
 import { resolveApiModel, shouldUseOpenAiResponses } from "./model-map.ts";
+import { resolveOpenAiInstructions } from "./worlo-openai-backend-prompt.ts";
 
 export interface HistoryMessage {
   role: string;
@@ -28,6 +29,7 @@ export interface RunAgentOptions {
   openaiPromptVersion?: string;
   enableReasoning?: boolean;
   enableWebSearch?: boolean;
+  useBackendPrompt?: boolean;
   agentName?: string;
 }
 
@@ -52,7 +54,15 @@ async function runOpenAiWithTools(
   state: AgentToolState,
 ): Promise<string> {
   const messages: Record<string, unknown>[] = [
-    { role: "system", content: opts.systemPrompt },
+    {
+      role: "system",
+      content: resolveOpenAiInstructions(opts.systemPrompt, {
+        agentInstructions: opts.systemPrompt,
+        allowedSites: opts.browserCtx.allowedUrls,
+        agentName: opts.agentName,
+        useBackendPrompt: opts.useBackendPrompt,
+      }),
+    },
     ...opts.history.map((h) => ({ role: h.role, content: h.content })),
     { role: "user", content: opts.message },
   ];
@@ -310,6 +320,7 @@ export async function runAgentWithOptionalTools(opts: RunAgentOptions): Promise<
           promptVersion: opts.openaiPromptVersion,
           enableReasoning: opts.enableReasoning,
           enableWebSearch: opts.enableWebSearch,
+          useBackendPrompt: opts.useBackendPrompt,
           promptVariables: {
             agent_name: opts.agentName || "Worlo Agent",
           },

@@ -4,6 +4,8 @@
   position: relative;
   z-index: 1;
   max-width: min(1200px, 96vw);
+  width: 100%;
+  box-sizing: border-box;
   margin: 0 auto;
   padding: 40px 20px 96px;
   background: transparent !important;
@@ -74,6 +76,8 @@ body.fx-sky .fx-cinematic-section {
 .fx-cinematic-frame {
   position: relative;
   width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
   min-height: min(58vh, 720px);
   height: min(58vh, 720px);
   overflow: hidden !important;
@@ -98,9 +102,15 @@ body.fx-landing .fx-teams-video-frame {
 }
 
 .fx-cinematic-iframe {
+  /* Absolutely fill the frame so iOS Safari constrains the iframe to the
+     frame box instead of expanding it to fit its (taller) content. */
+  position: absolute;
+  inset: 0;
   display: block;
   width: 100%;
   height: 100%;
+  max-width: 100%;
+  max-height: 100%;
   border: none;
   background: transparent;
   opacity: 0;
@@ -117,13 +127,13 @@ body.fx-landing .fx-teams-video-frame {
 
 @media (max-width: 700px) {
   .fx-cinematic-frame {
-    min-height: min(52vh, 560px);
-    height: min(52vh, 560px);
+    min-height: min(52svh, 52dvh, 560px);
+    height: min(52svh, 52dvh, 560px);
   }
 
   .fx-cinematic-block--create .fx-cinematic-frame {
-    min-height: min(68vh, 760px);
-    height: min(68vh, 760px);
+    min-height: min(68svh, 68dvh, 760px);
+    height: min(68svh, 68dvh, 760px);
   }
 }
 

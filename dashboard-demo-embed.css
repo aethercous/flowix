@@ -1,10 +1,15 @@
 /* Embeddable dashboard demos — matches dashboard UI, framed for cursor targets */
 
+html:has(body.fx-embed-demo) {
+  height: 100%;
+}
+
 body.fx-embed-demo {
   overflow: hidden;
-  height: 100vh;
-  max-height: 100vh;
-  min-height: 100vh;
+  overflow-x: hidden;
+  height: 100%;
+  max-height: 100%;
+  min-height: 100%;
   pointer-events: none;
   user-select: none;
   overscroll-behavior: none;
@@ -450,4 +455,181 @@ body.fx-embed-demo #section-create .form-card {
 
 #btn-save.fx-embed-save-pulse {
   box-shadow: 0 0 0 3px rgba(18, 18, 26, 0.25);
+}
+
+/* Narrow / iPhone embed — compact shell so scaled previews fit the frame */
+@media (max-width: 520px) {
+  body.fx-embed-demo {
+    --fx-nav-h: 0px;
+    height: 100%;
+    max-height: 100%;
+    min-height: 100%;
+  }
+
+  body.fx-embed-demo header {
+    display: none;
+  }
+
+  body.fx-embed-demo.fx-embed-has-stage #fx-embed-stage {
+    margin-top: 0;
+  }
+
+  body.fx-embed-demo #fx-embed-stage main {
+    padding: 10px 8px 14px;
+  }
+
+  body.fx-embed-demo.fx-embed-scene-create #section-create {
+    max-width: 100%;
+  }
+
+  body.fx-embed-demo.fx-embed-scene-create #section-create .page-header {
+    display: none;
+  }
+
+  body.fx-embed-demo.fx-embed-scene-create #section-create .form-card {
+    padding: 14px 12px;
+  }
+
+  body.fx-embed-demo.fx-embed-scene-create .form-title {
+    font-size: 15px;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+  }
+
+  body.fx-embed-demo.fx-embed-scene-create .form-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  body.fx-embed-demo.fx-embed-scene-create .form-group {
+    margin-bottom: 8px;
+  }
+
+  body.fx-embed-demo.fx-embed-scene-create .form-textarea {
+    min-height: 52px;
+    font-size: 13px;
+  }
+
+  /* Not used in the create demo animation — hide to shorten the preview */
+  body.fx-embed-demo.fx-embed-scene-create #agent-allowed-urls,
+  body.fx-embed-demo.fx-embed-scene-create .form-group:has(.fx-perm-list) {
+    display: none !important;
+  }
+
+  body.fx-embed-demo.fx-embed-scene-connections #section-connections {
+    max-width: 100%;
+  }
+
+  body.fx-embed-demo.fx-embed-scene-connections #section-connections .page-header {
+    display: none;
+  }
+
+  body.fx-embed-demo.fx-embed-scene-connections #oauth-conn-grid.card-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  body.fx-embed-demo.fx-embed-scene-connections .fx-conn-card {
+    padding: 10px 8px;
+  }
+
+  body.fx-embed-demo.fx-embed-scene-connections .fx-conn-card .card-header {
+    gap: 4px;
+    margin-bottom: 6px;
+  }
+
+  body.fx-embed-demo.fx-embed-scene-connections .fx-conn-card .card-title {
+    font-size: 11px;
+    gap: 4px;
+  }
+
+  body.fx-embed-demo.fx-embed-scene-connections .fx-conn-card .card-title span:first-child {
+    font-size: 14px !important;
+  }
+
+  body.fx-embed-demo.fx-embed-scene-connections .fx-conn-card .card-badge {
+    font-size: 9px;
+    min-height: 18px;
+    padding: 2px 6px;
+  }
+
+  body.fx-embed-demo.fx-embed-scene-connections .fx-conn-card .card-description {
+    font-size: 9px;
+    line-height: 1.35;
+    margin-bottom: 8px;
+  }
+
+  body.fx-embed-demo.fx-embed-scene-connections .fx-conn-card .card-footer .btn {
+    font-size: 9px;
+    padding: 6px 4px;
+  }
+
+  body.fx-embed-demo.fx-embed-scene-connections .fx-embed-conn-panel {
+    padding: 12px 10px;
+  }
+
+  body.fx-embed-demo.fx-embed-scene-connections .fx-embed-conn-panel .form-title {
+    font-size: 14px;
+  }
+
+  body.fx-embed-demo.fx-embed-scene-connections .fx-embed-conn-panel > p {
+    font-size: 10px !important;
+    margin-bottom: 10px !important;
+  }
+
+  body.fx-embed-demo.fx-embed-scene-chat #section-chat {
+    max-width: 100%;
+  }
+
+  body.fx-embed-demo.fx-embed-scene-chat #section-chat .page-header {
+    display: none;
+  }
+
+  body.fx-embed-demo.fx-embed-scene-chat .fx-embed-chat-layout {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    min-height: 0;
+  }
+
+  body.fx-embed-demo.fx-embed-scene-chat .fx-chat-sidebar {
+    padding: 10px 12px;
+    gap: 8px;
+  }
+
+  body.fx-embed-demo.fx-embed-scene-chat .fx-chat-thread-list,
+  body.fx-embed-demo.fx-embed-scene-chat #btn-new-chat {
+    display: none;
+  }
+
+  body.fx-embed-demo.fx-embed-scene-chat .fx-chat-main {
+    min-height: 260px;
+  }
+
+  body.fx-embed-demo.fx-embed-scene-chat .fx-chat-messages {
+    min-height: 160px;
+    padding: 12px;
+  }
+
+  body.fx-embed-demo.fx-embed-scene-chat .fx-chat-compose {
+    padding: 10px 12px;
+    gap: 8px;
+  }
+
+  body.fx-embed-demo.fx-embed-scene-chat .fx-chat-compose textarea {
+    font-size: 13px;
+    min-height: 40px;
+  }
+
+  body.fx-embed-demo .page-title {
+    font-size: 20px;
+  }
+
+  body.fx-embed-demo .page-subtitle {
+    font-size: 11px;
+  }
+
+  body.fx-embed-demo .fx-page-desc {
+    font-size: 12px !important;
+    line-height: 1.4;
+  }
 }

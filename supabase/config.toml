@@ -45,3 +45,9 @@ verify_jwt = false
 
 [functions."oauth-link-from-session"]
 verify_jwt = false
+
+[functions."google-auth-start"]
+verify_jwt = false
+
+[functions."google-auth-complete"]
+verify_jwt = false

@@ -915,6 +915,14 @@ main {
       </div>
     </div>
 
+    <div id="worlo-backend-prompt-section" class="form-group" style="display:none;margin-top:8px">
+      <label class="form-label" style="display:flex;align-items:flex-start;gap:8px;cursor:pointer;font-weight:500">
+        <input type="checkbox" id="agent-use-worlo-backend-prompt" style="width:auto;margin-top:3px" checked/>
+        <span>Use worlo backend prompt</span>
+      </label>
+      <div class="form-hint">Adds worlo platform instructions for connected apps, browser tools, and permissions. Uncheck to send only your system prompt to OpenAI.</div>
+    </div>
+
     <div class="form-group" style="margin-top:24px">
       <label class="form-label">Connected applications</label>
       <div class="form-hint" style="margin-bottom:12px">Choose which of your connected accounts this agent can use. <a href="#" id="link-manage-connections" style="color:#156cc2;font-weight:600">Manage connections</a></div>
@@ -1169,6 +1177,7 @@ main {
 <!-- SUPABASE -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="worlo-connection-catalog.js"></script>
+<script src="worlo-config.js"></script>
 <script src="worlo-connections.js"></script>
 <script src="worlo-sky.js"></script>
 <script src="worlo-tutorial.js"></script>
@@ -1225,6 +1234,7 @@ main {
       allowed_urls: agent.allowed_urls || [],
       can_read_navigate: agent.can_read_navigate !== false,
       can_send_edit: !!agent.can_send_edit,
+      use_worlo_backend_prompt: agent.use_worlo_backend_prompt !== false,
       sync_config: true
     };
     if (options.llm_api_key) body.llm_api_key = options.llm_api_key;
@@ -1249,7 +1259,7 @@ main {
   async function loadAgents() {
     const { data, error } = await sb
       .from('agents')
-      .select('id, name, model, system_prompt, allowed_urls, can_read_navigate, can_send_edit, teams_enabled, created_at, updated_at')
+      .select('id, name, model, system_prompt, allowed_urls, can_read_navigate, can_send_edit, use_worlo_backend_prompt, teams_enabled, created_at, updated_at')
       .order('created_at', { ascending: true });
 
     if (error) {
@@ -1267,6 +1277,7 @@ main {
       allowed_urls: row.allowed_urls || [],
       can_read_navigate: row.can_read_navigate !== false,
       can_send_edit: !!row.can_send_edit,
+      use_worlo_backend_prompt: row.use_worlo_backend_prompt !== false,
       teams_enabled: row.teams_enabled !== false,
       created: row.created_at,
       updated: row.updated_at
@@ -1845,12 +1856,18 @@ main {
   document.getElementById('btn-new-agent')?.addEventListener('click', openCreateAgentForm);
   document.getElementById('btn-new-agent-alt')?.addEventListener('click', openCreateAgentForm);
 
+  function isOpenAiAgentModel(model) {
+    const m = (model || '').toLowerCase();
+    return m === 'openai-custom' || m.includes('gpt');
+  }
+
   function updateCustomKeyUi() {
     const model = document.getElementById('agent-model').value;
     const checkbox = document.getElementById('agent-use-custom-key');
     const section = document.getElementById('custom-key-section');
     const label = document.getElementById('custom-key-label');
     const hint = document.getElementById('custom-key-hint');
+    const backendSection = document.getElementById('worlo-backend-prompt-section');
 
     if (model === 'openai-custom') {
       checkbox.checked = true;
@@ -1861,10 +1878,15 @@ main {
 
     const show = checkbox.checked;
     section.style.display = show ? 'block' : 'none';
+    if (backendSection) {
+      backendSection.style.display = isOpenAiAgentModel(model) ? 'block' : 'none';
+    }
 
     if (model === 'openai-custom' || model.includes('gpt')) {
       label.textContent = 'OpenAI API Key';
-      hint.textContent = 'Required for custom OpenAI. Stored on the server for this agent only.';
+      hint.textContent = model === 'openai-custom'
+        ? 'Required for custom OpenAI. Stored on the server for this agent only. You can turn off the worlo backend prompt below.'
+        : 'Optional. Stored on the server for this agent only. You can turn off the worlo backend prompt below.';
     } else if (model.includes('claude')) {
       label.textContent = 'Anthropic API Key';
       hint.textContent = 'Optional Anthropic key for this agent.';
@@ -1898,6 +1920,9 @@ main {
     const customKey = document.getElementById('agent-custom-api-key').value.trim();
     const canRead = document.getElementById('agent-can-read').checked;
     const canSend = document.getElementById('agent-can-send').checked;
+    const useWorloBackendPrompt = isOpenAiAgentModel(model)
+      ? document.getElementById('agent-use-worlo-backend-prompt').checked
+      : true;
 
     if (!name || !prompt) {
       toast('Please fill in all required fields', 'error');
@@ -1933,7 +1958,8 @@ main {
         system_prompt: prompt || DEFAULT_AGENT_PROMPT,
         allowed_urls: allowedUrls,
         can_read_navigate: canRead,
-        can_send_edit: canSend
+        can_send_edit: canSend,
+        use_worlo_backend_prompt: useWorloBackendPrompt
       };
 
       let agent;
@@ -1954,6 +1980,7 @@ main {
           allowed_urls: data.allowed_urls,
           can_read_navigate: data.can_read_navigate !== false,
           can_send_edit: !!data.can_send_edit,
+          use_worlo_backend_prompt: data.use_worlo_backend_prompt !== false,
           created: data.created_at
         };
         const idx = state.agents.findIndex(a => a.id === editingAgentId);
@@ -1969,6 +1996,7 @@ main {
           allowed_urls: data.allowed_urls,
           can_read_navigate: data.can_read_navigate !== false,
           can_send_edit: !!data.can_send_edit,
+          use_worlo_backend_prompt: data.use_worlo_backend_prompt !== false,
           created: data.created_at
         };
         state.agents.push(agent);
@@ -2022,6 +2050,8 @@ main {
     document.getElementById('agent-can-send').checked = !!agent.can_send_edit;
     document.getElementById('agent-custom-api-key').value = '';
     document.getElementById('agent-use-custom-key').checked = agent.model === 'openai-custom';
+    document.getElementById('agent-use-worlo-backend-prompt').checked =
+      agent.use_worlo_backend_prompt !== false;
     updateCustomKeyUi();
     renderAgentConnectionsPicker();
     showSection('create');
@@ -2060,6 +2090,7 @@ main {
     document.getElementById('agent-can-send').checked = false;
     document.getElementById('agent-custom-api-key').value = '';
     document.getElementById('agent-use-custom-key').checked = false;
+    document.getElementById('agent-use-worlo-backend-prompt').checked = true;
     agentLinkedConnectionIds = [];
     updateCustomKeyUi();
     renderAgentConnectionsPicker();

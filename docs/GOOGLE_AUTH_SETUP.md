@@ -18,9 +18,17 @@ Enable Google in your Supabase project before the buttons work in production or 
 4. Add **Authorized JavaScript origins**:
    - `https://flowix.space`
    - `http://localhost:8765` (local preview)
-4. Add **Authorized redirect URIs** (Supabase callback — required):
-   - `https://utofnywijqsozjqmkhcn.supabase.co/auth/v1/callback`
+4. Add **Authorized redirect URIs** — add **both**:
+   - `https://utofnywijqsozjqmkhcn.supabase.co/auth/v1/callback` (legacy Supabase Auth fallback)
+   - `https://flowix.space/auth/google-callback.html` (**primary** — shows Flowix on Google's account chooser)
+   - `http://localhost:8765/auth/google-callback.html` (local preview)
 5. Copy the **Client ID** and **Client secret**.
+6. **OAuth consent screen → Branding**: set App name to **Flowix** (or worlo), upload logo, and add:
+   - Home page: `https://flowix.space`
+   - Privacy policy: `https://flowix.space/privacy-policy.html`
+   - Terms: `https://flowix.space/terms-of-service.html`
+7. Under **Authorized domains**, add and verify `flowix.space` in [Google Search Console](https://search.google.com/search-console).
+8. **Publish** the OAuth app (Testing mode only shows branding to test users).
 
 ## 2. Supabase Dashboard
 
@@ -44,9 +52,8 @@ Local preview: `python -m http.server 8765` from the repo root, then open http:/
 ## Notes
 
 - **Sign-in uses only email/profile** — no Gmail/Drive scopes, so Google verification is not required for login alone.
-- **Google Workspace connections** reuse this same OAuth client via Supabase Auth (no second Google app).
-  - User clicks **Connect** on the Connections page → Google consent for Gmail, Drive, Docs, Calendar.
-  - Redirect URI stays `https://utofnywijqsozjqmkhcn.supabase.co/auth/v1/callback` (not the edge-function callback).
-- Optional: set `OAUTH_GOOGLE_CLIENT_ID` and `OAUTH_GOOGLE_CLIENT_SECRET` in Edge Function secrets to the **same** Client ID/secret (used only to refresh tokens during agent runs).
+- **Branded Google OAuth** uses `https://flowix.space/auth/google-callback.html` so users see **Flowix** / **flowix.space** instead of `utofnywijqsozjqmkhcn.supabase.co` on Google's account chooser.
+- **Google Workspace connections** reuse the same OAuth client; Connect requests Gmail, Drive, Docs, and Calendar scopes.
+- Set the same Client ID/secret in **Supabase Auth → Google** and optionally as `OAUTH_GOOGLE_*` edge secrets (token refresh for agents).
 - Gmail/Drive scopes may require [Google app verification](https://support.google.com/cloud/answer/9110914) before public launch.
 - `/neura_ui.html` redirects to `/` for backwards compatibility.

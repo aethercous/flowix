@@ -8,6 +8,7 @@ import {
 import type { BrowserRuntimeContext } from "./browser-runtime.ts";
 import { modelSupportsReasoning } from "./model-map.ts";
 import { normalizeAllowedUrlEntry } from "./url-allowlist.ts";
+import { resolveOpenAiInstructions } from "./worlo-openai-backend-prompt.ts";
 
 interface HistoryMessage {
   role: string;
@@ -33,6 +34,7 @@ export interface OpenAiResponsesOptions {
   promptVariables?: Record<string, string>;
   enableReasoning?: boolean;
   enableWebSearch?: boolean;
+  useBackendPrompt?: boolean;
   previousResponseId?: string | null;
 }
 
@@ -119,10 +121,17 @@ function buildRequestBody(
   tools: Record<string, unknown>[],
   previousResponseId?: string,
 ): Record<string, unknown> {
+  const instructions = resolveOpenAiInstructions(opts.systemPrompt, {
+    agentInstructions: opts.systemPrompt,
+    allowedSites: opts.browserCtx.allowedUrls,
+    agentName: opts.promptVariables?.agent_name,
+    useBackendPrompt: opts.useBackendPrompt,
+  });
+
   const body: Record<string, unknown> = {
     model: opts.model,
     input,
-    instructions: opts.systemPrompt,
+    instructions,
   };
 
   if (mode !== "minimal") {
@@ -141,7 +150,8 @@ function buildRequestBody(
 
   if (mode === "full") {
     const promptId = opts.promptId || Deno.env.get("OPENAI_BACKEND_PROMPT_ID");
-    const useHosted = Deno.env.get("OPENAI_USE_HOSTED_PROMPT") !== "false" && !!promptId;
+    const useHosted = opts.useBackendPrompt !== false &&
+      Deno.env.get("OPENAI_USE_HOSTED_PROMPT") === "true" && !!promptId;
     if (useHosted) {
       const promptVersion = opts.promptVersion ||
         Deno.env.get("OPENAI_BACKEND_PROMPT_VERSION") ||
@@ -155,9 +165,6 @@ function buildRequestBody(
           ...(opts.promptVariables || {}),
         },
       };
-      // Supplement hosted template with per-turn instructions
-      body.instructions =
-        `${opts.systemPrompt}\n\nUse web_search only on connected sites. Use browser tools for interactive pages on allowed sites.`;
     }
   }
 

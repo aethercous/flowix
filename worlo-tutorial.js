@@ -56,7 +56,7 @@
       {
         target: () => document.getElementById('agent-model'),
         title: 'Model',
-        body: 'Pick which LLM powers this agent (Claude, GPT-4, or your own OpenAI key). This controls quality, speed, and cost.',
+        body: 'Pick which LLM powers this agent (Claude, GPT-4, or your own OpenAI key). OpenAI agents can use worlo\'s backend prompt or only your system prompt.',
       },
       {
         target: () => document.getElementById('agent-prompt'),

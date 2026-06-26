@@ -81,6 +81,19 @@
   }
 
   async function startGoogleWorkspaceOAuth(sb, options) {
+    const cfg = global.WORLO_CONFIG;
+    if (cfg && typeof cfg.startBrandedGoogleAuth === 'function') {
+      const branded = await cfg.startBrandedGoogleAuth({
+        mode: 'connect',
+        supabaseClient: sb,
+        returnUrl: options.returnUrl || 'dashboard.html#connections',
+      });
+      if (branded?.url) {
+        window.location.assign(branded.url);
+        return { redirecting: true, provider: 'google' };
+      }
+    }
+
     const returnUrl = googleConnectReturnUrl(options.returnUrl);
     const redirectTo = new URL(returnUrl, window.location.origin).href;
     const { data, error } = await sb.auth.signInWithOAuth({

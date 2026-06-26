@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Signing in with Google…</title>
+<link rel="stylesheet" href="../worlo.css"/>
+<style>
+  body { display:flex; align-items:center; justify-content:center; min-height:100vh; margin:0; font-family:Inter,system-ui,sans-serif; background:#f8fafc; color:#111827; }
+  .box { text-align:center; max-width:420px; padding:32px 24px; }
+  .box h1 { font-size:20px; margin:0 0 8px; }
+  .box p { margin:0; color:#6b7280; font-size:14px; line-height:1.5; }
+  .box a { color:#156cc2; font-weight:600; }
+</style>
+</head>
+<body>
+<div class="box">
+  <h1 id="title">Completing Google sign-in…</h1>
+  <p id="message">Please wait.</p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../worlo-config.js"></script>
+<script>
+(function () {
+  var cfg = window.WORLO_CONFIG || {};
+  var SUPABASE_URL = cfg.SUPABASE_URL || '';
+  var SUPABASE_KEY = cfg.SUPABASE_KEY || cfg.SUPABASE_ANON_KEY || '';
+
+  function setStatus(title, message, isError) {
+    document.getElementById('title').textContent = title;
+    var el = document.getElementById('message');
+    if (isError) {
+      el.innerHTML = message + ' <a href="/">Return home</a>';
+    } else {
+      el.textContent = message;
+    }
+  }
+
+  function resolveReturnUrl(path) {
+    try {
+      return new URL(path || '/', window.location.origin).href;
+    } catch (_e) {
+      return window.location.origin + '/dashboard.html';
+    }
+  }
+
+  async function run() {
+    var params = new URLSearchParams(window.location.search);
+    var oauthError = params.get('error');
+    if (oauthError) {
+      setStatus('Google sign-in cancelled', params.get('error_description') || oauthError, true);
+      return;
+    }
+
+    var code = params.get('code');
+    var state = params.get('state');
+    if (!code || !state) {
+      setStatus('Invalid Google response', 'Missing authorization code. Try again from the site.', true);
+      return;
+    }
+
+    if (!SUPABASE_URL || !SUPABASE_KEY) {
+      setStatus('Configuration error', 'Supabase is not configured on this page.', true);
+      return;
+    }
+
+    try {
+      var res = await fetch(SUPABASE_URL + '/functions/v1/google-auth-complete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: code, state: state }),
+      });
+      var data = await res.json();
+      if (!res.ok || data.error) {
+        throw new Error(data.error || 'Could not complete Google authorization');
+      }
+
+      var returnUrl = resolveReturnUrl(data.returnUrl);
+
+      if (data.mode === 'signin' && data.idToken) {
+        var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+          auth: { flowType: 'pkce', detectSessionInUrl: true, persistSession: true, autoRefreshToken: true },
+        });
+        var signIn = await sb.auth.signInWithIdToken({ provider: 'google', token: data.idToken });
+        if (signIn.error) throw new Error(signIn.error.message);
+        window.history.replaceState({}, '', '/auth/google-callback.html');
+        window.location.replace(returnUrl);
+        return;
+      }
+
+      if (data.mode === 'connect' && data.ok) {
+        try {
+          var dest = new URL(returnUrl);
+          dest.searchParams.set('oauth', 'success');
+          dest.searchParams.set('provider', 'google');
+          returnUrl = dest.pathname + dest.search + dest.hash;
+        } catch (_e) {
+          returnUrl = returnUrl + (returnUrl.indexOf('?') >= 0 ? '&' : '?') + 'oauth=success&provider=google';
+        }
+        window.history.replaceState({}, '', '/auth/google-callback.html');
+        window.location.replace(returnUrl);
+        return;
+      }
+
+      throw new Error('Unexpected response from server');
+    } catch (err) {
+      setStatus('Google sign-in failed', err && err.message ? err.message : 'Please try again.', true);
+    }
+  }
+
+  run();
+})();
+</script>
+</body>
+</html>

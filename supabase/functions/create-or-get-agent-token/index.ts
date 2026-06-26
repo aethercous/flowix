@@ -29,6 +29,7 @@ interface CreateOrGetAgentTokenRequest {
   can_send_edit?: boolean;
   enableReasoning?: boolean;
   enableWebSearch?: boolean;
+  use_worlo_backend_prompt?: boolean;
   sync_config?: boolean;
 }
 
@@ -85,6 +86,7 @@ function buildAgentConfig(body: CreateOrGetAgentTokenRequest): Record<string, un
 
   if (body.enableReasoning !== undefined) agentConfig.enableReasoning = body.enableReasoning;
   if (body.enableWebSearch !== undefined) agentConfig.enableWebSearch = body.enableWebSearch;
+  agentConfig.useWorloBackendPrompt = body.use_worlo_backend_prompt !== false;
 
   agentConfig.openaiPromptId =
     Deno.env.get("OPENAI_BACKEND_PROMPT_ID") || DEFAULT_OPENAI_PROMPT_ID;
@@ -154,7 +156,7 @@ serve(async (req: Request) => {
 
   const { data: agentRow, error: agentError } = await supabase
     .from("agents")
-    .select("id, user_id, name, model, system_prompt, allowed_urls, can_read_navigate, can_send_edit")
+    .select("id, user_id, name, model, system_prompt, allowed_urls, can_read_navigate, can_send_edit, use_worlo_backend_prompt")
     .eq("id", agent_id)
     .eq("user_id", authenticatedUserId)
     .maybeSingle();
@@ -189,6 +191,8 @@ serve(async (req: Request) => {
       allowed_urls: body.allowed_urls ?? agentRow.allowed_urls,
       can_read_navigate: body.can_read_navigate ?? agentRow.can_read_navigate,
       can_send_edit: body.can_send_edit ?? agentRow.can_send_edit,
+      use_worlo_backend_prompt: body.use_worlo_backend_prompt ??
+        agentRow.use_worlo_backend_prompt,
     });
 
     const resolvedLlmProvider = inferLlmProvider(
