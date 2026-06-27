@@ -1197,7 +1197,9 @@ main {
 (function() {
   const cfg = window.WORLO_CONFIG || {};
   const SUPABASE_URL = cfg.SUPABASE_URL || 'https://utofnywijqsozjqmkhcn.supabase.co';
-  const SUPABASE_KEY = cfg.SUPABASE_ANON_KEY || cfg.SUPABASE_KEY || 'sb_publishable_NFpInIt2anAJxn2slHZIuQ_BsEw4g1n';
+  // Use the publishable key. The legacy anon JWT is disabled on this project
+  // and returns 401 Invalid API key, which breaks all authenticated reads/writes.
+  const SUPABASE_KEY = cfg.SUPABASE_KEY || 'sb_publishable_NFpInIt2anAJxn2slHZIuQ_BsEw4g1n';
 
   const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
   let currentUser = null;

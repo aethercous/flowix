@@ -1,7 +1,8 @@
 /**
  * Shared Worlo / Supabase client config (browser).
- * SUPABASE_ANON_KEY — legacy anon JWT; required for Edge Functions from unauthenticated clients (Teams app).
- * SUPABASE_KEY — publishable key for auth flows where supported.
+ * SUPABASE_KEY — publishable key. Use this for all browser clients.
+ * SUPABASE_ANON_KEY — legacy anon JWT, DISABLED on this project (returns 401).
+ *   Kept only as a last-resort fallback; do not prefer it.
  */
 (function (global) {
   const SUPABASE_URL = 'https://utofnywijqsozjqmkhcn.supabase.co';

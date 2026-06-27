@@ -1,11 +1,13 @@
 (function () {
   const cfg = window.WORLO_CONFIG || {};
   const SUPABASE_URL = cfg.SUPABASE_URL || 'https://utofnywijqsozjqmkhcn.supabase.co';
-  const SUPABASE_KEY = cfg.SUPABASE_ANON_KEY || cfg.SUPABASE_KEY || '';
+  // Prefer the publishable key. The legacy anon JWT is disabled on this
+  // project (returns 401 Invalid API key).
+  const SUPABASE_KEY = cfg.SUPABASE_KEY || cfg.SUPABASE_ANON_KEY || '';
   const SESSION_KEY = 'worlo_teams_session';
 
   if (!SUPABASE_KEY) {
-    console.error('worlo Teams: missing Supabase anon key in worlo-config.js');
+    console.error('worlo Teams: missing Supabase key in worlo-config.js');
   }
 
   const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
