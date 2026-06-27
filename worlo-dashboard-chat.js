@@ -75,7 +75,15 @@
     });
   }
 
-  function renderMessages() {
+  function typingIndicatorHtml() {
+    return (
+      '<div class="fx-chat-bubble fx-chat-bubble--assistant fx-chat-typing" id="chat-typing-indicator" aria-live="polite" aria-label="Agent is typing">' +
+      '<span class="fx-chat-typing-dots"><span></span><span></span><span></span></span>' +
+      '</div>'
+    );
+  }
+
+  function renderMessages(showTyping) {
     const box = el('chat-messages');
     if (!box) return;
     if (!activeChatId) {
@@ -83,17 +91,54 @@
         '<p class="fx-chat-empty">Select an agent and start a chat. Every message is saved to your account.</p>';
       return;
     }
-    if (!messages.length) {
+    if (!messages.length && !showTyping) {
       box.innerHTML = '<p class="fx-chat-empty">Send a message to begin this conversation.</p>';
       return;
     }
-    box.innerHTML = messages
-      .map(
-        (m) =>
-          `<div class="fx-chat-bubble fx-chat-bubble--${m.role === 'user' ? 'user' : 'assistant'}">${escapeHtml(m.content)}</div>`
-      )
-      .join('');
+    box.innerHTML =
+      messages
+        .map(
+          (m) =>
+            `<div class="fx-chat-bubble fx-chat-bubble--${m.role === 'user' ? 'user' : 'assistant'}">${escapeHtml(m.content)}</div>`
+        )
+        .join('') + (showTyping ? typingIndicatorHtml() : '');
     box.scrollTop = box.scrollHeight;
+  }
+
+  function wait(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  async function revealAssistantMessage(content) {
+    const box = el('chat-messages');
+    if (!box) return;
+
+    messages.push({ role: 'assistant', content: '' });
+    renderMessages(false);
+
+    const bubbles = box.querySelectorAll('.fx-chat-bubble--assistant');
+    const bubble = bubbles[bubbles.length - 1];
+    if (!bubble) {
+      messages[messages.length - 1].content = content;
+      renderMessages(false);
+      return;
+    }
+
+    bubble.classList.add('fx-chat-revealing');
+    const chunkSize = content.length > 800 ? 4 : content.length > 300 ? 2 : 1;
+    const delay = content.length > 800 ? 6 : 12;
+
+    for (let i = 0; i < content.length; i += chunkSize) {
+      const slice = content.slice(0, Math.min(i + chunkSize, content.length));
+      bubble.textContent = slice;
+      messages[messages.length - 1].content = slice;
+      box.scrollTop = box.scrollHeight;
+      await wait(delay);
+    }
+
+    bubble.classList.remove('fx-chat-revealing');
+    messages[messages.length - 1].content = content;
+    bubble.textContent = content;
   }
 
   async function loadThreads() {
@@ -210,7 +255,7 @@
     input.value = '';
 
     messages.push({ role: 'user', content: text });
-    renderMessages();
+    renderMessages(true);
 
     try {
       await saveMessage(chatId, 'user', text);
@@ -248,14 +293,13 @@
 
       const reply = data.reply || 'No response.';
       await saveMessage(chatId, 'assistant', reply);
-      messages.push({ role: 'assistant', content: reply });
-      renderMessages();
+      await revealAssistantMessage(reply);
       await touchChat(chatId);
       await loadThreads();
     } catch (e) {
       toast(e.message || 'Send failed', 'error');
       messages.pop();
-      renderMessages();
+      renderMessages(false);
       if (input) input.value = text;
     } finally {
       sending = false;

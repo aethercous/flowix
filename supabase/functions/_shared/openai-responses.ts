@@ -1,9 +1,8 @@
 import {
   type AgentToolState,
-  buildWebToolDefinitions,
+  buildAllToolDefinitions,
   executeAgentTool,
   type ToolDefinition,
-  webToolsEnabled,
 } from "./agent-tools.ts";
 import type { BrowserRuntimeContext } from "./browser-runtime.ts";
 import { modelSupportsReasoning } from "./model-map.ts";
@@ -195,9 +194,7 @@ async function callResponsesApi(
 
 export async function runOpenAiResponses(opts: OpenAiResponsesOptions): Promise<string> {
   const state: AgentToolState = { browserSessionId: null };
-  const browserTools = webToolsEnabled(opts.browserCtx)
-    ? buildWebToolDefinitions(opts.browserCtx)
-    : [];
+  const browserTools = await buildAllToolDefinitions(opts.browserCtx);
 
   const useWebSearch = opts.enableWebSearch !== false &&
     opts.browserCtx.perms.can_read_navigate &&

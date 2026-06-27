@@ -5,6 +5,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { corsPreflightResponse, jsonResponse } from "../_shared/cors.ts";
 
 import { webAccessSystemPromptBlock } from "../_shared/agent-tools.ts";
+import { googleWorkspaceToolsEnabled } from "../_shared/google-workspace-tools.ts";
 
 import {
   type AgentIdentity,
@@ -500,6 +501,8 @@ serve(async (req: Request) => {
     agentName,
 
     webEnabled: browserCtx.perms.can_read_navigate && browserCtx.allowedUrls.length > 0,
+
+    googleWorkspaceEnabled: await googleWorkspaceToolsEnabled(browserCtx),
 
     allowedSites: browserCtx.allowedUrls,
 

@@ -1,9 +1,8 @@
 import {
   type AgentToolState,
-  buildWebToolDefinitions,
+  buildAllToolDefinitions,
   executeAgentTool,
   type ToolDefinition,
-  webToolsEnabled,
 } from "./agent-tools.ts";
 import type { BrowserRuntimeContext } from "./browser-runtime.ts";
 import { runOpenAiResponses } from "./openai-responses.ts";
@@ -301,8 +300,7 @@ async function runGoogleWithTools(
 
 export async function runAgentWithOptionalTools(opts: RunAgentOptions): Promise<string> {
   const state: AgentToolState = { browserSessionId: null };
-  const toolsEnabled = webToolsEnabled(opts.browserCtx);
-  const tools = toolsEnabled ? buildWebToolDefinitions(opts.browserCtx) : [];
+  const tools = await buildAllToolDefinitions(opts.browserCtx);
   const apiModel = resolveApiModel(opts.providerPrefix, opts.model);
   const runOpts = { ...opts, model: apiModel };
 

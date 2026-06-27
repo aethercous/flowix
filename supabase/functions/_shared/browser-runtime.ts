@@ -6,6 +6,10 @@ import {
   WRITE_BROWSER_ACTIONS,
 } from "./agent-permissions.ts";
 import {
+  googleWorkspaceSystemPromptBlock,
+  hasGoogleConnection,
+} from "./google-workspace-tools.ts";
+import {
   type AgentConnection,
   loadAgentConnections,
 } from "./agent-connections.ts";
@@ -435,12 +439,16 @@ export async function describeConnectionsForPrompt(
 ): Promise<string> {
   if (!ctx.identity) return "";
   const connections = await loadConnectionsForCtx(ctx);
-  if (!connections.length) return "";
+  if (!connections.length) {
+    return googleWorkspaceSystemPromptBlock(false);
+  }
 
   const names = connections
     .map((c) => `${c.provider}${c.account_label ? ` (${c.account_label})` : ""}`)
     .join(", ");
-  return `\n\nConnected accounts available to the agent: ${names}. When you browse a matching site, the server injects the stored OAuth access token into the Browserbase session (bearer headers and/or a persistent browser context). For full web-app login on some sites, the user may need a one-time interactive sign-in in the browser context. Never ask the user for passwords.`;
+  let block = `\n\nConnected accounts available to the agent: ${names}. When you browse a matching site, the server injects the stored OAuth access token into the Browserbase session (bearer headers and/or a persistent browser context). For full web-app login on some sites, the user may need a one-time interactive sign-in in the browser context. Never ask the user for passwords.`;
+  block += googleWorkspaceSystemPromptBlock(hasGoogleConnection(connections));
+  return block;
 }
 
 /** Re-export so other modules don't need to depend on the helper directly. */

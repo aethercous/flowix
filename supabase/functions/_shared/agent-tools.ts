@@ -7,6 +7,11 @@ import {
   runBrowserAction,
   type BrowserActionName,
 } from "./browser-runtime.ts";
+import {
+  buildGoogleWorkspaceToolDefinitions,
+  executeGoogleWorkspaceTool,
+  googleWorkspaceToolsEnabled,
+} from "./google-workspace-tools.ts";
 
 export interface ToolDefinition {
   name: string;
@@ -21,6 +26,20 @@ export interface AgentToolState {
 export function webToolsEnabled(ctx: BrowserRuntimeContext): boolean {
   return ctx.perms.can_read_navigate &&
     (ctx.unrestrictedBrowsing || ctx.allowedUrls.length > 0);
+}
+
+/** Browser + Google Workspace tools available to the agent. */
+export async function buildAllToolDefinitions(
+  ctx: BrowserRuntimeContext,
+): Promise<ToolDefinition[]> {
+  const tools: ToolDefinition[] = [];
+  if (await googleWorkspaceToolsEnabled(ctx)) {
+    tools.push(...buildGoogleWorkspaceToolDefinitions());
+  }
+  if (webToolsEnabled(ctx)) {
+    tools.push(...buildWebToolDefinitions(ctx));
+  }
+  return tools;
 }
 
 export function buildWebToolDefinitions(ctx: BrowserRuntimeContext): ToolDefinition[] {
@@ -135,12 +154,24 @@ export function webAccessSystemPromptBlock(ctx: BrowserRuntimeContext): string {
   return `\n\nWeb access: ENABLED via Browserbase tools. You have live browser tools (start_browser, browse_url, get_page_content, take_screenshot, scroll, etc.). You may ONLY visit these connected websites: ${sites}. Never navigate to URLs outside this list — the server will block them. When the user has connected an account for a site (Slack, Google, Notion, GitHub, Discord, Teams, LinkedIn, …), the session is automatically signed in via the stored OAuth credentials — do not prompt the user for passwords. When you use the web, say so briefly so the user knows you are browsing live data.`;
 }
 
+const GOOGLE_WORKSPACE_TOOL_NAMES = new Set([
+  "gmail_list_messages",
+  "gmail_search",
+  "gmail_get_message",
+  "calendar_list_events",
+  "drive_search_files",
+]);
+
 export async function executeAgentTool(
   name: string,
   args: Record<string, unknown>,
   ctx: BrowserRuntimeContext,
   state: AgentToolState,
 ): Promise<Record<string, unknown>> {
+  if (GOOGLE_WORKSPACE_TOOL_NAMES.has(name)) {
+    return executeGoogleWorkspaceTool(name, args, ctx);
+  }
+
   if (name === "start_browser") {
     const url = typeof args.url === "string" ? args.url : undefined;
     if (url && !ctx.unrestrictedBrowsing && !isUrlAllowed(url, ctx.allowedUrls)) {

@@ -73,6 +73,41 @@
     el.textContent = text;
     chatLog.appendChild(el);
     chatLog.scrollTop = chatLog.scrollHeight;
+    return el;
+  }
+
+  function showTypingIndicator() {
+    removeTypingIndicator();
+    const el = document.createElement('div');
+    el.className = 'msg bot msg-typing';
+    el.id = 'teams-typing-indicator';
+    el.setAttribute('aria-label', 'Agent is typing');
+    el.innerHTML = '<span class="typing-dots"><span></span><span></span><span></span></span>';
+    chatLog.appendChild(el);
+    chatLog.scrollTop = chatLog.scrollHeight;
+  }
+
+  function removeTypingIndicator() {
+    document.getElementById('teams-typing-indicator')?.remove();
+  }
+
+  function wait(ms) {
+    return new Promise(function (resolve) { setTimeout(resolve, ms); });
+  }
+
+  async function revealBotMessage(text) {
+    removeTypingIndicator();
+    const el = appendMessage('bot', '');
+    el.classList.add('msg-revealing');
+    const chunk = text.length > 800 ? 4 : text.length > 300 ? 2 : 1;
+    const delay = text.length > 800 ? 6 : 12;
+    for (let i = 0; i < text.length; i += chunk) {
+      el.textContent = text.slice(0, Math.min(i + chunk, text.length));
+      chatLog.scrollTop = chatLog.scrollHeight;
+      await wait(delay);
+    }
+    el.classList.remove('msg-revealing');
+    el.textContent = text;
   }
 
   async function joinWorkspace() {
@@ -138,6 +173,7 @@
 
     const sendBtn = document.getElementById('btn-send');
     sendBtn.disabled = true;
+    showTypingIndicator();
 
     try {
       const res = await fetch(SUPABASE_URL + '/functions/v1/agent-invoke', {
@@ -160,8 +196,9 @@
 
       const reply = data.reply || 'No response.';
       history.push({ role: 'assistant', content: reply });
-      appendMessage('bot', reply);
+      await revealBotMessage(reply);
     } catch (e) {
+      removeTypingIndicator();
       appendMessage('err', 'Error: ' + e.message);
     } finally {
       sendBtn.disabled = false;
