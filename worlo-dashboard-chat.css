@@ -221,6 +221,51 @@
   flex-shrink: 0;
 }
 
+.fx-chat-send--working {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  padding-left: 0;
+  padding-right: 0;
+  cursor: pointer;
+}
+
+.fx-send-spinner {
+  position: relative;
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+}
+
+.fx-send-spinner::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  animation: fx-send-spin 0.7s linear infinite;
+}
+
+.fx-send-spinner::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 7px;
+  height: 7px;
+  transform: translate(-50%, -50%);
+  background: #fff;
+  border-radius: 2px;
+}
+
+@keyframes fx-send-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 @media (max-width: 900px) {
   .fx-chat-layout {
     grid-template-columns: 1fr;

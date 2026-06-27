@@ -9,6 +9,7 @@
   let threads = [];
   let messages = [];
   let sending = false;
+  let abortController = null;
 
   function escapeHtml(str) {
     return deps?.escapeHtml ? deps.escapeHtml(str) : String(str);
@@ -231,6 +232,34 @@
     if (error) throw error;
   }
 
+  function setSendWorking(working) {
+    const btn = el('btn-chat-send');
+    if (!btn) return;
+    if (working) {
+      btn.classList.add('fx-chat-send--working');
+      btn.setAttribute('aria-label', 'Stop generating');
+      btn.title = 'Stop';
+      btn.innerHTML = '<span class="fx-send-spinner" aria-hidden="true"></span>';
+    } else {
+      btn.classList.remove('fx-chat-send--working');
+      btn.removeAttribute('aria-label');
+      btn.title = '';
+      btn.textContent = 'Send';
+    }
+  }
+
+  function stopGenerating() {
+    if (abortController) abortController.abort();
+  }
+
+  function onSendClick() {
+    if (sending) {
+      stopGenerating();
+    } else {
+      sendMessage();
+    }
+  }
+
   async function sendMessage() {
     if (sending) return;
     const input = el('chat-message-input');
@@ -250,8 +279,8 @@
     }
 
     sending = true;
-    const sendBtn = el('btn-chat-send');
-    if (sendBtn) sendBtn.disabled = true;
+    abortController = new AbortController();
+    setSendWorking(true);
     input.value = '';
 
     messages.push({ role: 'user', content: text });
@@ -284,6 +313,7 @@
           'X-Agent-Key': apiKey,
         },
         body: JSON.stringify({ message: text, history }),
+        signal: abortController.signal,
       });
       const data = await res.json();
       if (!res.ok) {
@@ -297,13 +327,18 @@
       await touchChat(chatId);
       await loadThreads();
     } catch (e) {
-      toast(e.message || 'Send failed', 'error');
-      messages.pop();
-      renderMessages(false);
-      if (input) input.value = text;
+      if (e && e.name === 'AbortError') {
+        renderMessages(false);
+      } else {
+        toast(e.message || 'Send failed', 'error');
+        messages.pop();
+        renderMessages(false);
+        if (input) input.value = text;
+      }
     } finally {
       sending = false;
-      if (sendBtn) sendBtn.disabled = false;
+      abortController = null;
+      setSendWorking(false);
       input?.focus();
     }
   }
@@ -325,7 +360,7 @@
       el('chat-message-input')?.focus();
     });
 
-    el('btn-chat-send')?.addEventListener('click', sendMessage);
+    el('btn-chat-send')?.addEventListener('click', onSendClick);
     el('chat-message-input')?.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();

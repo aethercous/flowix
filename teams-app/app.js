@@ -20,6 +20,8 @@
 
   let session = null;
   let history = [];
+  let sending = false;
+  let abortController = null;
 
   function fnHeaders() {
     return {
@@ -163,7 +165,36 @@
     }
   }
 
+  function setSendWorking(working) {
+    const btn = document.getElementById('btn-send');
+    if (!btn) return;
+    if (working) {
+      btn.classList.add('btn-send--working');
+      btn.setAttribute('aria-label', 'Stop generating');
+      btn.title = 'Stop';
+      btn.innerHTML = '<span class="send-spinner" aria-hidden="true"></span>';
+    } else {
+      btn.classList.remove('btn-send--working');
+      btn.removeAttribute('aria-label');
+      btn.title = '';
+      btn.textContent = 'Send';
+    }
+  }
+
+  function stopGenerating() {
+    if (abortController) abortController.abort();
+  }
+
+  function onSendClick() {
+    if (sending) {
+      stopGenerating();
+    } else {
+      sendMessage();
+    }
+  }
+
   async function sendMessage() {
+    if (sending) return;
     const text = chatInput.value.trim();
     if (!text || !session?.agentKey) return;
 
@@ -171,8 +202,9 @@
     appendMessage('user', text);
     history.push({ role: 'user', content: text });
 
-    const sendBtn = document.getElementById('btn-send');
-    sendBtn.disabled = true;
+    sending = true;
+    abortController = new AbortController();
+    setSendWorking(true);
     showTypingIndicator();
 
     try {
@@ -186,6 +218,7 @@
           message: text,
           history: history.slice(0, -1).slice(-20),
         }),
+        signal: abortController.signal,
       });
 
       const data = await res.json();
@@ -199,15 +232,19 @@
       await revealBotMessage(reply);
     } catch (e) {
       removeTypingIndicator();
-      appendMessage('err', 'Error: ' + e.message);
+      if (!(e && e.name === 'AbortError')) {
+        appendMessage('err', 'Error: ' + e.message);
+      }
     } finally {
-      sendBtn.disabled = false;
+      sending = false;
+      abortController = null;
+      setSendWorking(false);
       chatInput.focus();
     }
   }
 
   document.getElementById('btn-join').addEventListener('click', joinWorkspace);
-  document.getElementById('btn-send').addEventListener('click', sendMessage);
+  document.getElementById('btn-send').addEventListener('click', onSendClick);
   document.getElementById('btn-leave').addEventListener('click', function () {
     localStorage.removeItem(SESSION_KEY);
     session = null;

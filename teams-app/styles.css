@@ -176,6 +176,47 @@
   50% { opacity: 0; }
 }
 
+.btn-send--working {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 48px;
+  cursor: pointer;
+}
+
+.send-spinner {
+  position: relative;
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+}
+
+.send-spinner::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  animation: teams-send-spin 0.7s linear infinite;
+}
+
+.send-spinner::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 7px;
+  height: 7px;
+  transform: translate(-50%, -50%);
+  background: #fff;
+  border-radius: 2px;
+}
+
+@keyframes teams-send-spin {
+  to { transform: rotate(360deg); }
+}
+
 .teams-compose {
   position: fixed;
   bottom: 0;
