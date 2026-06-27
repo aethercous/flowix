@@ -320,7 +320,9 @@
   }
 
   function getCatalogLabel(providerId) {
-    if (catalog) return catalog.getLabelForProvider(providerId);
+    if (catalog && typeof catalog.getLabelForProvider === 'function') {
+      return catalog.getLabelForProvider(providerId);
+    }
     const app = OAUTH_APPS.find(function (a) { return a.id === providerId; });
     return app ? app.label : providerId;
   }

@@ -71,9 +71,10 @@
       keywords: ['github', 'git', 'repos', 'pull requests', 'code collaboration'],
     }),
     entry('jira', 'Jira', 'Project Management', {
+      status: 'browser',
       color: '#0052CC',
       icon: 'J',
-      desc: 'Track issues, sprints, and project work in Atlassian Jira.',
+      desc: 'Track issues, sprints, and project work in Atlassian Jira via secure browser automation.',
       keywords: ['atlassian', 'jira', 'issues', 'sprints', 'project management'],
     }),
     entry('confluence', 'Confluence', 'Project Management', {
@@ -89,9 +90,10 @@
       keywords: ['atlassian', 'trello', 'boards', 'cards', 'kanban'],
     }),
     entry('salesforce', 'Salesforce', 'Sales & CRM', {
+      status: 'browser',
       color: '#00A1E0',
       icon: 'S',
-      desc: 'Sales pipelines, accounts, and customer management in Salesforce.',
+      desc: 'Sales pipelines, accounts, and customer management in Salesforce via secure browser automation.',
       keywords: ['salesforce', 'crm', 'leads', 'opportunities', 'sales', 'customer management'],
     }),
     entry('servicenow', 'ServiceNow', 'Enterprise & ERP', {
@@ -114,15 +116,17 @@
       keywords: ['notion', 'notion labs', 'wiki', 'docs', 'database', 'workspace'],
     }),
     entry('hubspot', 'HubSpot', 'Sales & CRM', {
+      status: 'browser',
       color: '#FF7A59',
       icon: 'H',
-      desc: 'Sales, marketing, and CRM workflows in HubSpot.',
+      desc: 'Sales, marketing, and CRM workflows in HubSpot via secure browser automation.',
       keywords: ['hubspot', 'crm', 'marketing', 'sales'],
     }),
     entry('dropbox', 'Dropbox', 'Files & Storage', {
+      status: 'browser',
       color: '#0061FF',
       icon: 'D',
-      desc: 'File sharing and cloud storage in Dropbox.',
+      desc: 'File sharing and cloud storage in Dropbox via secure browser automation.',
       keywords: ['dropbox', 'files', 'cloud storage', 'sharing'],
     }),
     entry('figma', 'Figma', 'Design & Creative', {
@@ -249,6 +253,7 @@
     getConnectionsPageApps: getConnectionsPageApps,
     getCatalogBrowseApps: getCatalogBrowseApps,
     getById: getById,
+    getLabelForProvider: getLabelForProvider,
     getEnterpriseCommunicationApps: getEnterpriseCommunicationApps,
     compareConnections: compareConnections,
   };
