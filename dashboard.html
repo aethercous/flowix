@@ -1345,11 +1345,23 @@ main {
   }
 
   async function loadUserConnections() {
+    state.connLoadFailed = false;
+    const attempt = async (uid) => WorloConnections.loadUserConnections(sb, uid);
     try {
-      state.userConnections = await WorloConnections.loadUserConnections(sb, currentUser.id);
+      state.userConnections = await attempt(currentUser.id);
     } catch (e) {
-      console.warn('loadUserConnections', e);
-      state.userConnections = [];
+      console.warn('loadUserConnections (first try)', e);
+      // A stale/expired access token makes RLS reads fail. Refresh and retry once.
+      try {
+        await sb.auth.refreshSession();
+        const { data: { user } } = await sb.auth.getUser();
+        if (user?.id) currentUser = user;
+        state.userConnections = await attempt(currentUser.id);
+      } catch (e2) {
+        console.warn('loadUserConnections (after refresh)', e2);
+        state.userConnections = [];
+        state.connLoadFailed = true;
+      }
     }
   }
 
@@ -1713,7 +1725,12 @@ main {
     const signedInEl = document.getElementById('conn-signed-in-as');
     if (signedInEl && currentUser?.email) {
       const n = (state.userConnections || []).length;
-      signedInEl.textContent = `Signed in as ${currentUser.email} — ${n} connected account${n === 1 ? '' : 's'}. Connections are saved per account.`;
+      if (state.connLoadFailed) {
+        signedInEl.innerHTML = `Signed in as ${escapeHtml(currentUser.email)}. Couldn't load your connections. ` +
+          `<a href="#" id="conn-retry-link" style="color:#156cc2;font-weight:600">Retry</a>`;
+      } else {
+        signedInEl.textContent = `Signed in as ${currentUser.email} — ${n} connected account${n === 1 ? '' : 's'}. Connections are saved per account.`;
+      }
     }
 
     if (connectedList) {
@@ -1775,6 +1792,18 @@ main {
     input.addEventListener('input', () => {
       state.connectionSearch = input.value;
       renderOAuthConnectionsGrid();
+    });
+  }
+
+  let connRetryBound = false;
+  function bindConnectionRetry() {
+    if (connRetryBound) return;
+    connRetryBound = true;
+    document.addEventListener('click', (e) => {
+      const link = e.target.closest && e.target.closest('#conn-retry-link');
+      if (!link) return;
+      e.preventDefault();
+      refreshConnectionsPage();
     });
   }
 
@@ -1887,6 +1916,7 @@ main {
     renderOAuthConnectionsGrid();
     bindOAuthGridClicks();
     bindConnectionSearch();
+    bindConnectionRetry();
     renderAgentConnectionsPicker();
   }
 
