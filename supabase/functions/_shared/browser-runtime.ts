@@ -40,6 +40,8 @@ export interface AgentIdentity {
 
 export interface BrowserRuntimeContext {
   allowedUrls: string[];
+  /** When true, browse_url is not limited to allowedUrls. */
+  unrestrictedBrowsing: boolean;
   perms: ReturnType<typeof normalizePermissions>;
   identity?: AgentIdentity;
   /**
@@ -237,13 +239,15 @@ export function assertBrowserActionAllowed(
   }
   if (action === "browse_url") {
     if (!url) throw new Error("url is required for browse_url");
-    if (!ctx.allowedUrls.length) {
-      throw new Error("No allowed websites configured for this agent");
-    }
-    if (!isUrlAllowed(url, ctx.allowedUrls)) {
-      throw new Error(
-        `URL is not allowed. Connected sites only: ${ctx.allowedUrls.join(", ")}`,
-      );
+    if (!ctx.unrestrictedBrowsing) {
+      if (!ctx.allowedUrls.length) {
+        throw new Error("No allowed websites configured for this agent");
+      }
+      if (!isUrlAllowed(url, ctx.allowedUrls)) {
+        throw new Error(
+          `URL is not allowed. Connected sites only: ${ctx.allowedUrls.join(", ")}`,
+        );
+      }
     }
   }
 }
@@ -408,6 +412,7 @@ export async function runBrowserAction(
 export function buildBrowserRuntimeContext(
   agentRow: {
     allowed_urls?: unknown;
+    unrestricted_browsing?: boolean;
     can_read_navigate?: boolean;
     can_send_edit?: boolean;
   } | null | undefined,
@@ -415,6 +420,7 @@ export function buildBrowserRuntimeContext(
 ): BrowserRuntimeContext {
   return {
     allowedUrls: parseAllowedUrls(agentRow?.allowed_urls),
+    unrestrictedBrowsing: !!agentRow?.unrestricted_browsing,
     perms: normalizePermissions(agentRow ?? undefined),
     identity,
   };

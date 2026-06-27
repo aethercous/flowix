@@ -25,6 +25,7 @@ interface CreateOrGetAgentTokenRequest {
   llm_provider?: string;
   llm_api_key?: string;
   allowed_urls?: string[] | string;
+  unrestricted_browsing?: boolean;
   can_read_navigate?: boolean;
   can_send_edit?: boolean;
   enableReasoning?: boolean;
@@ -53,17 +54,22 @@ function buildAgentConfig(body: CreateOrGetAgentTokenRequest): Record<string, un
   if (body.agent_name) agentConfig.agentName = body.agent_name;
 
   const browserHint =
-    " You have live web access via Browserbase tools during chat (start_browser, browse_url, get_page_content, etc.). Only visit URLs listed as connected sites.";
+    body.unrestricted_browsing
+      ? " You have live web access via Browserbase tools during chat (start_browser, browse_url, get_page_content, etc.). You may browse any website. Linked OAuth accounts are signed in automatically on matching sites."
+      : " You have live web access via Browserbase tools during chat (start_browser, browse_url, get_page_content, etc.). Only visit URLs listed as connected sites.";
   const allowed = parseAllowedUrls(body.allowed_urls);
   if (allowed.length) {
     agentConfig.allowedUrls = allowed;
+  }
+  if (body.unrestricted_browsing) {
+    agentConfig.unrestrictedBrowsing = true;
   }
 
   if (body.system_prompt) {
     let prompt = body.system_prompt.includes("Browserbase")
       ? body.system_prompt
       : body.system_prompt + browserHint;
-    if (allowed.length) {
+    if (!body.unrestricted_browsing && allowed.length) {
       prompt +=
         `\n\nAllowed websites only: ${allowed.join(", ")}. Do not open URLs outside this list.`;
     }
@@ -156,7 +162,7 @@ serve(async (req: Request) => {
 
   const { data: agentRow, error: agentError } = await supabase
     .from("agents")
-    .select("id, user_id, name, model, system_prompt, allowed_urls, can_read_navigate, can_send_edit, use_worlo_backend_prompt")
+    .select("id, user_id, name, model, system_prompt, allowed_urls, unrestricted_browsing, can_read_navigate, can_send_edit, use_worlo_backend_prompt")
     .eq("id", agent_id)
     .eq("user_id", authenticatedUserId)
     .maybeSingle();
@@ -189,6 +195,7 @@ serve(async (req: Request) => {
       system_prompt: body.system_prompt ?? agentRow.system_prompt,
       model: body.model ?? agentRow.model,
       allowed_urls: body.allowed_urls ?? agentRow.allowed_urls,
+      unrestricted_browsing: body.unrestricted_browsing ?? agentRow.unrestricted_browsing,
       can_read_navigate: body.can_read_navigate ?? agentRow.can_read_navigate,
       can_send_edit: body.can_send_edit ?? agentRow.can_send_edit,
       use_worlo_backend_prompt: body.use_worlo_backend_prompt ??
@@ -205,7 +212,8 @@ serve(async (req: Request) => {
     }
 
     if (existingToken) {
-      if (sync_config || body.agent_name || body.system_prompt || body.model || body.allowed_urls) {
+      if (sync_config || body.agent_name || body.system_prompt || body.model || body.allowed_urls ||
+        body.unrestricted_browsing !== undefined) {
         const updates: Record<string, unknown> = {
           agent_config: agentConfig,
           llm_provider: resolvedLlmProvider,

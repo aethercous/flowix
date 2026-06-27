@@ -255,28 +255,28 @@
 
     const oauthRows = (existing || []).filter((r) => r.user_connection_id);
     const toRemove = oauthRows.filter((r) => !selectedUserConnectionIds.includes(r.user_connection_id));
-    const linkedIds = new Set(oauthRows.map((r) => r.user_connection_id).filter(Boolean));
 
     for (const row of toRemove) {
       await sb.from('agent_connections').delete().eq('id', row.id);
     }
 
-    if (selectedUserConnectionIds.length) {
-      const { data: userConns } = await sb
-        .from('user_connections')
-        .select('id, provider')
-        .eq('user_id', userId)
-        .in('id', selectedUserConnectionIds);
+    if (!selectedUserConnectionIds.length) return;
 
-      for (const uc of userConns || []) {
-        if (linkedIds.has(uc.id)) continue;
-        await sb.from('agent_connections').upsert({
-          user_id: userId,
-          agent_id: agentId,
-          app_name: uc.provider,
-          user_connection_id: uc.id,
-        }, { onConflict: 'agent_id,app_name' });
-      }
+    const { data: userConns, error } = await sb
+      .from('user_connections')
+      .select('id, provider')
+      .eq('user_id', userId)
+      .in('id', selectedUserConnectionIds);
+
+    if (error) throw error;
+
+    for (const uc of userConns || []) {
+      await sb.from('agent_connections').upsert({
+        user_id: userId,
+        agent_id: agentId,
+        app_name: uc.provider,
+        user_connection_id: uc.id,
+      }, { onConflict: 'agent_id,app_name' });
     }
   }
 

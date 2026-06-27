@@ -19,31 +19,38 @@ export interface AgentToolState {
 }
 
 export function webToolsEnabled(ctx: BrowserRuntimeContext): boolean {
-  return ctx.perms.can_read_navigate && ctx.allowedUrls.length > 0;
+  return ctx.perms.can_read_navigate &&
+    (ctx.unrestrictedBrowsing || ctx.allowedUrls.length > 0);
 }
 
 export function buildWebToolDefinitions(ctx: BrowserRuntimeContext): ToolDefinition[] {
-  const sites = ctx.allowedUrls.join(", ");
+  const sites = ctx.unrestrictedBrowsing
+    ? "any website on the internet"
+    : ctx.allowedUrls.join(", ");
   const readOnly = ctx.perms.can_read_navigate && !ctx.perms.can_send_edit;
 
   const tools: ToolDefinition[] = [
     {
       name: "start_browser",
       description:
-        `Start a live Browserbase web session. You may only visit connected sites: ${sites}. If a connected account exists for that site, the session is automatically signed in using the user's OAuth credentials stored in Supabase. Call this before other browser tools.`,
+        `Start a live Browserbase web session. You may visit ${sites}. If a connected account exists for that site, the session is automatically signed in using the user's OAuth credentials stored in Supabase. Call this before other browser tools.`,
       parameters: {
         type: "object",
         properties: {
           url: {
             type: "string",
-            description: `Optional starting URL (must be one of: ${sites})`,
+            description: ctx.unrestrictedBrowsing
+              ? "Optional starting URL"
+              : `Optional starting URL (must be one of: ${ctx.allowedUrls.join(", ")})`,
           },
         },
       },
     },
     {
       name: "browse_url",
-      description: `Navigate the browser to a URL. Only allowed connected sites: ${sites}.`,
+      description: ctx.unrestrictedBrowsing
+        ? "Navigate the browser to any URL."
+        : `Navigate the browser to a URL. Only allowed connected sites: ${ctx.allowedUrls.join(", ")}.`,
       parameters: {
         type: "object",
         properties: {
@@ -115,10 +122,16 @@ export function buildWebToolDefinitions(ctx: BrowserRuntimeContext): ToolDefinit
 }
 
 export function webAccessSystemPromptBlock(ctx: BrowserRuntimeContext): string {
-  const sites = ctx.allowedUrls.join(", ");
-  if (!ctx.perms.can_read_navigate || !ctx.allowedUrls.length) {
+  if (!ctx.perms.can_read_navigate) {
     return "\n\nWeb access: DISABLED. You cannot browse the internet for this agent.";
   }
+  if (ctx.unrestrictedBrowsing) {
+    return "\n\nWeb access: ENABLED via Browserbase tools (unrestricted mode). You may browse any website. When the user has connected an account for a site (Slack, Google, Notion, GitHub, Discord, Teams, LinkedIn, …), the session is automatically signed in via stored OAuth credentials — do not prompt the user for passwords. When you use the web, say so briefly so the user knows you are browsing live data.";
+  }
+  if (!ctx.allowedUrls.length) {
+    return "\n\nWeb access: DISABLED. Add allowed websites or enable unrestricted browsing for this agent.";
+  }
+  const sites = ctx.allowedUrls.join(", ");
   return `\n\nWeb access: ENABLED via Browserbase tools. You have live browser tools (start_browser, browse_url, get_page_content, take_screenshot, scroll, etc.). You may ONLY visit these connected websites: ${sites}. Never navigate to URLs outside this list — the server will block them. When the user has connected an account for a site (Slack, Google, Notion, GitHub, Discord, Teams, LinkedIn, …), the session is automatically signed in via the stored OAuth credentials — do not prompt the user for passwords. When you use the web, say so briefly so the user knows you are browsing live data.`;
 }
 
@@ -130,7 +143,7 @@ export async function executeAgentTool(
 ): Promise<Record<string, unknown>> {
   if (name === "start_browser") {
     const url = typeof args.url === "string" ? args.url : undefined;
-    if (url && !isUrlAllowed(url, ctx.allowedUrls)) {
+    if (url && !ctx.unrestrictedBrowsing && !isUrlAllowed(url, ctx.allowedUrls)) {
       return {
         error: `URL not allowed. Connected sites only: ${ctx.allowedUrls.join(", ")}`,
       };

@@ -873,9 +873,17 @@ main {
     </div>
 
     <div class="form-group">
-      <label class="form-label">Allowed websites *</label>
+      <label class="form-label" style="display:flex;align-items:flex-start;gap:8px;cursor:pointer;font-weight:500">
+        <input type="checkbox" id="agent-unrestricted-browsing" style="width:auto;margin-top:3px" checked/>
+        <span>No website restrictions</span>
+      </label>
+      <div class="form-hint">When enabled, this agent can browse any website. OAuth tokens from connected accounts below are still injected automatically on matching sites (Google, Slack, GitHub, etc.).</div>
+    </div>
+
+    <div class="form-group" id="agent-allowed-urls-section">
+      <label class="form-label" id="agent-allowed-urls-label">Allowed websites</label>
       <textarea class="form-textarea" id="agent-allowed-urls" placeholder="https://app.company.com&#10;https://docs.example.com&#10;*.staging.example.com" style="min-height:120px"></textarea>
-      <div class="form-hint">One URL or domain per line. Your agent can only browse these sites (enforced in Browserbase). Use <code>*.domain.com</code> for subdomains.</div>
+      <div class="form-hint" id="agent-allowed-urls-hint">One URL or domain per line. Required when website restrictions are enabled. Use <code>*.domain.com</code> for subdomains.</div>
     </div>
 
     <div class="form-group" style="margin-top:20px">
@@ -925,7 +933,7 @@ main {
 
     <div class="form-group" style="margin-top:24px">
       <label class="form-label">Connected applications</label>
-      <div class="form-hint" style="margin-bottom:12px">Choose which of your connected accounts this agent can use. <a href="#" id="link-manage-connections" style="color:#156cc2;font-weight:600">Manage connections</a></div>
+      <div class="form-hint" style="margin-bottom:12px">Select which connected accounts this agent can use. The server injects each account's OAuth token into the browser session when visiting matching sites — tokens are never sent to the AI model. One account per provider. <a href="#" id="link-manage-connections" style="color:#156cc2;font-weight:600">Manage connections</a></div>
       <div id="agent-connections-picker" class="fx-conn-picker"></div>
     </div>
 
@@ -1232,6 +1240,7 @@ main {
       model: agent.model,
       llm_provider: resolveLlmProvider(agent.model),
       allowed_urls: agent.allowed_urls || [],
+      unrestricted_browsing: !!agent.unrestricted_browsing,
       can_read_navigate: agent.can_read_navigate !== false,
       can_send_edit: !!agent.can_send_edit,
       use_worlo_backend_prompt: agent.use_worlo_backend_prompt !== false,
@@ -1243,7 +1252,17 @@ main {
       headers: { Authorization: `Bearer ${session.access_token}` },
       body
     });
-    if (error) throw new Error(error.message || 'Failed to sync agent token');
+    if (error) {
+      let msg = error.message || 'Failed to sync agent token';
+      if (error.context && typeof error.context.json === 'function') {
+        try {
+          const errBody = await error.context.json();
+          if (errBody?.error) msg = errBody.error;
+        } catch (_e) { /* ignore */ }
+      }
+      throw new Error(msg);
+    }
+    if (data?.error) throw new Error(data.error);
     state.agentTokens[agent.id] = { token_id: data.token_id, api_key: data.api_key };
     saveState();
     return state.agentTokens[agent.id];
@@ -1259,7 +1278,7 @@ main {
   async function loadAgents() {
     const { data, error } = await sb
       .from('agents')
-      .select('id, name, model, system_prompt, allowed_urls, can_read_navigate, can_send_edit, use_worlo_backend_prompt, teams_enabled, created_at, updated_at')
+      .select('id, name, model, system_prompt, allowed_urls, unrestricted_browsing, can_read_navigate, can_send_edit, use_worlo_backend_prompt, teams_enabled, created_at, updated_at')
       .order('created_at', { ascending: true });
 
     if (error) {
@@ -1275,6 +1294,7 @@ main {
       prompt: row.system_prompt,
       system_prompt: row.system_prompt,
       allowed_urls: row.allowed_urls || [],
+      unrestricted_browsing: !!row.unrestricted_browsing,
       can_read_navigate: row.can_read_navigate !== false,
       can_send_edit: !!row.can_send_edit,
       use_worlo_backend_prompt: row.use_worlo_backend_prompt !== false,
@@ -1820,6 +1840,9 @@ main {
 
     grid.innerHTML = state.agents.map(a => {
       const urls = (a.allowed_urls || []).length;
+      const siteLabel = a.unrestricted_browsing
+        ? 'Any site'
+        : `${urls} site${urls === 1 ? '' : 's'}`;
       const perms = a.can_send_edit
         ? 'Read · Send/Edit'
         : (a.can_read_navigate !== false ? 'Read-only' : 'No web');
@@ -1832,7 +1855,7 @@ main {
           <div class="card-title">${escapeHtml(a.name)}</div>
           <div class="card-badge">${escapeHtml(perms)}</div>
         </div>
-        <div class="card-description">${escapeHtml(a.model)} • ${new Date(a.created).toLocaleDateString()} • ${urls} site${urls === 1 ? '' : 's'}${connBadge}</div>
+        <div class="card-description">${escapeHtml(a.model)} • ${new Date(a.created).toLocaleDateString()} • ${siteLabel}${connBadge}</div>
         <div style="font-size: 12px; color: #86868b; margin-bottom: 16px;">${escapeHtml(preview)}${preview.length >= 80 ? '…' : ''}</div>
         <div class="card-footer">
           <button class="btn btn-secondary" onclick="editAgent('${a.id}')">Edit</button>
@@ -1849,6 +1872,7 @@ main {
     clearForm();
     document.getElementById('agent-form-title').textContent = 'Create New Agent';
     document.getElementById('btn-save').textContent = 'Save Agent';
+    updateAllowedUrlsUi();
     renderAgentConnectionsPicker();
     showSection('create');
   }
@@ -1911,10 +1935,27 @@ main {
     showSection('agents');
   });
 
+  function updateAllowedUrlsUi() {
+    const unrestricted = document.getElementById('agent-unrestricted-browsing').checked;
+    const section = document.getElementById('agent-allowed-urls-section');
+    const label = document.getElementById('agent-allowed-urls-label');
+    const hint = document.getElementById('agent-allowed-urls-hint');
+    if (section) section.style.opacity = unrestricted ? '0.55' : '1';
+    if (label) label.textContent = unrestricted ? 'Allowed websites (optional)' : 'Allowed websites *';
+    if (hint) {
+      hint.textContent = unrestricted
+        ? 'Optional extra sites to highlight in the agent prompt. Browsing is not limited when unrestricted mode is on.'
+        : 'One URL or domain per line. Required when website restrictions are enabled. Use *.domain.com for subdomains.';
+    }
+  }
+
+  document.getElementById('agent-unrestricted-browsing').addEventListener('change', updateAllowedUrlsUi);
+
   async function saveAgent() {
     const name = document.getElementById('agent-name').value.trim();
     const model = document.getElementById('agent-model').value;
     const prompt = document.getElementById('agent-prompt').value.trim();
+    const unrestricted = document.getElementById('agent-unrestricted-browsing').checked;
     const allowedUrls = parseAllowedUrlsText(document.getElementById('agent-allowed-urls').value);
     const useCustomKey = document.getElementById('agent-use-custom-key').checked;
     const customKey = document.getElementById('agent-custom-api-key').value.trim();
@@ -1928,8 +1969,8 @@ main {
       toast('Please fill in all required fields', 'error');
       return;
     }
-    if (canRead && !allowedUrls.length) {
-      toast('Add at least one allowed website when read & navigate is enabled', 'error');
+    if (canRead && !unrestricted && !allowedUrls.length) {
+      toast('Add at least one allowed website, or enable no website restrictions', 'error');
       return;
     }
     if (canSend && !canRead) {
@@ -1957,12 +1998,14 @@ main {
         model,
         system_prompt: prompt || DEFAULT_AGENT_PROMPT,
         allowed_urls: allowedUrls,
+        unrestricted_browsing: unrestricted,
         can_read_navigate: canRead,
         can_send_edit: canSend,
         use_worlo_backend_prompt: useWorloBackendPrompt
       };
 
       let agent;
+      let createdNew = false;
       if (editingAgentId) {
         const { data, error } = await sb
           .from('agents')
@@ -1978,6 +2021,7 @@ main {
           model: data.model,
           prompt: data.system_prompt,
           allowed_urls: data.allowed_urls,
+          unrestricted_browsing: !!data.unrestricted_browsing,
           can_read_navigate: data.can_read_navigate !== false,
           can_send_edit: !!data.can_send_edit,
           use_worlo_backend_prompt: data.use_worlo_backend_prompt !== false,
@@ -1988,12 +2032,14 @@ main {
       } else {
         const { data, error } = await sb.from('agents').insert(row).select().single();
         if (error) throw error;
+        createdNew = true;
         agent = {
           id: data.id,
           name: data.name,
           model: data.model,
           prompt: data.system_prompt,
           allowed_urls: data.allowed_urls,
+          unrestricted_browsing: !!data.unrestricted_browsing,
           can_read_navigate: data.can_read_navigate !== false,
           can_send_edit: !!data.can_send_edit,
           use_worlo_backend_prompt: data.use_worlo_backend_prompt !== false,
@@ -2002,11 +2048,19 @@ main {
         state.agents.push(agent);
       }
 
-      const tokenOpts = {};
-      if (customKey && (useCustomKey || model === 'openai-custom')) {
-        tokenOpts.llm_api_key = customKey;
+      try {
+        const tokenOpts = {};
+        if (customKey && (useCustomKey || model === 'openai-custom')) {
+          tokenOpts.llm_api_key = customKey;
+        }
+        await syncAgentToken(agent, tokenOpts);
+      } catch (tokenErr) {
+        if (createdNew) {
+          await sb.from('agents').delete().eq('id', agent.id).eq('user_id', currentUser.id);
+          state.agents = state.agents.filter(a => a.id !== agent.id);
+        }
+        throw tokenErr;
       }
-      await syncAgentToken(agent, tokenOpts);
 
       try {
         const selectedConnIds = getSelectedAgentConnectionIds();
@@ -2046,6 +2100,7 @@ main {
     document.getElementById('agent-model').value = agent.model;
     document.getElementById('agent-prompt').value = agent.prompt || agent.system_prompt || '';
     document.getElementById('agent-allowed-urls').value = (agent.allowed_urls || []).join('\n');
+    document.getElementById('agent-unrestricted-browsing').checked = !!agent.unrestricted_browsing;
     document.getElementById('agent-can-read').checked = agent.can_read_navigate !== false;
     document.getElementById('agent-can-send').checked = !!agent.can_send_edit;
     document.getElementById('agent-custom-api-key').value = '';
@@ -2053,6 +2108,7 @@ main {
     document.getElementById('agent-use-worlo-backend-prompt').checked =
       agent.use_worlo_backend_prompt !== false;
     updateCustomKeyUi();
+    updateAllowedUrlsUi();
     renderAgentConnectionsPicker();
     showSection('create');
   }
@@ -2086,6 +2142,7 @@ main {
     document.getElementById('agent-model').value = 'claude-sonnet';
     document.getElementById('agent-prompt').value = '';
     document.getElementById('agent-allowed-urls').value = '';
+    document.getElementById('agent-unrestricted-browsing').checked = true;
     document.getElementById('agent-can-read').checked = true;
     document.getElementById('agent-can-send').checked = false;
     document.getElementById('agent-custom-api-key').value = '';
@@ -2093,6 +2150,7 @@ main {
     document.getElementById('agent-use-worlo-backend-prompt').checked = true;
     agentLinkedConnectionIds = [];
     updateCustomKeyUi();
+    updateAllowedUrlsUi();
     renderAgentConnectionsPicker();
   }
 

@@ -176,6 +176,8 @@ function buildSystemPrompt(
 
     allowed_urls?: unknown;
 
+    unrestricted_browsing?: boolean;
+
     can_read_navigate?: boolean;
 
     can_send_edit?: boolean;
@@ -191,6 +193,9 @@ function buildSystemPrompt(
 
 
   const allowedUrls = parseAllowedUrls(agentRow?.allowed_urls ?? agentConfig?.allowedUrls);
+  const unrestrictedBrowsing = typeof agentRow?.unrestricted_browsing === "boolean"
+    ? agentRow.unrestricted_browsing
+    : !!agentConfig?.unrestrictedBrowsing;
 
   const perms = normalizePermissions({
 
@@ -205,6 +210,7 @@ function buildSystemPrompt(
   const browserCtx = buildBrowserRuntimeContext({
 
     allowed_urls: allowedUrls,
+    unrestricted_browsing: unrestrictedBrowsing,
 
     can_read_navigate: perms.can_read_navigate,
 
@@ -352,7 +358,7 @@ serve(async (req: Request) => {
 
     .from("agents")
 
-    .select("id, system_prompt, allowed_urls, can_read_navigate, can_send_edit, use_worlo_backend_prompt, name, model")
+    .select("id, system_prompt, allowed_urls, unrestricted_browsing, can_read_navigate, can_send_edit, use_worlo_backend_prompt, name, model")
 
     .eq("id", tokenRow.agent_id)
 

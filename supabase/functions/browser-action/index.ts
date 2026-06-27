@@ -71,7 +71,7 @@ serve(async (req: Request) => {
 
   const { data: agentRow } = await supabase
     .from("agents")
-    .select("allowed_urls, can_read_navigate, can_send_edit")
+    .select("allowed_urls, unrestricted_browsing, can_read_navigate, can_send_edit")
     .eq("id", tokenRow.agent_id)
     .maybeSingle();
 

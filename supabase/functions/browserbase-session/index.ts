@@ -56,7 +56,7 @@ serve(async (req: Request) => {
 
   const { data: agentRow, error: agentError } = await adminClient
     .from("agents")
-    .select("id, allowed_urls, can_read_navigate, can_send_edit, user_id")
+    .select("id, allowed_urls, unrestricted_browsing, can_read_navigate, can_send_edit, user_id")
     .eq("id", agentId)
     .eq("user_id", user.id)
     .maybeSingle();
