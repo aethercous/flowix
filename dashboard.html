@@ -954,7 +954,8 @@ main {
 
   <div class="form-card" style="margin-bottom:24px">
     <div class="form-title">Connect your accounts</div>
-    <p style="font-size:13px;color:#6b7280;margin-bottom:16px">Link Microsoft, Google Workspace, Slack, Zoom, GitHub, Atlassian, Salesforce, and more. After connecting, assign accounts to each agent when you edit them.</p>
+    <p style="font-size:13px;color:#6b7280;margin-bottom:4px">Link Microsoft, Google Workspace, Slack, Zoom, GitHub, Atlassian, Salesforce, and more. After connecting, assign accounts to each agent when you edit them.</p>
+    <p id="conn-signed-in-as" style="font-size:12px;color:#9ca3af;margin-bottom:16px"></p>
     <div id="oauth-conn-grid" class="card-grid"></div>
   </div>
 
@@ -1372,10 +1373,12 @@ main {
     const picker = document.getElementById('agent-connections-picker');
     if (!picker) return;
 
+    const account = currentUser?.email ? `Signed in as ${escapeHtml(currentUser.email)}. ` : '';
+
     if (!state.userConnections.length) {
       picker.innerHTML = `
         <div class="fx-conn-empty">
-          No accounts connected yet.
+          ${account}No accounts connected yet.
           <a href="dashboard.html#connections">Connect Slack, Google, and more</a>
         </div>`;
       return;
@@ -1682,6 +1685,12 @@ main {
     const byProvider = {};
     (state.userConnections || []).forEach(c => { byProvider[c.provider] = c; });
 
+    const signedInEl = document.getElementById('conn-signed-in-as');
+    if (signedInEl && currentUser?.email) {
+      const n = (state.userConnections || []).length;
+      signedInEl.textContent = `Signed in as ${currentUser.email} — ${n} connected account${n === 1 ? '' : 's'}. Connections are saved per account.`;
+    }
+
     const catalog = window.WorloConnectionCatalog;
     const primaryList = catalog
       ? catalog.getConnectionsPageApps()
@@ -1897,6 +1906,9 @@ main {
     updateAllowedUrlsUi();
     renderAgentConnectionsPicker();
     showSection('create');
+    // Always pull the latest connections so the picker can't show stale-empty.
+    await loadUserConnections();
+    renderAgentConnectionsPicker();
   }
 
   document.getElementById('btn-new-agent')?.addEventListener('click', openCreateAgentForm);
@@ -2137,6 +2149,11 @@ main {
       return;
     }
     editingAgentId = id;
+    try {
+      await loadUserConnections();
+    } catch (connLoadErr) {
+      console.warn('loadUserConnections (edit)', connLoadErr);
+    }
     try {
       await loadAgentLinkedConnections(id);
     } catch (linkLoadErr) {
