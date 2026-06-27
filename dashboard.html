@@ -956,6 +956,7 @@ main {
     <div class="form-title">Connect your accounts</div>
     <p style="font-size:13px;color:#6b7280;margin-bottom:4px">Link Microsoft, Google Workspace, Slack, Zoom, GitHub, Atlassian, Salesforce, and more. After connecting, assign accounts to each agent when you edit them.</p>
     <p id="conn-signed-in-as" style="font-size:12px;color:#9ca3af;margin-bottom:16px"></p>
+    <div id="oauth-connected-list" class="fx-conn-picker" style="margin-bottom:16px"></div>
     <div id="oauth-conn-grid" class="card-grid"></div>
   </div>
 
@@ -1369,6 +1370,36 @@ main {
     return [...picker.querySelectorAll('input[type="checkbox"]:checked')].map(el => el.value);
   }
 
+  function normalizeProviderId(provider) {
+    const id = String(provider || '').trim().toLowerCase();
+    if (id === 'google_workspace' || id === 'gmail' || id === 'google-workspace') return 'google';
+    if (id === 'microsoft_365' || id === 'office365') return 'teams';
+    return id;
+  }
+
+  function connectionProviderLabel(conn) {
+    const provider = normalizeProviderId(conn?.provider);
+    return WorloConnections.getCatalogLabel(provider) || provider || 'Connected app';
+  }
+
+  function connectionDateLabel(conn) {
+    const d = conn?.connected_at ? new Date(conn.connected_at) : null;
+    return d && !Number.isNaN(d.getTime()) ? d.toLocaleDateString() : 'recently';
+  }
+
+  function renderConnectionOption(conn) {
+    const checked = agentLinkedConnectionIds.includes(conn.id) ? 'checked' : '';
+    const appLabel = connectionProviderLabel(conn);
+    return `
+      <label class="fx-conn-option">
+        <input type="checkbox" value="${escapeHtml(conn.id)}" ${checked}/>
+        <span>
+          <strong>${escapeHtml(conn.account_label || appLabel)}</strong>
+          <small>${escapeHtml(appLabel)} · connected ${escapeHtml(connectionDateLabel(conn))}</small>
+        </span>
+      </label>`;
+  }
+
   function renderAgentConnectionsPicker() {
     const picker = document.getElementById('agent-connections-picker');
     if (!picker) return;
@@ -1384,18 +1415,11 @@ main {
       return;
     }
 
-    picker.innerHTML = state.userConnections.map(c => {
-      const checked = agentLinkedConnectionIds.includes(c.id) ? 'checked' : '';
-      const appLabel = WorloConnections.getCatalogLabel(c.provider);
-      return `
-        <label class="fx-conn-option">
-          <input type="checkbox" value="${c.id}" ${checked}/>
-          <span>
-            <strong>${escapeHtml(c.account_label || appLabel)}</strong>
-            <small>${escapeHtml(appLabel)} · connected ${new Date(c.connected_at).toLocaleDateString()}</small>
-          </span>
-        </label>`;
-    }).join('');
+    picker.innerHTML = `
+      <div style="font-size:12px;color:#6b7280;margin-bottom:8px">
+        ${account}${state.userConnections.length} connected account${state.userConnections.length === 1 ? '' : 's'} available.
+      </div>
+      ${state.userConnections.map(renderConnectionOption).join('')}`;
   }
 
   async function migrateLocalAgentsIfNeeded() {
@@ -1628,7 +1652,7 @@ main {
   }
 
   function renderConnectionCard(app, byProvider, mode) {
-    const oauthId = app.oauthProvider || app.id;
+    const oauthId = normalizeProviderId(app.oauthProvider || app.id);
     const isOAuth = app.status === 'oauth';
     const isBrowser = app.status === 'browser';
     const conn = isOAuth ? byProvider[oauthId] : null;
@@ -1677,18 +1701,35 @@ main {
 
   function renderOAuthConnectionsGrid() {
     const primaryGrid = document.getElementById('oauth-conn-grid');
+    const connectedList = document.getElementById('oauth-connected-list');
     const catalogGrid = document.getElementById('oauth-catalog-grid');
     const noResults = document.getElementById('conn-no-results');
     const meta = document.getElementById('conn-search-meta');
     if (!primaryGrid) return;
 
     const byProvider = {};
-    (state.userConnections || []).forEach(c => { byProvider[c.provider] = c; });
+    (state.userConnections || []).forEach(c => { byProvider[normalizeProviderId(c.provider)] = c; });
 
     const signedInEl = document.getElementById('conn-signed-in-as');
     if (signedInEl && currentUser?.email) {
       const n = (state.userConnections || []).length;
       signedInEl.textContent = `Signed in as ${currentUser.email} — ${n} connected account${n === 1 ? '' : 's'}. Connections are saved per account.`;
+    }
+
+    if (connectedList) {
+      if ((state.userConnections || []).length) {
+        connectedList.innerHTML = `
+          <div style="font-size:12px;color:#6b7280;margin-bottom:8px">Connected accounts</div>
+          ${(state.userConnections || []).map(c => `
+            <div class="fx-conn-option" style="cursor:default">
+              <span>
+                <strong>${escapeHtml(c.account_label || connectionProviderLabel(c))}</strong>
+                <small>${escapeHtml(connectionProviderLabel(c))} · connected ${escapeHtml(connectionDateLabel(c))}</small>
+              </span>
+            </div>`).join('')}`;
+      } else {
+        connectedList.innerHTML = '';
+      }
     }
 
     const catalog = window.WorloConnectionCatalog;
