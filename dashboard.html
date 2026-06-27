@@ -1193,8 +1193,9 @@ main {
 
 <script>
 (function() {
-  const SUPABASE_URL = 'https://utofnywijqsozjqmkhcn.supabase.co';
-  const SUPABASE_KEY = 'sb_publishable_NFpInIt2anAJxn2slHZIuQ_BsEw4g1n';
+  const cfg = window.WORLO_CONFIG || {};
+  const SUPABASE_URL = cfg.SUPABASE_URL || 'https://utofnywijqsozjqmkhcn.supabase.co';
+  const SUPABASE_KEY = cfg.SUPABASE_ANON_KEY || cfg.SUPABASE_KEY || 'sb_publishable_NFpInIt2anAJxn2slHZIuQ_BsEw4g1n';
 
   const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
   let currentUser = null;
@@ -1230,8 +1231,17 @@ main {
   }
 
   async function syncAgentToken(agent, options = {}) {
-    const { data: { session } } = await sb.auth.getSession();
-    if (!session) throw new Error('Session expired');
+    const { data: { session }, error: sessionError } = await sb.auth.getSession();
+    if (sessionError || !session) throw new Error('Session expired — please sign in again');
+
+    // Refresh if close to expiry so edge functions accept the JWT.
+    const expiresAt = session.expires_at ? session.expires_at * 1000 : 0;
+    if (expiresAt && expiresAt - Date.now() < 60_000) {
+      const { data: refreshed, error: refreshError } = await sb.auth.refreshSession();
+      if (refreshError || !refreshed.session) {
+        throw new Error('Session expired — please sign in again');
+      }
+    }
 
     const body = {
       agent_id: agent.id,
@@ -1249,7 +1259,7 @@ main {
     if (options.llm_api_key) body.llm_api_key = options.llm_api_key;
 
     const { data, error } = await sb.functions.invoke('create-or-get-agent-token', {
-      headers: { Authorization: `Bearer ${session.access_token}` },
+      headers: { Authorization: `Bearer ${(await sb.auth.getSession()).data.session?.access_token}` },
       body
     });
     if (error) {
@@ -1263,6 +1273,9 @@ main {
       throw new Error(msg);
     }
     if (data?.error) throw new Error(data.error);
+    if (!data?.token_id || !data?.api_key) {
+      throw new Error('Agent token was not returned by the server');
+    }
     state.agentTokens[agent.id] = { token_id: data.token_id, api_key: data.api_key };
     saveState();
     return state.agentTokens[agent.id];
@@ -1276,10 +1289,19 @@ main {
   }
 
   async function loadAgents() {
-    const { data, error } = await sb
+    const baseSelect =
+      'id, name, model, system_prompt, allowed_urls, can_read_navigate, can_send_edit, use_worlo_backend_prompt, teams_enabled, created_at, updated_at';
+    let { data, error } = await sb
       .from('agents')
-      .select('id, name, model, system_prompt, allowed_urls, unrestricted_browsing, can_read_navigate, can_send_edit, use_worlo_backend_prompt, teams_enabled, created_at, updated_at')
+      .select(baseSelect + ', unrestricted_browsing')
       .order('created_at', { ascending: true });
+
+    if (error && /unrestricted_browsing/i.test(error.message || '')) {
+      ({ data, error } = await sb
+        .from('agents')
+        .select(baseSelect)
+        .order('created_at', { ascending: true }));
+    }
 
     if (error) {
       console.error('loadAgents:', error);
@@ -1936,7 +1958,8 @@ main {
   });
 
   function updateAllowedUrlsUi() {
-    const unrestricted = document.getElementById('agent-unrestricted-browsing').checked;
+    const unrestrictedEl = document.getElementById('agent-unrestricted-browsing');
+    const unrestricted = unrestrictedEl ? unrestrictedEl.checked : true;
     const section = document.getElementById('agent-allowed-urls-section');
     const label = document.getElementById('agent-allowed-urls-label');
     const hint = document.getElementById('agent-allowed-urls-hint');
@@ -1949,13 +1972,15 @@ main {
     }
   }
 
-  document.getElementById('agent-unrestricted-browsing').addEventListener('change', updateAllowedUrlsUi);
+  document.getElementById('agent-unrestricted-browsing')?.addEventListener('change', updateAllowedUrlsUi);
 
   async function saveAgent() {
     const name = document.getElementById('agent-name').value.trim();
     const model = document.getElementById('agent-model').value;
-    const prompt = document.getElementById('agent-prompt').value.trim();
-    const unrestricted = document.getElementById('agent-unrestricted-browsing').checked;
+    const promptRaw = document.getElementById('agent-prompt').value.trim();
+    const prompt = promptRaw || DEFAULT_AGENT_PROMPT;
+    const unrestrictedEl = document.getElementById('agent-unrestricted-browsing');
+    const unrestricted = unrestrictedEl ? unrestrictedEl.checked : true;
     const allowedUrls = parseAllowedUrlsText(document.getElementById('agent-allowed-urls').value);
     const useCustomKey = document.getElementById('agent-use-custom-key').checked;
     const customKey = document.getElementById('agent-custom-api-key').value.trim();
@@ -1965,8 +1990,8 @@ main {
       ? document.getElementById('agent-use-worlo-backend-prompt').checked
       : true;
 
-    if (!name || !prompt) {
-      toast('Please fill in all required fields', 'error');
+    if (!name) {
+      toast('Please enter an agent name', 'error');
       return;
     }
     if (canRead && !unrestricted && !allowedUrls.length) {
@@ -2005,15 +2030,25 @@ main {
       };
 
       let agent;
-      let createdNew = false;
       if (editingAgentId) {
-        const { data, error } = await sb
+        let updateResult = await sb
           .from('agents')
           .update(row)
           .eq('id', editingAgentId)
           .eq('user_id', currentUser.id)
           .select()
           .single();
+        if (updateResult.error && /unrestricted_browsing/i.test(updateResult.error.message || '')) {
+          const { unrestricted_browsing, ...rest } = row;
+          updateResult = await sb
+            .from('agents')
+            .update(rest)
+            .eq('id', editingAgentId)
+            .eq('user_id', currentUser.id)
+            .select()
+            .single();
+        }
+        const { data, error } = updateResult;
         if (error) throw error;
         agent = {
           id: data.id,
@@ -2030,9 +2065,13 @@ main {
         const idx = state.agents.findIndex(a => a.id === editingAgentId);
         if (idx >= 0) state.agents[idx] = agent;
       } else {
-        const { data, error } = await sb.from('agents').insert(row).select().single();
+        let insertResult = await sb.from('agents').insert(row).select().single();
+        if (insertResult.error && /unrestricted_browsing/i.test(insertResult.error.message || '')) {
+          const { unrestricted_browsing, ...rest } = row;
+          insertResult = await sb.from('agents').insert(rest).select().single();
+        }
+        const { data, error } = insertResult;
         if (error) throw error;
-        createdNew = true;
         agent = {
           id: data.id,
           name: data.name,
@@ -2048,6 +2087,7 @@ main {
         state.agents.push(agent);
       }
 
+      let tokenWarning = '';
       try {
         const tokenOpts = {};
         if (customKey && (useCustomKey || model === 'openai-custom')) {
@@ -2055,11 +2095,8 @@ main {
         }
         await syncAgentToken(agent, tokenOpts);
       } catch (tokenErr) {
-        if (createdNew) {
-          await sb.from('agents').delete().eq('id', agent.id).eq('user_id', currentUser.id);
-          state.agents = state.agents.filter(a => a.id !== agent.id);
-        }
-        throw tokenErr;
+        console.warn('agent token sync', tokenErr);
+        tokenWarning = tokenErr?.message || String(tokenErr);
       }
 
       try {
@@ -2080,7 +2117,11 @@ main {
       renderAgents();
       populateTeamAgentSelect();
       showSection('agents');
-      toast(`Agent "${name}" saved to your account`, 'success');
+      if (tokenWarning) {
+        toast(`Agent "${name}" saved, but API token sync failed: ${tokenWarning}`, 'error');
+      } else {
+        toast(`Agent "${name}" saved to your account`, 'success');
+      }
     } catch (e) {
       toast(e.message || 'Failed to save agent', 'error');
     } finally {
@@ -2091,16 +2132,25 @@ main {
 
   async function editAgent(id) {
     const agent = state.agents.find(a => a.id === id);
-    if (!agent) return;
+    if (!agent) {
+      toast('Agent not found — refresh the page and try again', 'error');
+      return;
+    }
     editingAgentId = id;
-    await loadAgentLinkedConnections(id);
+    try {
+      await loadAgentLinkedConnections(id);
+    } catch (linkLoadErr) {
+      console.warn('loadAgentLinkedConnections', linkLoadErr);
+      agentLinkedConnectionIds = [];
+    }
     document.getElementById('agent-form-title').textContent = 'Edit Agent';
     document.getElementById('btn-save').textContent = 'Update Agent';
     document.getElementById('agent-name').value = agent.name;
     document.getElementById('agent-model').value = agent.model;
     document.getElementById('agent-prompt').value = agent.prompt || agent.system_prompt || '';
     document.getElementById('agent-allowed-urls').value = (agent.allowed_urls || []).join('\n');
-    document.getElementById('agent-unrestricted-browsing').checked = !!agent.unrestricted_browsing;
+    document.getElementById('agent-unrestricted-browsing').checked =
+      agent.unrestricted_browsing !== false;
     document.getElementById('agent-can-read').checked = agent.can_read_navigate !== false;
     document.getElementById('agent-can-send').checked = !!agent.can_send_edit;
     document.getElementById('agent-custom-api-key').value = '';
@@ -2140,7 +2190,7 @@ main {
   function clearForm() {
     document.getElementById('agent-name').value = '';
     document.getElementById('agent-model').value = 'claude-sonnet';
-    document.getElementById('agent-prompt').value = '';
+    document.getElementById('agent-prompt').value = DEFAULT_AGENT_PROMPT;
     document.getElementById('agent-allowed-urls').value = '';
     document.getElementById('agent-unrestricted-browsing').checked = true;
     document.getElementById('agent-can-read').checked = true;
