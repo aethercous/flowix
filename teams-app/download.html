@@ -22,7 +22,7 @@
     .teams-dl-card strong { font-size: 15px; }
     .teams-dl-card span { font-size: 13px; color: var(--fx-text-secondary); line-height: 1.45; }
     .teams-dl-card .fx-btn { margin-top: 8px; align-self: flex-start; pointer-events: none; }
-    .teams-dl-card.is-disabled { opacity: 0.55; cursor: not-allowed; pointer-events: none; }
+    .teams-dl-card.is-disabled { opacity: 0.55; cursor: not-allowed; }
     .teams-dl-card.featured { border-color: #156cc2; box-shadow: 0 4px 20px rgba(21, 108, 194, 0.15); }
     .teams-dl-badge { font-size: 11px; font-weight: 700; color: #156cc2; text-transform: uppercase; letter-spacing: 0.05em; }
     .teams-browser-cta { margin-top: 8px; padding-top: 20px; border-top: 1px solid var(--fx-border); }
@@ -47,26 +47,27 @@
 <div class="teams-view">
   <div class="teams-auth-card" style="max-width:620px">
     <a href="/" class="teams-logo" id="link-home">worlo Teams</a>
-    <p class="teams-auth-lead">Download the desktop app for Windows or Mac. Sign in with your invite code, first and last name, and an optional nickname.</p>
+    <p class="teams-auth-lead">Get worlo Teams for Windows or Mac. Sign in with your invite code, first and last name, and an optional nickname.</p>
 
     <div class="teams-dl-grid">
-      <a class="teams-dl-card featured" id="dl-win-exe" href="/downloads/worlo-teams-setup.exe">
+      <a class="teams-dl-card featured" id="dl-win-zip" href="/downloads/worlo-teams-win.zip" data-local="/downloads/worlo-teams-win.zip">
         <span class="teams-dl-badge">Recommended</span>
-        <strong>Windows (.exe)</strong>
-        <span>Install worlo Teams like any Windows app. Run the installer, then join with your invite code.</span>
+        <strong>Windows</strong>
+        <span>Download, unzip, and double-click <em>Open worlo Teams.bat</em>. Works instantly, no install.</span>
         <span class="fx-btn fx-btn-primary">Download for Windows</span>
       </a>
-      <a class="teams-dl-card" id="dl-mac" href="/downloads/worlo-teams-mac.zip">
+      <a class="teams-dl-card" id="dl-mac" href="/downloads/worlo-teams-mac.zip" data-local="/downloads/worlo-teams-mac.zip">
         <strong>macOS</strong>
-        <span>Zip (~20 KB). Unzip, then double-click <em>Open worlo Teams.command</em>.</span>
+        <span>Download, unzip, and double-click <em>Open worlo Teams.command</em>.</span>
         <span class="fx-btn fx-btn-primary">Download for Mac</span>
       </a>
-      <a class="teams-dl-card" id="dl-win-zip" href="/downloads/worlo-teams-win.zip">
-        <strong>Windows (portable zip)</strong>
-        <span>No install — unzip and run <em>Open worlo Teams.bat</em> in your browser.</span>
-        <span class="fx-btn fx-btn-primary">Portable zip</span>
-      </a>
     </div>
+
+    <a class="teams-dl-card" id="dl-win-exe" href="https://github.com/aethercous/flowix/releases/latest/download/worlo-teams-setup.exe" style="margin-bottom:8px">
+      <strong>Windows desktop installer (.exe)</strong>
+      <span>Full standalone app — no browser needed. Published with each release. If the link 404s, the latest installer is still building; use the Windows download above in the meantime.</span>
+      <span class="fx-btn fx-btn-primary">Download installer (.exe)</span>
+    </a>
 
     <div class="teams-browser-cta">
       <p style="font-size:14px;color:var(--fx-text-secondary);margin:0 0 12px">Prefer no download?</p>
@@ -89,29 +90,46 @@
     document.getElementById('link-home').href = p.nav.home;
     document.getElementById('link-browser').href = p.nav.teamsApp;
     document.getElementById('link-dashboard').href = p.nav.dashboard;
-    if (p.isFile) {
-      ['dl-win-exe', 'dl-mac', 'dl-win-zip'].forEach(function (id) {
-        document.getElementById(id).classList.add('is-disabled');
-      });
-    }
   }
-  if (!p || !p.isFile) {
-    function check(url, el, missingLabel) {
-      fetch(url, { method: 'HEAD' }).then(function (r) {
-        if (!r.ok) {
-          el.classList.add('is-disabled');
-          el.removeAttribute('href');
-          var s = el.querySelector('.fx-btn');
-          if (s) s.textContent = missingLabel || 'Not on server yet';
-        }
-      }).catch(function () {
-        el.classList.add('is-disabled');
-        el.removeAttribute('href');
-      });
-    }
-    check('/downloads/worlo-teams-setup.exe', document.getElementById('dl-win-exe'), 'Build via CI — see README');
-    check('/downloads/worlo-teams-mac.zip', document.getElementById('dl-mac'));
-    check('/downloads/worlo-teams-win.zip', document.getElementById('dl-win-zip'));
+
+  // Guard local /downloads/* links: verify the file exists before navigating so
+  // a missing artifact shows a message instead of a blank 404 page.
+  function guardLocal(el) {
+    var url = el.getAttribute('data-local');
+    if (!url) return;
+    el.addEventListener('click', function (e) {
+      // If we've already confirmed it's missing, block and inform.
+      if (el.classList.contains('is-disabled')) {
+        e.preventDefault();
+        alert('This download is not available on the server yet. Please use "Open worlo Teams in browser" or try again after the next deploy.');
+      }
+    });
+    // Passive availability check (only when served over http/https).
+    if (p && p.isFile) return;
+    fetch(url, { method: 'HEAD' }).then(function (r) {
+      if (!r.ok) markMissing(el);
+    }).catch(function () { markMissing(el); });
+  }
+
+  function markMissing(el) {
+    el.classList.add('is-disabled');
+    var s = el.querySelector('.fx-btn');
+    if (s) s.textContent = 'Not on server yet';
+  }
+
+  ['dl-win-zip', 'dl-mac'].forEach(function (id) {
+    var el = document.getElementById(id);
+    if (el) guardLocal(el);
+  });
+
+  // The .exe is an external GitHub Releases link; if it 404s the user lands on
+  // GitHub's page (not a blank screen). Confirm before navigating away.
+  var exe = document.getElementById('dl-win-exe');
+  if (exe) {
+    exe.addEventListener('click', function (e) {
+      var ok = confirm('The standalone installer is published with each release. If it has not been built yet you may see a GitHub 404 — in that case use the Windows download above. Continue?');
+      if (!ok) e.preventDefault();
+    });
   }
 })();
 </script>

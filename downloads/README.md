@@ -14,17 +14,25 @@ These files are served at `/downloads/` on your deployed site.
 powershell -ExecutionPolicy Bypass -File scripts/build-teams-portable.ps1
 ```
 
-## Rebuild Windows .exe (local, requires Windows or CI)
+## Windows .exe installer
+
+The standalone `.exe` is **not** committed to the repo (binaries bloat git/Vercel).
+It is built by CI and published to GitHub Releases. The download page links to:
+
+```
+https://github.com/aethercous/flowix/releases/latest/download/worlo-teams-setup.exe
+```
+
+GitHub Actions (`.github/workflows/build-worlo-teams.yml`) builds the `.exe` on push
+to `master`/`main` (or via "Run workflow") and uploads it to the `worlo-teams-latest`
+release. Until that workflow has run at least once, the `.exe` link 404s — the portable
+Windows zip above is the instant-working fallback.
+
+To build locally on Windows:
 
 ```bash
 cd worlo-teams-desktop && npm ci && npm run build:win
 ```
-
-This copies `worlo-teams-setup.exe` into `downloads/`.
-
-GitHub Actions (`.github/workflows/build-worlo-teams.yml`) builds the `.exe` and zips on push to `master`/`main`.
-
-Then **commit** the files in `downloads/` and **redeploy** to Vercel so downloads work in production.
 
 ## Browser app
 

@@ -16,6 +16,9 @@ on:
       - 'supabase/functions/team-members/**'
       - 'supabase/functions/manage-teams-code/**'
 
+permissions:
+  contents: write
+
 jobs:
   build-windows:
     runs-on: windows-latest
@@ -38,6 +41,19 @@ jobs:
             downloads/worlo-teams-win.zip
             downloads/worlo-teams-mac.zip
             worlo-teams-desktop/dist/*.exe
+      - name: Publish installer to GitHub Releases
+        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: worlo-teams-latest
+          name: worlo Teams (latest)
+          body: Auto-built worlo Teams Windows installer. Download worlo-teams-setup.exe below.
+          files: |
+            downloads/worlo-teams-setup.exe
+            downloads/worlo-teams-win.zip
+            downloads/worlo-teams-mac.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   build-mac:
     runs-on: macos-latest
