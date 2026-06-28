@@ -18,13 +18,31 @@ async function googleApiFetch(
   url: string,
   token: string,
 ): Promise<Record<string, unknown>> {
+  return googleApiRequest(url, token);
+}
+
+async function googleApiRequest(
+  url: string,
+  token: string,
+  options: {
+    method?: string;
+    body?: Record<string, unknown>;
+  } = {},
+): Promise<Record<string, unknown>> {
   const res = await fetch(url, {
-    headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
+    method: options.method ?? "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: "application/json",
+      ...(options.body ? { "Content-Type": "application/json" } : {}),
+    },
+    ...(options.body ? { body: JSON.stringify(options.body) } : {}),
   });
   if (!res.ok) {
     const detail = (await res.text()).slice(0, 600);
     throw new Error(`Google API ${res.status}: ${detail}`);
   }
+  if (res.status === 204) return {};
   return await res.json() as Record<string, unknown>;
 }
 
@@ -69,8 +87,8 @@ export async function googleWorkspaceToolsEnabled(
   return !!auth;
 }
 
-export function buildGoogleWorkspaceToolDefinitions(): ToolDefinition[] {
-  return [
+export function buildGoogleWorkspaceToolDefinitions(canSendEdit = false): ToolDefinition[] {
+  const tools: ToolDefinition[] = [
     {
       name: "gmail_list_messages",
       description:
@@ -155,16 +173,108 @@ export function buildGoogleWorkspaceToolDefinitions(): ToolDefinition[] {
       },
     },
   ];
+
+  if (canSendEdit) {
+    tools.push(
+      {
+        name: "calendar_create_event",
+        description:
+          "Create a Google Calendar event or reminder on the user's primary calendar. Only available when the agent has send/edit permission. Use this when the user asks to add a calendar reminder, meeting, or event.",
+        parameters: {
+          type: "object",
+          properties: {
+            summary: { type: "string", description: "Event title, e.g. 'meeting with Rachel'." },
+            startDateTime: {
+              type: "string",
+              description: "Event start as an ISO 8601 date-time, e.g. 2026-06-29T14:00:00-04:00.",
+            },
+            endDateTime: {
+              type: "string",
+              description: "Optional event end as an ISO 8601 date-time. Defaults to 30 minutes after start.",
+            },
+            timeZone: {
+              type: "string",
+              description: "Optional IANA timezone, e.g. America/New_York.",
+            },
+            description: { type: "string", description: "Optional event notes." },
+            reminderMinutes: {
+              type: "number",
+              description: "Optional popup reminder minutes before start. Default 10.",
+            },
+            calendarId: {
+              type: "string",
+              description: "Optional calendar id. Defaults to primary.",
+            },
+          },
+          required: ["summary", "startDateTime"],
+        },
+      },
+      {
+        name: "calendar_update_event",
+        description:
+          "Update an existing Google Calendar event. Only available when the agent has send/edit permission.",
+        parameters: {
+          type: "object",
+          properties: {
+            eventId: { type: "string", description: "Google Calendar event id." },
+            summary: { type: "string", description: "Optional updated title." },
+            startDateTime: { type: "string", description: "Optional updated start ISO date-time." },
+            endDateTime: { type: "string", description: "Optional updated end ISO date-time." },
+            timeZone: { type: "string", description: "Optional IANA timezone." },
+            description: { type: "string", description: "Optional updated notes." },
+            reminderMinutes: { type: "number", description: "Optional popup reminder minutes before start." },
+            calendarId: { type: "string", description: "Optional calendar id. Defaults to primary." },
+          },
+          required: ["eventId"],
+        },
+      },
+      {
+        name: "calendar_delete_event",
+        description:
+          "Delete an existing Google Calendar event. Only available when the agent has send/edit permission.",
+        parameters: {
+          type: "object",
+          properties: {
+            eventId: { type: "string", description: "Google Calendar event id." },
+            calendarId: { type: "string", description: "Optional calendar id. Defaults to primary." },
+          },
+          required: ["eventId"],
+        },
+      },
+      {
+        name: "gmail_send_message",
+        description:
+          "Send an email from the connected Gmail account. Only available when the agent has send/edit permission and the Google connection includes the gmail.send scope.",
+        parameters: {
+          type: "object",
+          properties: {
+            to: { type: "string", description: "Recipient email address." },
+            subject: { type: "string", description: "Email subject." },
+            body: { type: "string", description: "Plain-text email body." },
+            cc: { type: "string", description: "Optional comma-separated CC recipients." },
+            bcc: { type: "string", description: "Optional comma-separated BCC recipients." },
+          },
+          required: ["to", "subject", "body"],
+        },
+      },
+    );
+  }
+
+  return tools;
 }
 
-export function googleWorkspaceSystemPromptBlock(hasGoogle: boolean): string {
+export function googleWorkspaceSystemPromptBlock(hasGoogle: boolean, canSendEdit = false): string {
   if (!hasGoogle) {
     return "\n\nGoogle Workspace: NOT connected for this agent. If the user asks about Gmail, Calendar, or Drive, tell them to connect Google Workspace under Dashboard → Connections and enable it for this agent. Do NOT invent or guess email contents.";
   }
-  return `\n\nGoogle Workspace API: CONNECTED. You have gmail_list_messages, gmail_search, gmail_get_message, calendar_list_events, and drive_search_files tools that return live data from the user's Google account.
+  const writeTools = canSendEdit
+    ? " Because this agent has send/edit permission, you may also use calendar_create_event, calendar_update_event, calendar_delete_event, and gmail_send_message when the user asks you to make those changes."
+    : " This agent is read-only, so you must not create, update, delete, or send Google Workspace items.";
+  return `\n\nGoogle Workspace API: CONNECTED. You have gmail_list_messages, gmail_search, gmail_get_message, calendar_list_events, and drive_search_files tools that return live data from the user's Google account.${writeTools}
 
 CRITICAL — never fabricate email or calendar data:
 - When asked about emails, calendar events, or Drive files, you MUST call the appropriate Google Workspace tool first and base your answer only on the tool results.
+- When asked to create, update, delete, or send Google Workspace items, only do so if the matching write tool is available. If the tool returns a permission/scope error, tell the user to reconnect Google Workspace with the updated permissions.
 - NEVER invent senders, subjects, dates, or message bodies. If a tool returns no results or an error, say so honestly.
 - Briefly tell the user when you are fetching live Gmail/Calendar/Drive data.`;
 }
@@ -193,6 +303,14 @@ export async function executeGoogleWorkspaceTool(
         return await calendarListEvents(auth.token, args);
       case "drive_search_files":
         return await driveSearchFiles(auth.token, args);
+      case "calendar_create_event":
+        return await calendarCreateEvent(auth.token, args, ctx);
+      case "calendar_update_event":
+        return await calendarUpdateEvent(auth.token, args, ctx);
+      case "calendar_delete_event":
+        return await calendarDeleteEvent(auth.token, args, ctx);
+      case "gmail_send_message":
+        return await gmailSendMessage(auth.token, args, ctx);
       default:
         return { error: `Unknown Google Workspace tool: ${name}` };
     }
@@ -344,6 +462,165 @@ async function driveSearchFiles(
   return { status: "success", count: files.length, query, files };
 }
 
+async function calendarCreateEvent(
+  token: string,
+  args: Record<string, unknown>,
+  ctx: BrowserRuntimeContext,
+): Promise<Record<string, unknown>> {
+  if (!ctx.perms.can_send_edit) return writePermissionError();
+
+  const summary = stringArg(args.summary);
+  const startDateTime = stringArg(args.startDateTime);
+  if (!summary || !startDateTime) return { error: "summary and startDateTime are required" };
+
+  const calendarId = encodeURIComponent(stringArg(args.calendarId) || "primary");
+  const body = buildCalendarEventBody(args);
+  const data = await googleApiRequest(
+    `https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events`,
+    token,
+    { method: "POST", body },
+  );
+
+  return {
+    status: "success",
+    event: summarizeCalendarEvent(data),
+    message: `Created calendar event: ${data.summary || summary}`,
+  };
+}
+
+async function calendarUpdateEvent(
+  token: string,
+  args: Record<string, unknown>,
+  ctx: BrowserRuntimeContext,
+): Promise<Record<string, unknown>> {
+  if (!ctx.perms.can_send_edit) return writePermissionError();
+
+  const eventId = stringArg(args.eventId);
+  if (!eventId) return { error: "eventId is required" };
+
+  const calendarId = encodeURIComponent(stringArg(args.calendarId) || "primary");
+  const body = buildCalendarEventBody(args, true);
+  const data = await googleApiRequest(
+    `https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events/${encodeURIComponent(eventId)}`,
+    token,
+    { method: "PATCH", body },
+  );
+
+  return {
+    status: "success",
+    event: summarizeCalendarEvent(data),
+    message: `Updated calendar event: ${data.summary || eventId}`,
+  };
+}
+
+async function calendarDeleteEvent(
+  token: string,
+  args: Record<string, unknown>,
+  ctx: BrowserRuntimeContext,
+): Promise<Record<string, unknown>> {
+  if (!ctx.perms.can_send_edit) return writePermissionError();
+
+  const eventId = stringArg(args.eventId);
+  if (!eventId) return { error: "eventId is required" };
+
+  const calendarId = encodeURIComponent(stringArg(args.calendarId) || "primary");
+  await googleApiRequest(
+    `https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events/${encodeURIComponent(eventId)}`,
+    token,
+    { method: "DELETE" },
+  );
+
+  return { status: "success", eventId, message: "Deleted calendar event" };
+}
+
+async function gmailSendMessage(
+  token: string,
+  args: Record<string, unknown>,
+  ctx: BrowserRuntimeContext,
+): Promise<Record<string, unknown>> {
+  if (!ctx.perms.can_send_edit) return writePermissionError();
+
+  const to = stringArg(args.to);
+  const subject = stringArg(args.subject);
+  const body = stringArg(args.body);
+  if (!to || !subject || !body) return { error: "to, subject, and body are required" };
+
+  const headers = [
+    `To: ${to}`,
+    stringArg(args.cc) ? `Cc: ${stringArg(args.cc)}` : "",
+    stringArg(args.bcc) ? `Bcc: ${stringArg(args.bcc)}` : "",
+    `Subject: ${subject}`,
+    "Content-Type: text/plain; charset=UTF-8",
+  ].filter(Boolean);
+  const raw = base64UrlEncode(`${headers.join("\r\n")}\r\n\r\n${body}`);
+  const data = await googleApiRequest(
+    "https://gmail.googleapis.com/gmail/v1/users/me/messages/send",
+    token,
+    { method: "POST", body: { raw } },
+  );
+
+  return {
+    status: "success",
+    id: data.id,
+    threadId: data.threadId,
+    labelIds: data.labelIds,
+    message: `Sent email to ${to}`,
+  };
+}
+
+function buildCalendarEventBody(
+  args: Record<string, unknown>,
+  partial = false,
+): Record<string, unknown> {
+  const timeZone = stringArg(args.timeZone);
+  const startDateTime = stringArg(args.startDateTime);
+  const endDateTime = stringArg(args.endDateTime) ||
+    (startDateTime ? new Date(Date.parse(startDateTime) + 30 * 60_000).toISOString() : "");
+
+  const body: Record<string, unknown> = {};
+  const summary = stringArg(args.summary);
+  const description = stringArg(args.description);
+  if (summary) body.summary = summary;
+  if (description) body.description = description;
+  if (startDateTime) body.start = { dateTime: startDateTime, ...(timeZone ? { timeZone } : {}) };
+  if (endDateTime) body.end = { dateTime: endDateTime, ...(timeZone ? { timeZone } : {}) };
+
+  const reminderMinutes = typeof args.reminderMinutes === "number"
+    ? Math.max(0, Math.floor(args.reminderMinutes))
+    : (partial ? undefined : 10);
+  if (typeof reminderMinutes === "number") {
+    body.reminders = {
+      useDefault: false,
+      overrides: [{ method: "popup", minutes: reminderMinutes }],
+    };
+  }
+
+  return body;
+}
+
+function summarizeCalendarEvent(ev: Record<string, unknown>): Record<string, unknown> {
+  const start = ev.start as { dateTime?: string; date?: string } | undefined;
+  const end = ev.end as { dateTime?: string; date?: string } | undefined;
+  return {
+    id: ev.id,
+    summary: ev.summary,
+    start: start?.dateTime || start?.date,
+    end: end?.dateTime || end?.date,
+    htmlLink: ev.htmlLink,
+    status: ev.status,
+  };
+}
+
+function writePermissionError(): Record<string, unknown> {
+  return {
+    error: "This agent is read-only for Google Workspace. Enable send/edit permission in the agent configuration to create, update, delete, or send items.",
+  };
+}
+
+function stringArg(value: unknown): string {
+  return typeof value === "string" ? value.trim() : "";
+}
+
 function clampInt(value: unknown, min: number, max: number, fallback: number): number {
   const n = typeof value === "number" ? Math.floor(value) : fallback;
   if (Number.isNaN(n)) return fallback;
@@ -359,6 +636,13 @@ function decodeBase64Url(data: string): string {
   } catch {
     return "";
   }
+}
+
+function base64UrlEncode(text: string): string {
+  const bytes = new TextEncoder().encode(text);
+  let binary = "";
+  for (const byte of bytes) binary += String.fromCharCode(byte);
+  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
 }
 
 function extractEmailBody(

@@ -217,6 +217,7 @@
         body: JSON.stringify({
           message: text,
           history: history.slice(0, -1).slice(-20),
+          timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         }),
         signal: abortController.signal,
       });

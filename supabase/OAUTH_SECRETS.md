@@ -27,7 +27,7 @@ https://utofnywijqsozjqmkhcn.supabase.co/functions/v1/oauth-callback
 Connections reuse the **same** Google OAuth client as Supabase Auth sign-in. No separate redirect URI.
 
 1. In Google Cloud → OAuth consent screen, add scopes when you are ready for agents:
-   - Gmail API (readonly)
+   - Gmail API (readonly + send)
    - Google Drive API (readonly)
    - Google Docs API (readonly)
    - Google Calendar API (readonly + events)

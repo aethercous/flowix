@@ -273,6 +273,8 @@ serve(async (req: Request) => {
 
   let history: HistoryMessage[] = [];
 
+  let clientTimeZone = "UTC";
+
 
 
   try {
@@ -282,6 +284,10 @@ serve(async (req: Request) => {
     message = body.message;
 
     history = Array.isArray(body.history) ? body.history : [];
+
+    if (typeof body.timeZone === "string" && body.timeZone.trim()) {
+      clientTimeZone = body.timeZone.trim().slice(0, 80);
+    }
 
 
 
@@ -371,7 +377,7 @@ serve(async (req: Request) => {
   const useBackendPrompt = typeof agentRow?.use_worlo_backend_prompt === "boolean"
     ? agentRow.use_worlo_backend_prompt
     : agent_config?.useWorloBackendPrompt !== false;
-  const systemPrompt = buildSystemPrompt(
+  let systemPrompt = buildSystemPrompt(
 
     (agent_config?.systemPrompt as string) ?? "",
 
@@ -380,6 +386,18 @@ serve(async (req: Request) => {
     agent_config,
 
   );
+
+  let localNow = new Date().toISOString();
+  try {
+    localNow = new Intl.DateTimeFormat("en-US", {
+      timeZone: clientTimeZone,
+      dateStyle: "full",
+      timeStyle: "long",
+    }).format(new Date());
+  } catch {
+    clientTimeZone = "UTC";
+  }
+  systemPrompt += `\n\nCurrent user date/time: ${localNow} (${clientTimeZone}). Use this when interpreting relative dates like "today", "tomorrow", and "next week".`;
 
 
 

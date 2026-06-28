@@ -312,7 +312,11 @@
           apikey: deps.supabaseKey,
           'X-Agent-Key': apiKey,
         },
-        body: JSON.stringify({ message: text, history }),
+        body: JSON.stringify({
+          message: text,
+          history,
+          timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        }),
         signal: abortController.signal,
       });
       const data = await res.json();

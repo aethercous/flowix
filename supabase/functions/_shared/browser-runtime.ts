@@ -440,14 +440,17 @@ export async function describeConnectionsForPrompt(
   if (!ctx.identity) return "";
   const connections = await loadConnectionsForCtx(ctx);
   if (!connections.length) {
-    return googleWorkspaceSystemPromptBlock(false);
+    return googleWorkspaceSystemPromptBlock(false, ctx.perms.can_send_edit);
   }
 
   const names = connections
     .map((c) => `${c.provider}${c.account_label ? ` (${c.account_label})` : ""}`)
     .join(", ");
   let block = `\n\nConnected accounts available to the agent: ${names}. When you browse a matching site, the server injects the stored OAuth access token into the Browserbase session (bearer headers and/or a persistent browser context). For full web-app login on some sites, the user may need a one-time interactive sign-in in the browser context. Never ask the user for passwords.`;
-  block += googleWorkspaceSystemPromptBlock(hasGoogleConnection(connections));
+  block += googleWorkspaceSystemPromptBlock(
+    hasGoogleConnection(connections),
+    ctx.perms.can_send_edit,
+  );
   return block;
 }
 

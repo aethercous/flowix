@@ -53,7 +53,7 @@ Local preview: `python -m http.server 8765` from the repo root, then open http:/
 
 - **Sign-in uses only email/profile** — no Gmail/Drive scopes, so Google verification is not required for login alone.
 - **Branded Google OAuth** uses `https://flowix.space/auth/google-callback.html` so users see **Flowix** / **flowix.space** instead of `utofnywijqsozjqmkhcn.supabase.co` on Google's account chooser.
-- **Google Workspace connections** reuse the same OAuth client; Connect requests Gmail, Drive, Docs, and Calendar scopes.
+- **Google Workspace connections** reuse the same OAuth client; Connect requests Gmail read/send, Drive, Docs, and Calendar read/events scopes.
 - Set the same Client ID/secret in **Supabase Auth → Google** and optionally as `OAUTH_GOOGLE_*` edge secrets (token refresh for agents).
 - Gmail/Drive scopes may require [Google app verification](https://support.google.com/cloud/answer/9110914) before public launch.
 - `/neura_ui.html` redirects to `/` for backwards compatibility.

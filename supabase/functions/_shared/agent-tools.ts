@@ -34,7 +34,7 @@ export async function buildAllToolDefinitions(
 ): Promise<ToolDefinition[]> {
   const tools: ToolDefinition[] = [];
   if (await googleWorkspaceToolsEnabled(ctx)) {
-    tools.push(...buildGoogleWorkspaceToolDefinitions());
+    tools.push(...buildGoogleWorkspaceToolDefinitions(ctx.perms.can_send_edit));
   }
   if (webToolsEnabled(ctx)) {
     tools.push(...buildWebToolDefinitions(ctx));
@@ -160,6 +160,10 @@ const GOOGLE_WORKSPACE_TOOL_NAMES = new Set([
   "gmail_get_message",
   "calendar_list_events",
   "drive_search_files",
+  "calendar_create_event",
+  "calendar_update_event",
+  "calendar_delete_event",
+  "gmail_send_message",
 ]);
 
 export async function executeAgentTool(
