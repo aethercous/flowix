@@ -64,7 +64,6 @@ function toResponsesFunctionTools(tools: ToolDefinition[]): Record<string, unkno
     name: t.name,
     description: t.description,
     parameters: t.parameters,
-    strict: true,
   }));
 }
 
@@ -258,7 +257,7 @@ export async function runOpenAiResponses(opts: OpenAiResponsesOptions): Promise<
       }
 
       previousResponseId = data.id as string | undefined;
-      input = [...(Array.isArray(input) ? input : []), ...outputItems, ...toolOutputs];
+      input = toolOutputs;
       modeIndex = 0;
       continue;
     }
