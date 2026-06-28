@@ -23,6 +23,8 @@
     .teams-dl-card span { font-size: 13px; color: var(--fx-text-secondary); line-height: 1.45; }
     .teams-dl-card .fx-btn { margin-top: 8px; align-self: flex-start; pointer-events: none; }
     .teams-dl-card.is-disabled { opacity: 0.55; cursor: not-allowed; pointer-events: none; }
+    .teams-dl-card.featured { border-color: #156cc2; box-shadow: 0 4px 20px rgba(21, 108, 194, 0.15); }
+    .teams-dl-badge { font-size: 11px; font-weight: 700; color: #156cc2; text-transform: uppercase; letter-spacing: 0.05em; }
     .teams-browser-cta { margin-top: 8px; padding-top: 20px; border-top: 1px solid var(--fx-border); }
   </style>
   <script>
@@ -43,20 +45,26 @@
   <div class="fx-sky-stars" aria-hidden="true"></div>
 </div>
 <div class="teams-view">
-  <div class="teams-auth-card" style="max-width:580px">
+  <div class="teams-auth-card" style="max-width:620px">
     <a href="/" class="teams-logo" id="link-home">worlo Teams</a>
-    <p class="teams-auth-lead">Download for Windows 11 or Mac, or open worlo Teams in your browser with your dashboard invite code.</p>
+    <p class="teams-auth-lead">Download the desktop app for Windows or Mac. Sign in with your invite code, first and last name, and an optional nickname.</p>
 
     <div class="teams-dl-grid">
-      <a class="teams-dl-card" id="dl-win" href="/downloads/worlo-teams-win.zip">
-        <strong>Windows 11</strong>
-        <span>Zip (~1 MB). Unzip and double-click <em>Open worlo Teams.bat</em>.</span>
+      <a class="teams-dl-card featured" id="dl-win-exe" href="/downloads/worlo-teams-setup.exe">
+        <span class="teams-dl-badge">Recommended</span>
+        <strong>Windows (.exe)</strong>
+        <span>Install worlo Teams like any Windows app. Run the installer, then join with your invite code.</span>
         <span class="fx-btn fx-btn-primary">Download for Windows</span>
       </a>
       <a class="teams-dl-card" id="dl-mac" href="/downloads/worlo-teams-mac.zip">
         <strong>macOS</strong>
         <span>Zip (~20 KB). Unzip, then double-click <em>Open worlo Teams.command</em>.</span>
         <span class="fx-btn fx-btn-primary">Download for Mac</span>
+      </a>
+      <a class="teams-dl-card" id="dl-win-zip" href="/downloads/worlo-teams-win.zip">
+        <strong>Windows (portable zip)</strong>
+        <span>No install — unzip and run <em>Open worlo Teams.bat</em> in your browser.</span>
+        <span class="fx-btn fx-btn-primary">Portable zip</span>
       </a>
     </div>
 
@@ -68,7 +76,8 @@
     <ol style="font-size:14px;color:var(--fx-text-secondary);line-height:1.6;padding-left:20px;margin:24px 0 0">
       <li>Sign in to the <a href="/dashboard.html#teams" id="link-dashboard">worlo dashboard</a></li>
       <li>Generate an invite code for your agent</li>
-      <li>Paste the code in worlo Teams and start chatting</li>
+      <li>Enter your code, name, and optional nickname in worlo Teams</li>
+      <li>Chat with your team in <strong>Team chat</strong> or talk to the AI in <strong>AI assistant</strong></li>
     </ol>
     <p class="teams-auth-foot">Not Microsoft Teams — a separate worlo product.</p>
   </div>
@@ -81,26 +90,28 @@
     document.getElementById('link-browser').href = p.nav.teamsApp;
     document.getElementById('link-dashboard').href = p.nav.dashboard;
     if (p.isFile) {
-      document.getElementById('dl-win').classList.add('is-disabled');
-      document.getElementById('dl-mac').classList.add('is-disabled');
+      ['dl-win-exe', 'dl-mac', 'dl-win-zip'].forEach(function (id) {
+        document.getElementById(id).classList.add('is-disabled');
+      });
     }
   }
   if (!p || !p.isFile) {
-    function check(url, el) {
+    function check(url, el, missingLabel) {
       fetch(url, { method: 'HEAD' }).then(function (r) {
         if (!r.ok) {
           el.classList.add('is-disabled');
           el.removeAttribute('href');
           var s = el.querySelector('.fx-btn');
-          if (s) s.textContent = 'Not on server — redeploy with downloads/';
+          if (s) s.textContent = missingLabel || 'Not on server yet';
         }
       }).catch(function () {
         el.classList.add('is-disabled');
         el.removeAttribute('href');
       });
     }
-    check('/downloads/worlo-teams-win.zip', document.getElementById('dl-win'));
+    check('/downloads/worlo-teams-setup.exe', document.getElementById('dl-win-exe'), 'Build via CI — see README');
     check('/downloads/worlo-teams-mac.zip', document.getElementById('dl-mac'));
+    check('/downloads/worlo-teams-win.zip', document.getElementById('dl-win-zip'));
   }
 })();
 </script>

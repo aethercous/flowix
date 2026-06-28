@@ -8,9 +8,10 @@
   "scripts": {
     "start": "electron .",
     "pack": "electron-builder --dir",
-    "build:win": "cross-env CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --win nsis",
+    "build:win": "cross-env CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --win nsis && npm run postbuild:copy",
     "build:win:portable": "cross-env CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --win portable",
-    "build:mac": "cross-env CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --mac dmg"
+    "build:mac": "cross-env CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --mac dmg",
+    "postbuild:copy": "node -e \"const fs=require('fs'),p=require('path');const d=p.join(__dirname,'..','downloads');const dist=p.join(__dirname,'dist');if(!fs.existsSync(d))fs.mkdirSync(d,{recursive:true});const files=fs.readdirSync(dist).filter(f=>/\\.exe$/i.test(f));if(files[0])fs.copyFileSync(p.join(dist,files[0]),p.join(d,'worlo-teams-setup.exe'));\""
   },
   "build": {
     "appId": "com.worlo.teams",
@@ -37,10 +38,15 @@
         "to": "worlo-landing.css"
       },
       {
+        "from": "../worlo-sky.css",
+        "to": "worlo-sky.css"
+      },
+      {
         "from": "../worlo-config.js",
         "to": "worlo-config.js"
       }
     ],
+    "artifactName": "worlo-teams-setup.${ext}",
     "win": {
       "target": ["nsis"],
       "signAndEditExecutable": false
@@ -55,6 +61,7 @@
     }
   },
   "devDependencies": {
+    "cross-env": "^7.0.3",
     "electron": "^33.2.0",
     "electron-builder": "^25.1.8"
   }

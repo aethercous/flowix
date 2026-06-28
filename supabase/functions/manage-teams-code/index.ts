@@ -7,7 +7,9 @@ type ManageAction =
   | "activate"
   | "set_expires"
   | "set_agent_teams_enabled"
-  | "revoke_all_for_agent";
+  | "revoke_all_for_agent"
+  | "list_members"
+  | "kick_member";
 
 interface ManageRequest {
   action: ManageAction;
@@ -15,6 +17,7 @@ interface ManageRequest {
   agent_id?: string;
   expires_at?: string;
   teams_enabled?: boolean;
+  member_id?: string;
 }
 
 serve(async (req: Request) => {
@@ -154,6 +157,67 @@ serve(async (req: Request) => {
         .eq("id", access_code_id);
       if (error) return jsonResponse({ error: "Failed to update expiry" }, 500);
       return jsonResponse({ success: true, access_code_id, expires_at: exp.toISOString() });
+    }
+
+    if (action === "list_members") {
+      const { access_code_id } = body;
+      if (!access_code_id) return jsonResponse({ error: "access_code_id is required" }, 400);
+      if (!(await ownsAccessCode(access_code_id))) {
+        return jsonResponse({ error: "Code not found" }, 404);
+      }
+
+      const fiveMinAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
+      const { data: members, error } = await supabase
+        .from("team_members")
+        .select("id, first_name, last_name, nickname, is_active, joined_at, last_seen_at, kicked_at")
+        .eq("access_code_id", access_code_id)
+        .order("joined_at", { ascending: true });
+
+      if (error) return jsonResponse({ error: "Failed to load members" }, 500);
+
+      const roster = (members || []).map((m) => ({
+        id: m.id,
+        displayName: m.nickname?.trim() || `${m.first_name} ${m.last_name}`.trim(),
+        firstName: m.first_name,
+        lastName: m.last_name,
+        nickname: m.nickname,
+        isActive: m.is_active,
+        joinedAt: m.joined_at,
+        kickedAt: m.kicked_at,
+        online: !!(m.is_active && m.last_seen_at && m.last_seen_at >= fiveMinAgo),
+      }));
+
+      return jsonResponse({ success: true, members: roster });
+    }
+
+    if (action === "kick_member") {
+      const { member_id, access_code_id } = body;
+      if (!member_id) return jsonResponse({ error: "member_id is required" }, 400);
+
+      const { data: member } = await supabase
+        .from("team_members")
+        .select("id, access_code_id")
+        .eq("id", member_id)
+        .maybeSingle();
+
+      if (!member) return jsonResponse({ error: "Member not found" }, 404);
+      if (access_code_id && member.access_code_id !== access_code_id) {
+        return jsonResponse({ error: "Member not found" }, 404);
+      }
+      if (!(await ownsAccessCode(member.access_code_id))) {
+        return jsonResponse({ error: "Not authorized" }, 403);
+      }
+
+      const { error } = await supabase
+        .from("team_members")
+        .update({
+          is_active: false,
+          kicked_at: new Date().toISOString(),
+        })
+        .eq("id", member_id);
+
+      if (error) return jsonResponse({ error: "Failed to remove member" }, 500);
+      return jsonResponse({ success: true, member_id });
     }
 
     return jsonResponse({ error: "Unknown action" }, 400);

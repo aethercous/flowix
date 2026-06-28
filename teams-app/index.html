@@ -35,7 +35,7 @@
 <div id="view-auth" class="teams-view">
   <div class="teams-auth-card">
     <a href="/teams-app/index.html" class="teams-logo" id="link-home">worlo Teams</a>
-    <p class="teams-auth-lead">Enter the invite code from your dashboard. Use in browser or <a href="/teams-app/download.html" id="link-download">download for Mac / Windows</a> — not Microsoft Teams.</p>
+    <p class="teams-auth-lead">Enter your invite code from the worlo dashboard. Use in browser or <a href="/teams-app/download.html" id="link-download">download the Windows app</a>.</p>
     <div class="form-group">
       <label class="form-label">First name</label>
       <input class="form-input" type="text" id="first-name" autocomplete="given-name"/>
@@ -45,27 +45,56 @@
       <input class="form-input" type="text" id="last-name" autocomplete="family-name"/>
     </div>
     <div class="form-group">
+      <label class="form-label">Nickname <span class="form-optional">(optional)</span></label>
+      <input class="form-input" type="text" id="nickname" placeholder="How your team sees you" autocomplete="nickname"/>
+    </div>
+    <div class="form-group">
       <label class="form-label">Invite code</label>
       <input class="form-input" type="text" id="invite-code" placeholder="WORLO-XXXX-XXXX-XXXX" autocomplete="one-time-code"/>
     </div>
-    <button type="button" class="btn btn-primary" id="btn-join" style="width:100%;margin-top:8px">Join workspace</button>
+    <button type="button" class="btn btn-primary" id="btn-join" style="width:100%;margin-top:8px">Join team</button>
     <p class="teams-auth-foot">Need a code? Ask your admin in the <a href="/dashboard.html#teams" id="link-dashboard">worlo dashboard</a>.</p>
   </div>
 </div>
 
 <div id="view-chat" class="teams-view hidden">
   <header class="teams-header">
-    <div>
+    <div class="teams-header-left">
       <div class="teams-logo-sm">worlo Teams</div>
-      <div class="teams-agent-name" id="agent-label">Agent</div>
+      <div class="teams-agent-name" id="user-label">Team member</div>
     </div>
+    <nav class="teams-tabs" role="tablist">
+      <button type="button" class="teams-tab active" data-tab="team" role="tab" aria-selected="true">Team chat</button>
+      <button type="button" class="teams-tab" data-tab="ai" role="tab" aria-selected="false">AI assistant</button>
+    </nav>
     <button type="button" class="btn-signout" id="btn-leave">Leave</button>
   </header>
-  <main class="teams-chat" id="chat-log" aria-live="polite"></main>
-  <footer class="teams-compose">
-    <textarea id="chat-input" rows="2" placeholder="Message your agent…"></textarea>
-    <button type="button" class="btn btn-primary" id="btn-send">Send</button>
-  </footer>
+
+  <div class="teams-main">
+    <aside class="teams-sidebar" id="team-sidebar">
+      <div class="teams-sidebar-title">Team members</div>
+      <ul class="teams-member-list" id="member-list"></ul>
+    </aside>
+
+    <div class="teams-panels">
+      <section id="panel-team" class="teams-panel active" role="tabpanel">
+        <main class="teams-chat" id="team-chat-log" aria-live="polite"></main>
+        <footer class="teams-compose">
+          <textarea id="team-chat-input" rows="2" placeholder="Message your team…"></textarea>
+          <button type="button" class="btn btn-primary" id="btn-team-send">Send</button>
+        </footer>
+      </section>
+
+      <section id="panel-ai" class="teams-panel" role="tabpanel" hidden>
+        <div class="teams-ai-banner" id="agent-label">Your AI assistant</div>
+        <main class="teams-chat" id="ai-chat-log" aria-live="polite"></main>
+        <footer class="teams-compose">
+          <textarea id="ai-chat-input" rows="2" placeholder="Ask your AI assistant…"></textarea>
+          <button type="button" class="btn btn-primary" id="btn-ai-send">Send</button>
+        </footer>
+      </section>
+    </div>
+  </div>
 </div>
 
 <script>

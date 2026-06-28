@@ -9,7 +9,12 @@ on:
       - 'teams-app/**'
       - 'worlo-tines.css'
       - 'worlo-landing.css'
+      - 'worlo-sky.css'
       - 'worlo-config.js'
+      - 'supabase/functions/teams-auth/**'
+      - 'supabase/functions/team-chat/**'
+      - 'supabase/functions/team-members/**'
+      - 'supabase/functions/manage-teams-code/**'
 
 jobs:
   build-windows:
@@ -19,14 +24,20 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
+      - name: Install desktop dependencies
+        run: npm ci --prefix worlo-teams-desktop
+      - name: Build Windows .exe installer
+        run: npm run build:win --prefix worlo-teams-desktop
       - name: Build portable Windows zip
         run: powershell -ExecutionPolicy Bypass -File scripts/build-teams-portable.ps1
       - uses: actions/upload-artifact@v4
         with:
           name: worlo-teams-windows
           path: |
+            downloads/worlo-teams-setup.exe
             downloads/worlo-teams-win.zip
             downloads/worlo-teams-mac.zip
+            worlo-teams-desktop/dist/*.exe
 
   build-mac:
     runs-on: macos-latest
@@ -36,9 +47,7 @@ jobs:
         with:
           node-version: '20'
       - name: Build portable Mac zip
-        run: |
-          npm ci --prefix worlo-teams-desktop
-          pwsh -File scripts/build-teams-portable.ps1 || bash -c 'echo use build script on mac'
+        run: pwsh -File scripts/build-teams-portable.ps1
       - uses: actions/upload-artifact@v4
         with:
           name: worlo-teams-mac

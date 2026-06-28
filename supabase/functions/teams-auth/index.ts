@@ -40,6 +40,13 @@ interface LoginRequest {
   code: string;
   firstName: string;
   lastName: string;
+  nickname?: string;
+  memberToken?: string;
+}
+
+function displayName(firstName: string, lastName: string, nickname?: string | null): string {
+  if (nickname?.trim()) return nickname.trim();
+  return `${firstName} ${lastName}`.trim();
 }
 
 interface AccessCode {
@@ -86,7 +93,7 @@ serve(async (req: Request) => {
     return jsonResponse({ error: "Invalid JSON body" }, 400);
   }
 
-  const { code, firstName, lastName } = body;
+  const { code, firstName, lastName, nickname, memberToken } = body;
 
   // Validate inputs
   if (!code || typeof code !== "string") {
@@ -251,6 +258,60 @@ serve(async (req: Request) => {
       }, 403);
     }
 
+    // Rejoin with existing member token (same device)
+    if (memberToken && typeof memberToken === "string") {
+      const { data: existingMember } = await supabase
+        .from("team_members")
+        .select("id, access_code_id, first_name, last_name, nickname, member_token, is_active")
+        .eq("member_token", memberToken)
+        .maybeSingle();
+
+      if (existingMember) {
+        if (!existingMember.is_active) {
+          return jsonResponse({ error: "You have been removed from this team" }, 403);
+        }
+        if (existingMember.access_code_id !== accessCodeData.id) {
+          return jsonResponse({ error: "Invite code does not match your session" }, 403);
+        }
+
+        await supabase
+          .from("team_members")
+          .update({
+            first_name: firstName,
+            last_name: lastName,
+            nickname: nickname?.trim() || null,
+            last_seen_at: new Date().toISOString(),
+          })
+          .eq("id", existingMember.id);
+
+        const sessionExpiresAt = new Date();
+        sessionExpiresAt.setHours(sessionExpiresAt.getHours() + 24);
+
+        return jsonResponse({
+          success: true,
+          userId: agentTokenData.user_id,
+          firstName,
+          lastName,
+          nickname: nickname?.trim() || existingMember.nickname || null,
+          displayName: displayName(firstName, lastName, nickname || existingMember.nickname),
+          email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}@teams.worlo.local`,
+          agentId: agentTokenData.agent_id,
+          agentName:
+            agentRow?.name ||
+            agentTokenData.agent_config?.agentName ||
+            "Your Agent",
+          model: agentTokenData.agent_config?.model || agentTokenData.llm_provider,
+          llmProvider: agentTokenData.llm_provider,
+          accessToken: existingMember.id,
+          agentKey: agentTokenData.api_key,
+          memberId: existingMember.id,
+          memberToken: existingMember.member_token,
+          accessCodeId: accessCodeData.id,
+          expiresAt: sessionExpiresAt.toISOString(),
+        });
+      }
+    }
+
     // Increment code usage
     const { error: updateError } = await supabase
       .from("access_codes")
@@ -283,12 +344,35 @@ serve(async (req: Request) => {
       // Continue anyway - logging is optional
     }
 
+    // Create team member for group chat
+    const newMemberToken = crypto.randomUUID().replace(/-/g, "") +
+      crypto.randomUUID().replace(/-/g, "");
+    const { data: newMember, error: memberError } = await supabase
+      .from("team_members")
+      .insert({
+        access_code_id: accessCodeData.id,
+        first_name: firstName,
+        last_name: lastName,
+        nickname: nickname?.trim() || null,
+        member_token: newMemberToken,
+        last_seen_at: new Date().toISOString(),
+      })
+      .select("id, member_token")
+      .single();
+
+    if (memberError || !newMember) {
+      console.error("Failed to create team member:", memberError);
+      return jsonResponse({ error: "Could not join team" }, 500);
+    }
+
     // Return success response
     return jsonResponse({
       success: true,
       userId: agentTokenData.user_id,
       firstName,
       lastName,
+      nickname: nickname?.trim() || null,
+      displayName: displayName(firstName, lastName, nickname),
       email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}@teams.worlo.local`,
       agentId: agentTokenData.agent_id,
       agentName:
@@ -299,6 +383,9 @@ serve(async (req: Request) => {
       llmProvider: agentTokenData.llm_provider,
       accessToken: sessionId,
       agentKey: agentTokenData.api_key,
+      memberId: newMember.id,
+      memberToken: newMember.member_token,
+      accessCodeId: accessCodeData.id,
       expiresAt: sessionExpiresAt.toISOString(),
     });
   } catch (error) {

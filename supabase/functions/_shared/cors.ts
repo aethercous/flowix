@@ -3,7 +3,7 @@ export const CORS_HEADERS: Record<string, string> = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
   "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type, x-requested-with, x-agent-key, Authorization, Content-Type, X-Agent-Key",
+    "authorization, x-client-info, apikey, content-type, x-requested-with, x-agent-key, x-member-token, Authorization, Content-Type, X-Agent-Key, X-Member-Token",
 };
 
 export function corsPreflightResponse(): Response {

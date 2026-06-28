@@ -988,7 +988,7 @@ main {
       <p style="font-size:15px;color:var(--fx-text-secondary);line-height:1.55;margin-bottom:16px">Install the worlo Teams desktop app on Windows or Mac. Share invite codes from below so teammates can join your workspace.</p>
       <div class="fx-dl-btns">
       <a href="/teams-app/index.html" class="fx-dl-btn fx-action">Open in browser</a>
-      <a href="/teams-app/download.html" class="fx-dl-btn outline fx-action">Download Mac / Windows</a>
+      <a href="/teams-app/download.html" class="fx-dl-btn outline fx-action">Download Windows .exe</a>
       </div>
     </div>
   </div>
@@ -1037,6 +1037,23 @@ main {
       No invite codes generated yet.
     </div>
     <div id="team-codes-list" style="display: none;"></div>
+  </div>
+
+  <div class="form-card">
+    <div class="form-title">Team members</div>
+    <p style="font-size:14px;color:var(--fx-text-secondary);margin-bottom:16px;line-height:1.5">
+      See who joined with each invite code and remove members from the team.
+    </p>
+    <div class="form-group" style="max-width:420px">
+      <label class="form-label">Invite code</label>
+      <select class="form-select" id="team-members-code-select">
+        <option value="">Select a code…</option>
+      </select>
+    </div>
+    <div id="team-members-empty" style="padding: 24px 0; text-align: center; color: #86868b;">
+      Select an invite code to view members.
+    </div>
+    <div id="team-members-list" style="display: none;"></div>
   </div>
 </div>
 
@@ -2409,7 +2426,101 @@ main {
       label: row.metadata?.label || row.metadata?.agent_name || ''
     }));
     renderTeamCodes();
+    populateTeamMembersCodeSelect();
   }
+
+  function populateTeamMembersCodeSelect() {
+    const sel = document.getElementById('team-members-code-select');
+    if (!sel) return;
+    const prev = sel.value;
+    sel.innerHTML = '<option value="">Select a code…</option>';
+    state.teamCodes.forEach(c => {
+      const agent = state.agents.find(a => a.id === c.agentId);
+      const label = c.label ? `${c.label} · ` : '';
+      const opt = document.createElement('option');
+      opt.value = c.id;
+      opt.textContent = `${agent?.name || 'Agent'} — ${label}${formatTeamExpiry(c.expiresAt)}`;
+      sel.appendChild(opt);
+    });
+    if (prev && [...sel.options].some(o => o.value === prev)) sel.value = prev;
+  }
+
+  document.getElementById('team-members-code-select')?.addEventListener('change', (e) => {
+    const codeId = e.target.value;
+    if (codeId) loadTeamMembersForCode(codeId);
+    else {
+      document.getElementById('team-members-empty').style.display = 'block';
+      document.getElementById('team-members-list').style.display = 'none';
+    }
+  });
+
+  async function loadTeamMembersForCode(codeId) {
+    const empty = document.getElementById('team-members-empty');
+    const list = document.getElementById('team-members-list');
+    if (!empty || !list) return;
+
+    empty.style.display = 'block';
+    empty.textContent = 'Loading members…';
+    list.style.display = 'none';
+
+    try {
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) return toast('Please sign in again', 'error');
+
+      const { data, error } = await sb.functions.invoke('manage-teams-code', {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+        body: { action: 'list_members', access_code_id: codeId }
+      });
+      if (error) throw new Error(error.message);
+      if (data?.error) throw new Error(data.error);
+
+      const members = data.members || [];
+      if (!members.length) {
+        empty.textContent = 'No one has joined with this code yet.';
+        return;
+      }
+
+      empty.style.display = 'none';
+      list.style.display = 'block';
+      list.innerHTML = members.map(m => `
+        <div class="team-member-row" style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--fx-border)">
+          <div>
+            <div style="font-weight:600">${escapeHtml(m.displayName)}</div>
+            <div style="font-size:12px;color:#86868b;margin-top:2px">
+              ${escapeHtml(m.firstName)} ${escapeHtml(m.lastName)}
+              ${m.nickname ? ' · @' + escapeHtml(m.nickname) : ''}
+              · Joined ${new Date(m.joinedAt).toLocaleDateString()}
+              ${m.online ? ' · <span style="color:#22c55e">Online</span>' : ''}
+              ${!m.isActive ? ' · <span style="color:#ef4444">Removed</span>' : ''}
+            </div>
+          </div>
+          ${m.isActive ? `<button type="button" class="btn btn-secondary" onclick="kickTeamMember('${m.id}', '${codeId}')" style="flex:0;padding:8px 12px">Remove</button>` : ''}
+        </div>
+      `).join('');
+    } catch (e) {
+      empty.textContent = e.message || 'Could not load members';
+    }
+  }
+
+  async function kickTeamMember(memberId, codeId) {
+    if (!confirm('Remove this member from the team? They will not be able to rejoin.')) return;
+    try {
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) return toast('Please sign in again', 'error');
+      const { data, error } = await sb.functions.invoke('manage-teams-code', {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+        body: { action: 'kick_member', member_id: memberId, access_code_id: codeId }
+      });
+      if (error) throw new Error(error.message);
+      if (data?.error) throw new Error(data.error);
+      toast('Member removed', 'success');
+      await loadTeamMembersForCode(codeId);
+    } catch (e) {
+      toast(e.message || 'Remove failed', 'error');
+    }
+  }
+
+  window.kickTeamMember = kickTeamMember;
 
   document.getElementById('btn-gen-team-code')?.addEventListener('click', generateTeamCode);
   document.getElementById('btn-copy-new-code')?.addEventListener('click', () => {

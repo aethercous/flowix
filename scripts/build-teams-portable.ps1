@@ -10,6 +10,7 @@ function Write-TeamsPortable($stageDir, $launcherName, $launcherBody) {
   Copy-Item -Recurse -Force (Join-Path $root 'teams-app') (Join-Path $stageDir 'teams-app')
   Copy-Item -Force (Join-Path $root 'worlo-tines.css') $stageDir
   Copy-Item -Force (Join-Path $root 'worlo-landing.css') $stageDir
+  Copy-Item -Force (Join-Path $root 'worlo-sky.css') $stageDir
   Copy-Item -Force (Join-Path $root 'worlo-config.js') $stageDir
   [System.IO.File]::WriteAllText((Join-Path $stageDir $launcherName), $launcherBody.Replace("`r`n", "`n"))
   $readme = @"
