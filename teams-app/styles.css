@@ -1,3 +1,10 @@
+/* worlo-tines.css starts every non-landing fx-tines body at opacity:0 and waits
+   for a .ready class to fade it in. The standalone Teams pages don't run that
+   bootstrap script, so without this override they render permanently blank. */
+body.fx-tines.teams-app {
+  opacity: 1 !important;
+}
+
 .teams-app {
   min-height: 100vh;
   background: transparent;
