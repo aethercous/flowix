@@ -96,6 +96,10 @@
       }
     }
     if (msg.is_ai) removeTeamThinking();
+    if (!msg.is_ai && !isSelf && msg.sender_name && !seenSenders.has(msg.sender_name)) {
+      seenSenders.add(msg.sender_name);
+      paintMembers();
+    }
     const el = document.createElement('div');
     el.className = 'msg team-msg ' + (msg.is_ai ? 'ai-msg' : isSelf ? 'user' : 'peer');
     const name = document.createElement('div');
@@ -188,22 +192,54 @@
     el.textContent = text;
   }
 
-  function renderMembers(members) {
+  let lastRoster = [];
+  const seenSenders = new Set();
+
+  function addMemberRow(label, online) {
+    const li = document.createElement('li');
+    li.className = 'teams-member' + (online ? ' online' : '');
+    const dot = document.createElement('span');
+    dot.className = 'member-dot';
+    dot.setAttribute('aria-hidden', 'true');
+    const name = document.createElement('span');
+    name.className = 'member-name';
+    name.textContent = label;
+    li.appendChild(dot);
+    li.appendChild(name);
+    memberList.appendChild(li);
+  }
+
+  // Render the roster from the server, merged with anyone who has spoken in the
+  // chat (robust fallback so every participant is always visible in the sidebar).
+  function paintMembers() {
     if (!memberList) return;
     memberList.innerHTML = '';
-    (members || []).forEach(function (m) {
-      const li = document.createElement('li');
-      li.className = 'teams-member' + (m.online ? ' online' : '');
-      const dot = document.createElement('span');
-      dot.className = 'member-dot';
-      dot.setAttribute('aria-hidden', 'true');
-      const name = document.createElement('span');
-      name.className = 'member-name';
-      name.textContent = m.displayName + (m.isYou ? ' (you)' : '');
-      li.appendChild(dot);
-      li.appendChild(name);
-      memberList.appendChild(li);
+    const seen = new Set();
+    const selfName = session ? displayName(session) : '';
+
+    // Always show yourself first, even before the roster loads.
+    addMemberRow((selfName || 'You') + ' (you)', true);
+    if (selfName) seen.add(selfName.toLowerCase());
+
+    lastRoster.forEach(function (m) {
+      if (m.isYou) return;
+      const key = (m.displayName || '').toLowerCase();
+      if (!key || seen.has(key)) return;
+      seen.add(key);
+      addMemberRow(m.displayName, m.online);
     });
+
+    seenSenders.forEach(function (nm) {
+      const key = nm.toLowerCase();
+      if (!key || seen.has(key)) return;
+      seen.add(key);
+      addMemberRow(nm, true);
+    });
+  }
+
+  function renderMembers(members) {
+    lastRoster = members || [];
+    paintMembers();
   }
 
   async function loadMembers() {
@@ -307,7 +343,7 @@
     sendPresence();
     loadMembers();
     presenceTimer = setInterval(sendPresence, 60000);
-    membersTimer = setInterval(loadMembers, 30000);
+    membersTimer = setInterval(loadMembers, 15000);
     pollTimer = setInterval(pollTeamChat, 4000);
   }
 
@@ -333,6 +369,7 @@
     viewChat.classList.remove('hidden');
     userLabel.textContent = displayName(session);
     agentLabel.textContent = session.agentName || 'Your AI assistant';
+    paintMembers();
     setActiveTab('team');
     loadTeamHistory();
     subscribeRealtime();
@@ -352,6 +389,8 @@
     teamChatLog.innerHTML = '';
     aiChatLog.innerHTML = '';
     aiHistory = [];
+    lastRoster = [];
+    seenSenders.clear();
     if (memberList) memberList.innerHTML = '';
   }
 

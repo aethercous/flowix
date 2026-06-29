@@ -274,9 +274,12 @@ body.fx-tines.teams-app {
 }
 
 .member-name {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  line-height: 1.3;
 }
 
 .teams-panels {
@@ -302,7 +305,7 @@ body.fx-tines.teams-app {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 10px clamp(16px, 6vw, 80px);
+  padding: 10px 24px;
   font-size: 12px;
   font-weight: 600;
   color: var(--fx-text-secondary);
@@ -333,7 +336,7 @@ body.fx-tines.teams-app {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
-  padding: 24px clamp(16px, 6vw, 80px);
+  padding: 20px 24px;
   display: flex;
   flex-direction: column;
 }
@@ -341,7 +344,7 @@ body.fx-tines.teams-app {
 /* ------------------------------------------------------------- message bubbles */
 
 .msg {
-  max-width: min(78%, 620px);
+  max-width: min(86%, 760px);
   margin-bottom: 12px;
   padding: 10px 14px;
   border-radius: 16px;
@@ -461,7 +464,7 @@ body.fx-tines.teams-app {
 
 .teams-compose {
   flex: 0 0 auto;
-  padding: 14px clamp(16px, 6vw, 80px) 18px;
+  padding: 14px 24px 18px;
   background: var(--teams-surface);
   border-top: 1px solid var(--teams-line);
 }
@@ -509,11 +512,11 @@ body.fx-tines.teams-app {
 
 .teams-ai-btn {
   flex: 0 0 auto;
-  border: 1px solid #dcdcfb;
-  background: #f4f4ff;
-  color: #4f46e5;
-  border-radius: 10px;
-  padding: 9px 12px;
+  border: none;
+  background: var(--teams-ink);
+  color: #fff;
+  border-radius: 6px;
+  padding: 9px 13px;
   font-size: 13px;
   font-weight: 700;
   font-family: inherit;
@@ -522,7 +525,7 @@ body.fx-tines.teams-app {
 }
 
 .teams-ai-btn:hover {
-  background: #e9e9ff;
+  background: #2a2a35;
 }
 
 .btn-send--working {

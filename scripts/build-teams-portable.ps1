@@ -25,12 +25,24 @@ Chat requires an internet connection (Supabase).
   [System.IO.File]::WriteAllText((Join-Path $stageDir 'README.txt'), $readme)
 }
 
-# Windows: .bat opens local index.html in default browser
+# Windows: launcher opens the app in a standalone Edge/Chrome window (uses the
+# W favicon as the taskbar icon); falls back to the default browser.
 $winStage = Join-Path $root 'downloads\_stage-win'
 $winBat = @'
 @echo off
+setlocal
 cd /d "%~dp0"
-start "" "%~dp0teams-app\index.html"
+set "URL=%~dp0teams-app\index.html"
+set "APPURL=file:///%URL:\=/%"
+set "E1=%ProgramFiles(x86)%\Microsoft\Edge\Application\msedge.exe"
+set "E2=%ProgramFiles%\Microsoft\Edge\Application\msedge.exe"
+set "C1=%ProgramFiles%\Google\Chrome\Application\chrome.exe"
+set "C2=%ProgramFiles(x86)%\Google\Chrome\Application\chrome.exe"
+if exist "%E1%" ( start "" "%E1%" --app="%APPURL%" & exit /b )
+if exist "%E2%" ( start "" "%E2%" --app="%APPURL%" & exit /b )
+if exist "%C1%" ( start "" "%C1%" --app="%APPURL%" & exit /b )
+if exist "%C2%" ( start "" "%C2%" --app="%APPURL%" & exit /b )
+start "" "%URL%"
 '@
 Write-TeamsPortable $winStage 'Open worlo Teams.bat' $winBat
 $winZip = Join-Path $downloads 'worlo-teams-win.zip'
@@ -39,13 +51,19 @@ Compress-Archive -Path (Join-Path $winStage '*') -DestinationPath $winZip -Compr
 Remove-Item -Recurse -Force $winStage
 Write-Host "Windows: $winZip ($([math]::Round((Get-Item $winZip).Length / 1KB)) KB)"
 
-# Mac: .command opens Safari to local file
+# Mac: launcher opens the app in a standalone Chrome window (uses the W favicon
+# as the dock icon); falls back to Safari / default browser.
 $macStage = Join-Path $root 'downloads\_stage-mac'
 $macCmd = @'
 #!/bin/bash
 DIR="$(cd "$(dirname "$0")" && pwd)"
-FILE="file://${DIR}/teams-app/index.html"
-open -a Safari "$FILE" 2>/dev/null || open "$FILE"
+xattr -dr com.apple.quarantine "$DIR" 2>/dev/null || true
+URL="file://${DIR}/teams-app/index.html"
+if [ -d "/Applications/Google Chrome.app" ]; then
+  open -na "Google Chrome" --args --app="$URL"
+else
+  open -a Safari "$URL" 2>/dev/null || open "$URL"
+fi
 '@
 Write-TeamsPortable $macStage 'Open worlo Teams.command' $macCmd
 $macZip = Join-Path $downloads 'worlo-teams-mac.zip'

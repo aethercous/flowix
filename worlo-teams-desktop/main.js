@@ -10,6 +10,7 @@ function createWindow() {
     minWidth: 480,
     minHeight: 560,
     title: 'worlo Teams',
+    icon: path.join(__dirname, 'build', 'icon.png'),
     backgroundColor: '#f6f6f8',
     webPreferences: {
       contextIsolation: true,

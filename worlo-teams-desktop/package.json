@@ -21,7 +21,8 @@
     },
     "files": [
       "main.js",
-      "preload.js"
+      "preload.js",
+      "build/icon.png"
     ],
     "extraResources": [
       {
@@ -49,15 +50,19 @@
     "artifactName": "worlo-teams-setup.${ext}",
     "win": {
       "target": ["nsis"],
+      "icon": "build/icon.ico",
       "signAndEditExecutable": false
     },
     "mac": {
       "target": ["dmg"],
+      "icon": "build/icon.icns",
       "category": "public.app-category.productivity"
     },
     "nsis": {
       "oneClick": false,
-      "allowToChangeInstallationDirectory": true
+      "allowToChangeInstallationDirectory": true,
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico"
     }
   },
   "devDependencies": {
