@@ -85,6 +85,8 @@
     else aiChatInput.focus();
   }
 
+  const AI_MENTION = /^\s*(?:@(?:ai|worlo|assistant|agent)|\/ai)\b[:,]?\s*/i;
+
   function appendTeamMessage(msg, isSelf) {
     if (msg.id) {
       if (renderedMsgIds.has(msg.id)) return null;
@@ -93,11 +95,12 @@
         lastMsgTs = msg.created_at || lastMsgTs;
       }
     }
+    if (msg.is_ai) removeTeamThinking();
     const el = document.createElement('div');
-    el.className = 'msg team-msg' + (isSelf ? ' user' : ' peer');
+    el.className = 'msg team-msg ' + (msg.is_ai ? 'ai-msg' : isSelf ? 'user' : 'peer');
     const name = document.createElement('div');
     name.className = 'msg-sender';
-    name.textContent = isSelf ? 'You' : msg.sender_name;
+    name.textContent = msg.is_ai ? (msg.sender_name || 'Assistant') : (isSelf ? 'You' : msg.sender_name);
     const body = document.createElement('div');
     body.className = 'msg-body';
     body.textContent = msg.body;
@@ -106,6 +109,40 @@
     teamChatLog.appendChild(el);
     teamChatLog.scrollTop = teamChatLog.scrollHeight;
     return el;
+  }
+
+  let teamThinkingTimer = null;
+  function showTeamThinking() {
+    removeTeamThinking();
+    const el = document.createElement('div');
+    el.className = 'msg team-msg ai-msg msg-typing';
+    el.id = 'team-ai-thinking';
+    el.innerHTML = '<span class="typing-dots"><span></span><span></span><span></span></span>';
+    teamChatLog.appendChild(el);
+    teamChatLog.scrollTop = teamChatLog.scrollHeight;
+    // Safety: clear if no reply arrives.
+    teamThinkingTimer = setTimeout(removeTeamThinking, 45000);
+  }
+
+  function removeTeamThinking() {
+    if (teamThinkingTimer) { clearTimeout(teamThinkingTimer); teamThinkingTimer = null; }
+    document.getElementById('team-ai-thinking')?.remove();
+  }
+
+  function autoGrow(el) {
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 140) + 'px';
+  }
+
+  function showTeamHint() {
+    const el = document.createElement('div');
+    el.className = 'msg team-msg ai-msg';
+    el.innerHTML =
+      '<div class="msg-sender">Assistant</div>' +
+      '<div class="msg-body">This is your team chat. Say hi to your teammates — and type ' +
+      '<b>@ai</b> followed by a question to ask the AI right here, where everyone can see the answer.</div>';
+    teamChatLog.appendChild(el);
   }
 
   function appendAiMessage(role, text) {
@@ -211,9 +248,11 @@
       teamChatLog.innerHTML = '';
       renderedMsgIds.clear();
       lastMsgTs = null;
-      (data.messages || []).forEach(function (msg) {
+      const msgs = data.messages || [];
+      msgs.forEach(function (msg) {
         appendTeamMessage(msg, msg.member_id === session.memberId);
       });
+      if (!msgs.length) showTeamHint();
       // Seed a baseline so polling works even when the chat starts empty.
       if (!lastMsgTs) lastMsgTs = new Date(Date.now() - 60000).toISOString();
     } catch (e) {
@@ -404,12 +443,14 @@
     if (!text || !session?.memberToken) return;
 
     teamChatInput.value = '';
+    autoGrow(teamChatInput);
     const optimistic = {
       member_id: session.memberId,
       sender_name: displayName(session),
       body: text,
     };
     appendTeamMessage(optimistic, true);
+    if (AI_MENTION.test(text)) showTeamThinking();
     teamSending = true;
     document.getElementById('btn-team-send').disabled = true;
 
@@ -431,6 +472,7 @@
         }
       }
     } catch (e) {
+      removeTeamThinking();
       appendTeamMessage({ sender_name: 'System', body: 'Error: ' + e.message }, false);
     } finally {
       teamSending = false;
@@ -445,6 +487,7 @@
     if (!text || !session?.agentKey) return;
 
     aiChatInput.value = '';
+    autoGrow(aiChatInput);
     appendAiMessage('user', text);
     aiHistory.push({ role: 'user', content: text });
 
@@ -500,6 +543,19 @@
     session = null;
     showAuth();
   });
+
+  document.getElementById('btn-team-ai').addEventListener('click', function () {
+    const v = teamChatInput.value.trim();
+    if (!AI_MENTION.test(v)) {
+      teamChatInput.value = '@ai ' + (v ? v + ' ' : '');
+    }
+    autoGrow(teamChatInput);
+    teamChatInput.focus();
+    teamChatInput.setSelectionRange(teamChatInput.value.length, teamChatInput.value.length);
+  });
+
+  teamChatInput.addEventListener('input', function () { autoGrow(teamChatInput); });
+  aiChatInput.addEventListener('input', function () { autoGrow(aiChatInput); });
 
   document.querySelectorAll('.teams-tab').forEach(function (btn) {
     btn.addEventListener('click', function () {

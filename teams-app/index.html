@@ -60,8 +60,8 @@
 <div id="view-chat" class="teams-view hidden">
   <header class="teams-header">
     <div class="teams-header-left">
-      <div class="teams-logo-sm">worlo Teams</div>
-      <div class="teams-agent-name" id="user-label">Team member</div>
+      <span class="teams-logo-sm">worlo Teams</span>
+      <span class="teams-user-chip" id="user-label">Team member</span>
     </div>
     <nav class="teams-tabs" role="tablist">
       <button type="button" class="teams-tab active" data-tab="team" role="tab" aria-selected="true">Team chat</button>
@@ -80,17 +80,22 @@
       <section id="panel-team" class="teams-panel active" role="tabpanel">
         <main class="teams-chat" id="team-chat-log" aria-live="polite"></main>
         <footer class="teams-compose">
-          <textarea id="team-chat-input" rows="2" placeholder="Message your team…"></textarea>
-          <button type="button" class="btn btn-primary" id="btn-team-send">Send</button>
+          <div class="teams-compose-row">
+            <textarea id="team-chat-input" rows="1" placeholder="Message your team…  (type @ai to ask the assistant)"></textarea>
+            <button type="button" class="teams-ai-btn" id="btn-team-ai" title="Ask the AI in this chat">@ai</button>
+            <button type="button" class="btn btn-primary teams-send-btn" id="btn-team-send">Send</button>
+          </div>
         </footer>
       </section>
 
       <section id="panel-ai" class="teams-panel" role="tabpanel" hidden>
-        <div class="teams-ai-banner" id="agent-label">Your AI assistant</div>
+        <div class="teams-ai-banner"><span class="teams-ai-dot" aria-hidden="true"></span><span id="agent-label">Your AI assistant</span><span class="teams-ai-private">private</span></div>
         <main class="teams-chat" id="ai-chat-log" aria-live="polite"></main>
         <footer class="teams-compose">
-          <textarea id="ai-chat-input" rows="2" placeholder="Ask your AI assistant…"></textarea>
-          <button type="button" class="btn btn-primary" id="btn-ai-send">Send</button>
+          <div class="teams-compose-row">
+            <textarea id="ai-chat-input" rows="1" placeholder="Ask your AI assistant…"></textarea>
+            <button type="button" class="btn btn-primary teams-send-btn" id="btn-ai-send">Send</button>
+          </div>
         </footer>
       </section>
     </div>
