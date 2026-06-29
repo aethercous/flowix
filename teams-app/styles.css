@@ -108,6 +108,7 @@ body.fx-tines.teams-app {
   align-items: stretch;
   justify-content: flex-start;
   padding: 0;
+  height: 100vh;
   min-height: 100vh;
 }
 
@@ -207,16 +208,14 @@ body.fx-tines.teams-app {
   color: var(--teams-ink);
 }
 
-/* Frame the chat app: a centered, bordered shell that fills the viewport. */
+/* Chat app fills the window edge-to-edge so everything sits flush to the
+   borders. Message bubbles are capped separately for readability. */
 .teams-main {
   display: flex;
+  flex: 1;
+  min-height: 0;
   width: 100%;
-  max-width: 1080px;
-  margin: 0 auto;
-  height: calc(100vh - 60px);
   background: rgba(255, 255, 255, 0.55);
-  border-left: 1px solid var(--teams-line);
-  border-right: 1px solid var(--teams-line);
 }
 
 .teams-sidebar {
@@ -303,7 +302,7 @@ body.fx-tines.teams-app {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 24px;
+  padding: 10px clamp(16px, 6vw, 80px);
   font-size: 12px;
   font-weight: 600;
   color: var(--fx-text-secondary);
@@ -334,7 +333,7 @@ body.fx-tines.teams-app {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
-  padding: 24px;
+  padding: 24px clamp(16px, 6vw, 80px);
   display: flex;
   flex-direction: column;
 }
@@ -342,7 +341,7 @@ body.fx-tines.teams-app {
 /* ------------------------------------------------------------- message bubbles */
 
 .msg {
-  max-width: 76%;
+  max-width: min(78%, 620px);
   margin-bottom: 12px;
   padding: 10px 14px;
   border-radius: 16px;
@@ -462,7 +461,7 @@ body.fx-tines.teams-app {
 
 .teams-compose {
   flex: 0 0 auto;
-  padding: 14px 20px 18px;
+  padding: 14px clamp(16px, 6vw, 80px) 18px;
   background: var(--teams-surface);
   border-top: 1px solid var(--teams-line);
 }
