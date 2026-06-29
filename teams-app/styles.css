@@ -581,3 +581,35 @@ body.fx-tines.teams-app {
   .teams-user-chip { display: none; }
   .msg { max-width: 88%; }
 }
+
+/* worlo-tines.css styles bare <header> and <main> elements as a fixed site nav
+   with offset content (body.fx-tines header / main). Those element selectors
+   outrank our .teams-* classes and were pinning the header on top of the chat
+   (hiding the first member + title) and shrinking the message area. Re-assert
+   the Teams chrome here with higher specificity so the layout stays correct. */
+body.teams-app header.teams-header {
+  position: sticky;
+  top: 0;
+  left: auto;
+  right: auto;
+  box-sizing: border-box;
+  width: auto;
+  height: 60px;
+  margin: 0;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: var(--teams-surface);
+  border-bottom: 1px solid var(--teams-line);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  z-index: 10;
+}
+
+body.teams-app main.teams-chat {
+  margin: 0;
+  max-width: none;
+  padding: 20px 24px;
+}
