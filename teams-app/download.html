@@ -63,12 +63,16 @@
         <span>Download <em>worlo-teams-portable.exe</em> and double-click it — worlo Teams opens instantly. No unzip, no install.</span>
         <span class="fx-btn fx-btn-primary">Download for Windows</span>
       </a>
-      <a class="teams-dl-card" id="dl-mac" href="https://github.com/aethercous/flowix/releases/latest/download/worlo-teams-mac.zip" download data-fallback="/downloads/worlo-teams-mac.zip">
+      <a class="teams-dl-card" id="dl-mac" href="/downloads/worlo-teams-mac.zip" download data-local="/downloads/worlo-teams-mac.zip">
         <strong>macOS</strong>
-        <span>Download, unzip, then open <em>worlo Teams.app</em>. Native app with the <strong>worlo W icon in your Dock</strong>. First time: right-click → <em>Open</em> if macOS asks.</span>
+        <span>Download, unzip, then open <em>Worlo Teams.app</em>. First time: right-click → <em>Open</em> if macOS asks.</span>
         <span class="fx-btn fx-btn-primary">Download for Mac</span>
       </a>
     </div>
+    <p style="font-size:13px;color:var(--fx-text-secondary);margin:-8px 0 16px;line-height:1.5">
+      Want the <strong>worlo W icon in your Dock</strong>?
+      <a href="https://github.com/aethercous/flowix/releases/latest/download/worlo-teams-mac.zip" id="dl-mac-native" download>Download the native Mac build from GitHub Releases</a> (~90 MB).
+    </p>
 
     <a class="teams-dl-card" id="dl-win-setup" href="https://github.com/aethercous/flowix/releases/latest/download/worlo-teams-setup.exe" download style="margin-bottom:8px">
       <strong>Windows full installer (.exe)</strong>
@@ -140,16 +144,22 @@
   wireDownload('dl-win-zip', 'win');
   wireDownload('dl-mac', 'mac');
 
-  if (!p || !p.isFile) {
-    ['dl-win-zip', 'dl-mac'].forEach(function (id) {
-      var el = document.getElementById(id);
-      if (!el) return;
-      var url = el.getAttribute('data-local');
-      fetch(url, { method: 'HEAD' }).then(function (r) {
-        if (!r.ok) markMissing(el);
-      }).catch(function () { markMissing(el); });
-    });
+  function checkLocal(el) {
+    if (!el) return;
+    var url = el.getAttribute('data-local');
+    if (!url) return;
+    fetch(url, { method: 'HEAD' }).then(function (r) {
+      if (!r.ok) markMissing(el);
+    }).catch(function () { markMissing(el); });
   }
+
+  if (!p || !p.isFile) {
+    checkLocal(document.getElementById('dl-win-zip'));
+    checkLocal(document.getElementById('dl-mac'));
+  }
+
+  // GitHub Release builds are linked separately — never disable the main card when
+  // a cross-origin HEAD fails (GitHub blocks browser CORS checks).
 
   // Auto-download for the visitor's OS when linked with ?download=1 (e.g. from the homepage).
   var params = new URLSearchParams(location.search);
