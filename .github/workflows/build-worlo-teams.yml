@@ -38,6 +38,7 @@ jobs:
           name: worlo-teams-windows
           path: |
             downloads/worlo-teams-setup.exe
+            downloads/worlo-teams-portable.exe
             downloads/worlo-teams-win.zip
             downloads/worlo-teams-mac.zip
             worlo-teams-desktop/dist/*.exe
@@ -47,9 +48,14 @@ jobs:
         with:
           tag_name: worlo-teams-latest
           name: worlo Teams (latest)
-          body: Auto-built worlo Teams Windows installer. Download worlo-teams-setup.exe below.
+          body: |
+            Auto-built worlo Teams Windows downloads.
+            - **worlo-teams-portable.exe** — double-click to run (no install, no unzip)
+            - **worlo-teams-setup.exe** — full installer (launches when install finishes)
+            - **worlo-teams-win.zip** / **worlo-teams-mac.zip** — portable folders
           files: |
             downloads/worlo-teams-setup.exe
+            downloads/worlo-teams-portable.exe
             downloads/worlo-teams-win.zip
             downloads/worlo-teams-mac.zip
         env:

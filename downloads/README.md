@@ -4,9 +4,10 @@ These files are served at `/downloads/` on your deployed site.
 
 | File | Platform |
 |------|----------|
-| `worlo-teams-setup.exe` | **Windows** — full desktop installer (Electron) |
-| `worlo-teams-win.zip` | Windows portable — unzip, run `Open worlo Teams.bat` |
-| `worlo-teams-mac.zip` | macOS — unzip, run `Open worlo Teams.command` |
+| `worlo-teams-portable.exe` | **Windows** — double-click to run (no unzip) |
+| `worlo-teams-setup.exe` | **Windows** — full installer (opens app when done) |
+| `worlo-teams-win.zip` | Windows portable — unzip, run `Worlo Teams.bat` |
+| `worlo-teams-mac.zip` | macOS — unzip, double-click `Worlo Teams.app` |
 
 ## Rebuild portable zips
 

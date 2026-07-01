@@ -26,6 +26,13 @@
     .teams-dl-card.featured { border-color: #156cc2; box-shadow: 0 4px 20px rgba(21, 108, 194, 0.15); }
     .teams-dl-badge { font-size: 11px; font-weight: 700; color: #156cc2; text-transform: uppercase; letter-spacing: 0.05em; }
     .teams-browser-cta { margin-top: 8px; padding-top: 20px; border-top: 1px solid var(--fx-border); }
+    .teams-dl-status {
+      margin: 16px 0 0; padding: 14px 16px; border-radius: 12px;
+      background: rgba(255,255,255,0.95); border: 1px solid #156cc2;
+      font-size: 14px; line-height: 1.5; color: var(--fx-text-secondary);
+    }
+    .teams-dl-status.hidden { display: none; }
+    .teams-dl-status strong { color: var(--fx-text-primary); }
   </style>
   <script>
   if (location.protocol !== 'file:') {
@@ -50,24 +57,32 @@
     <p class="teams-auth-lead">Get worlo Teams for Windows or Mac. Sign in with your invite code, first and last name, and an optional nickname.</p>
 
     <div class="teams-dl-grid">
-      <a class="teams-dl-card featured" id="dl-win-zip" href="/downloads/worlo-teams-win.zip" download data-local="/downloads/worlo-teams-win.zip">
+      <a class="teams-dl-card featured" id="dl-win-portable" href="https://github.com/aethercous/flowix/releases/latest/download/worlo-teams-portable.exe" download data-fallback="/downloads/worlo-teams-win.zip">
         <span class="teams-dl-badge">Recommended</span>
         <strong>Windows</strong>
-        <span>Download, unzip, and double-click <em>Open worlo Teams.bat</em>. Works instantly, no install.</span>
+        <span>Download <em>worlo-teams-portable.exe</em> and double-click it — worlo Teams opens instantly. No unzip, no install.</span>
         <span class="fx-btn fx-btn-primary">Download for Windows</span>
       </a>
       <a class="teams-dl-card" id="dl-mac" href="/downloads/worlo-teams-mac.zip" download data-local="/downloads/worlo-teams-mac.zip">
         <strong>macOS</strong>
-        <span>Download and unzip. First time: <em>right-click</em> <em>Open worlo Teams.command</em> &rarr; <em>Open</em> (macOS blocks double-click on downloaded scripts). After that, double-click works.</span>
+        <span>Download, unzip, then double-click <em>Worlo Teams.app</em>. First time only: right-click the app → <em>Open</em> if macOS asks.</span>
         <span class="fx-btn fx-btn-primary">Download for Mac</span>
       </a>
     </div>
 
-    <a class="teams-dl-card" id="dl-win-exe" href="https://github.com/aethercous/flowix/releases/latest/download/worlo-teams-setup.exe" download style="margin-bottom:8px">
-      <strong>Windows desktop installer (.exe)</strong>
-      <span>Full standalone app — no browser needed. Published with each release. If the link 404s, the latest installer is still building; use the Windows download above in the meantime.</span>
-      <span class="fx-btn fx-btn-primary">Download installer (.exe)</span>
+    <a class="teams-dl-card" id="dl-win-setup" href="https://github.com/aethercous/flowix/releases/latest/download/worlo-teams-setup.exe" download style="margin-bottom:8px">
+      <strong>Windows full installer (.exe)</strong>
+      <span>Installs worlo Teams to your computer and opens it when setup finishes. Use this if you want a desktop shortcut in the Start menu.</span>
+      <span class="fx-btn fx-btn-primary">Download installer</span>
     </a>
+
+    <a class="teams-dl-card" id="dl-win-zip" href="/downloads/worlo-teams-win.zip" download data-local="/downloads/worlo-teams-win.zip" style="margin-bottom:8px">
+      <strong>Windows portable (.zip)</strong>
+      <span>Unzip, then double-click <em>Worlo Teams.bat</em>. Fallback if the portable .exe link is still building.</span>
+      <span class="fx-btn fx-btn-primary">Download zip</span>
+    </a>
+
+    <p id="dl-status" class="teams-dl-status hidden" role="status"></p>
 
     <div class="teams-browser-cta">
       <p style="font-size:14px;color:var(--fx-text-secondary);margin:0 0 12px">Prefer no download?</p>
@@ -92,15 +107,38 @@
     document.getElementById('link-dashboard').href = p.nav.dashboard;
   }
 
-  // Passive availability check for local /downloads/* files. The links are plain
-  // anchors with the `download` attribute, so clicking always downloads (never
-  // navigates / blanks the page). If a file is missing we just label the card.
+  var statusEl = document.getElementById('dl-status');
+  function showStatus(html) {
+    if (!statusEl) return;
+    statusEl.innerHTML = html;
+    statusEl.classList.remove('hidden');
+  }
+
   function markMissing(el) {
     el.classList.add('is-disabled');
     el.removeAttribute('href');
     var s = el.querySelector('.fx-btn');
     if (s) s.textContent = 'Not on server yet';
   }
+
+  function afterDownload(platform) {
+    if (platform === 'win') {
+      showStatus('<strong>Download started.</strong> Open <em>worlo-teams-portable.exe</em> from your Downloads folder — worlo Teams will launch automatically. If that file is not there yet, use the Windows zip below.');
+    } else if (platform === 'mac') {
+      showStatus('<strong>Download started.</strong> Unzip the file, then double-click <em>Worlo Teams.app</em>. First time only: right-click → Open if macOS blocks it.');
+    }
+  }
+
+  function wireDownload(id, platform) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('click', function () { afterDownload(platform); });
+  }
+
+  wireDownload('dl-win-portable', 'win');
+  wireDownload('dl-win-setup', 'win');
+  wireDownload('dl-win-zip', 'win');
+  wireDownload('dl-mac', 'mac');
 
   if (!p || !p.isFile) {
     ['dl-win-zip', 'dl-mac'].forEach(function (id) {
@@ -111,6 +149,20 @@
         if (!r.ok) markMissing(el);
       }).catch(function () { markMissing(el); });
     });
+  }
+
+  // Auto-download for the visitor's OS when linked with ?download=1 (e.g. from the homepage).
+  var params = new URLSearchParams(location.search);
+  if (params.get('download') === '1' || params.get('autodownload') === '1') {
+    var ua = navigator.userAgent || '';
+    var isMac = /Mac|iPhone|iPad|iPod/i.test(ua);
+    var target = document.getElementById(isMac ? 'dl-mac' : 'dl-win-portable');
+    if (target && !target.classList.contains('is-disabled')) {
+      setTimeout(function () {
+        target.click();
+        afterDownload(isMac ? 'mac' : 'win');
+      }, 400);
+    }
   }
 })();
 </script>
