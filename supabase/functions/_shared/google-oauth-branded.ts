@@ -1,5 +1,5 @@
 /**
- * Google OAuth via the site domain (e.g. flowix.space) so Google shows your brand
+ * Google OAuth via the site domain (e.g. worlo.site) so Google shows your brand
  * instead of project-ref.supabase.co on the account chooser.
  */
 import { GOOGLE_WORKSPACE_SCOPES, getProvider } from "./oauth-providers.ts";
@@ -9,7 +9,7 @@ const SIGNIN_SCOPES = ["openid", "email", "profile"];
 const ALLOWED_REDIRECT_SUFFIX = "/auth/google-callback.html";
 
 const ALLOWED_ORIGINS = new Set([
-  "https://flowix.space",
+  "https://worlo.site",
   "http://localhost:8765",
   "http://127.0.0.1:8765",
 ]);

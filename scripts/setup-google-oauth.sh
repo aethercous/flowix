@@ -6,7 +6,7 @@ set -euo pipefail
 
 PROJECT_ID="${GCP_PROJECT_ID:-worlo-500418}"
 SUPABASE_REF="${SUPABASE_PROJECT_REF:-utofnywijqsozjqmkhcn}"
-SITE="https://flowix.space"
+SITE="https://worlo.site"
 SUPABASE_CALLBACK="https://${SUPABASE_REF}.supabase.co/auth/v1/callback"
 
 echo ""
@@ -17,7 +17,7 @@ echo "  Open: https://console.cloud.google.com/auth/overview?project=${PROJECT_I
 echo "  • User type: External"
 echo "  • App name: Flowix (or worlo)"
 echo "  • User support email: your email"
-echo "  • Authorized domains: flowix.space"
+echo "  • Authorized domains: worlo.site"
 echo "  • Home page: ${SITE}"
 echo "  • Privacy: ${SITE}/privacy-policy.html"
 echo "  • Terms: ${SITE}/terms-of-service.html"

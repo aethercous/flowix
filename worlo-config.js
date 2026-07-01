@@ -9,7 +9,7 @@
   const GOOGLE_CALLBACK_PATH = '/auth/google-callback.html';
 
   function googleCallbackUri(origin) {
-    const base = origin || (typeof window !== 'undefined' ? window.location.origin : 'https://flowix.space');
+    const base = origin || (typeof window !== 'undefined' ? window.location.origin : 'https://worlo.site');
     return base.replace(/\/$/, '') + GOOGLE_CALLBACK_PATH;
   }
 
