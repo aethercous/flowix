@@ -17,4 +17,4 @@ function copyMatch(pattern, destName) {
 
 copyMatch(/^worlo-teams-setup.*\.exe$/i, 'worlo-teams-setup.exe');
 copyMatch(/^worlo-teams-portable.*\.exe$/i, 'worlo-teams-portable.exe');
-copyMatch(/^worlo-teams-mac.*\.zip$/i, 'worlo-teams-mac.zip');
+// Mac Electron zip stays in dist/ for GitHub Releases — site gets a small .app via build-teams-mac-app.sh
