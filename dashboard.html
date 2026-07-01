@@ -674,6 +674,18 @@ main {
   border-color: rgba(239, 68, 68, 0.3);
 }
 
+.team-code-copy-status {
+  margin: 10px 0 0;
+  min-height: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #166534;
+}
+
+.team-code-copy-status.is-error {
+  color: #991b1b;
+}
+
 @keyframes slideIn {
   from { opacity: 0; transform: translateX(120px); }
   to { opacity: 1; transform: translateX(0); }
@@ -1028,6 +1040,7 @@ main {
       <div style="font-size:12px;color:#5c5c6a;margin-bottom:8px">Copy now — this code is only shown once:</div>
       <div id="team-code-reveal-value" style="font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:600;color:#156cc2;word-break:break-all"></div>
       <button type="button" class="btn btn-secondary" id="btn-copy-new-code" style="margin-top:12px">Copy code</button>
+      <p id="team-code-copy-status" class="team-code-copy-status" role="status" aria-live="polite"></p>
     </div>
   </div>
 
@@ -2524,7 +2537,9 @@ main {
 
   document.getElementById('btn-gen-team-code')?.addEventListener('click', generateTeamCode);
   document.getElementById('btn-copy-new-code')?.addEventListener('click', () => {
-    if (lastGeneratedTeamCode) copyToClipboard(lastGeneratedTeamCode);
+    if (lastGeneratedTeamCode) {
+      copyToClipboard(lastGeneratedTeamCode, document.getElementById('team-code-copy-status'));
+    }
   });
 
   async function generateTeamCode() {
@@ -2588,6 +2603,8 @@ main {
       lastGeneratedTeamCode = data.code;
       const reveal = document.getElementById('team-code-reveal');
       const revealVal = document.getElementById('team-code-reveal-value');
+      const copyStatus = document.getElementById('team-code-copy-status');
+      if (copyStatus) copyStatus.textContent = '';
       if (reveal && revealVal) {
         reveal.style.display = 'block';
         revealVal.textContent = data.code;
@@ -2828,10 +2845,50 @@ main {
     setTimeout(() => el.remove(), type === 'error' ? 8000 : 3000);
   }
 
-  window.copyToClipboard = function(text) {
-    navigator.clipboard.writeText(text).then(() => {
-      toast('Copied to clipboard!', 'success');
-    });
+  window.copyToClipboard = function(text, inlineEl) {
+    function showInline(ok, msg) {
+      if (!inlineEl) return;
+      inlineEl.textContent = msg || (ok ? 'Copied to clipboard!' : 'Could not copy — select the code and copy manually.');
+      inlineEl.className = 'team-code-copy-status' + (ok ? '' : ' is-error');
+      if (ok) {
+        setTimeout(function () {
+          if (inlineEl.textContent === 'Copied to clipboard!') inlineEl.textContent = '';
+        }, 4000);
+      }
+    }
+
+    function fallbackCopy() {
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.setAttribute('readonly', '');
+        ta.style.position = 'fixed';
+        ta.style.left = '-9999px';
+        document.body.appendChild(ta);
+        ta.select();
+        const ok = document.execCommand('copy');
+        document.body.removeChild(ta);
+        return ok;
+      } catch {
+        return false;
+      }
+    }
+
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(function () {
+        showInline(true);
+        if (!inlineEl) toast('Copied to clipboard!', 'success');
+      }).catch(function () {
+        const ok = fallbackCopy();
+        showInline(ok);
+        if (!inlineEl) toast(ok ? 'Copied to clipboard!' : 'Copy failed', ok ? 'success' : 'error');
+      });
+      return;
+    }
+
+    const ok = fallbackCopy();
+    showInline(ok);
+    if (!inlineEl) toast(ok ? 'Copied to clipboard!' : 'Copy failed', ok ? 'success' : 'error');
   }
 
   // SIGN OUT

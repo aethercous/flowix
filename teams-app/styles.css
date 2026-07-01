@@ -101,6 +101,33 @@ body.fx-tines.teams-app {
   cursor: not-allowed;
 }
 
+.teams-auth-message {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  font-size: 14px;
+  line-height: 1.45;
+  border: 1px solid var(--teams-line-strong);
+  background: #fff;
+  color: var(--fx-text);
+}
+
+.teams-auth-message.hidden {
+  display: none;
+}
+
+.teams-auth-message.is-error {
+  background: #fef2f2;
+  border-color: #fecaca;
+  color: #991b1b;
+}
+
+.teams-auth-message.is-success {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+  color: #166534;
+}
+
 /* ------------------------------------------------------------------ chat app */
 
 #view-chat {
@@ -371,11 +398,46 @@ body.fx-tines.teams-app {
   border-bottom-left-radius: 5px;
 }
 
-.msg.err {
-  align-self: flex-start;
+.msg.err,
+.msg.err.bot {
+  align-self: stretch;
+  max-width: none;
+  width: 100%;
+  box-sizing: border-box;
   background: #fef2f2;
   border: 1px solid #fecaca;
   color: #991b1b;
+  border-radius: 12px;
+}
+
+.msg.system {
+  align-self: stretch;
+  max-width: none;
+  width: 100%;
+  box-sizing: border-box;
+  background: #f8fafc;
+  border: 1px solid var(--teams-line-strong);
+  color: var(--fx-text-secondary);
+  border-radius: 12px;
+  font-size: 14px;
+}
+
+.msg.system-err {
+  align-self: stretch;
+  max-width: none;
+  width: 100%;
+  box-sizing: border-box;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+  border-radius: 12px;
+  font-size: 14px;
+}
+
+.msg.system .msg-sender,
+.msg.system-err .msg-sender {
+  color: inherit;
+  opacity: 0.85;
 }
 
 .msg.team-msg {

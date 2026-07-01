@@ -13,11 +13,39 @@ async function hashCode(code: string): Promise<string> {
 /** Normalize user input so hashing matches generate-access-code values. */
 function normalizeAccessCode(raw: string): string {
   let s = raw.trim().toUpperCase().replace(/\s+/g, "");
-  // Accept WORLO-ABC-DEF-GHI or WORLO_ABC...
   if (s.includes("_")) {
     s = s.replace(/_/g, "-");
   }
+  // Legacy codes used FLOWIX-; new codes use WORLO-
+  if (s.startsWith("FLOWIX-")) {
+    s = "WORLO-" + s.slice(7);
+  }
   return s;
+}
+
+/** Try WORLO- and legacy FLOWIX- hashes so older codes still work. */
+async function lookupAccessCodeByInput(
+  supabase: ReturnType<typeof createClient>,
+  normalizedCode: string,
+) {
+  const candidates = [normalizedCode];
+  if (normalizedCode.startsWith("WORLO-")) {
+    candidates.push("FLOWIX-" + normalizedCode.slice(6));
+  } else if (normalizedCode.startsWith("FLOWIX-")) {
+    candidates.push("WORLO-" + normalizedCode.slice(7));
+  }
+
+  for (const candidate of candidates) {
+    const hashedCode = await hashCode(candidate);
+    const { data, error } = await supabase
+      .from("access_codes")
+      .select("id, agent_id, agent_token_id, is_active, expires_at, used_count, max_uses")
+      .eq("hashed_code", hashedCode)
+      .maybeSingle<AccessCode>();
+    if (error) return { data: null, error };
+    if (data) return { data, error: null };
+  }
+  return { data: null, error: null };
 }
 
 function getClientIpAddress(req: Request): string {
@@ -134,15 +162,11 @@ serve(async (req: Request) => {
       return jsonResponse({ error: "Invalid code" }, 400);
     }
 
-    // Hash the provided code (same normalization as generate-access-code)
-    const hashedCode = await hashCode(normalizedCode);
-
-    // Look up the access code by hash
-    const { data: accessCodeData, error: codeError } = await supabase
-      .from("access_codes")
-      .select("id, agent_id, agent_token_id, is_active, expires_at, used_count, max_uses")
-      .eq("hashed_code", hashedCode)
-      .maybeSingle<AccessCode>();
+    // Look up the access code by hash (WORLO- and legacy FLOWIX- prefixes)
+    const { data: accessCodeData, error: codeError } = await lookupAccessCodeByInput(
+      supabase,
+      normalizedCode,
+    );
 
     if (codeError) {
       console.error("Database error looking up code:", codeError);

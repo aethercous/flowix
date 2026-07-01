@@ -53,7 +53,7 @@
   }
 
   global.WORLO_CONFIG = {
-    APP_NAME: 'Flowix',
+    APP_NAME: 'worlo',
     SUPABASE_URL: SUPABASE_URL,
     GOOGLE_CALLBACK_PATH: GOOGLE_CALLBACK_PATH,
     googleCallbackUri: googleCallbackUri,

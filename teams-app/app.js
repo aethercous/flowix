@@ -19,6 +19,47 @@
   const agentLabel = document.getElementById('agent-label');
   const userLabel = document.getElementById('user-label');
   const memberList = document.getElementById('member-list');
+  const authMessage = document.getElementById('auth-message');
+  const inviteCodeInput = document.getElementById('invite-code');
+
+  function showAuthMessage(text, type) {
+    if (!authMessage) return;
+    if (!text) {
+      authMessage.textContent = '';
+      authMessage.className = 'teams-auth-message hidden';
+      return;
+    }
+    authMessage.textContent = text;
+    authMessage.className = 'teams-auth-message' + (type === 'error' ? ' is-error' : type === 'success' ? ' is-success' : '');
+  }
+
+  function formatInviteCodeInput() {
+    if (!inviteCodeInput) return;
+    let v = inviteCodeInput.value.toUpperCase().replace(/\s+/g, '');
+    if (v.startsWith('FLOWIX')) v = 'WORLO' + v.slice(6);
+    inviteCodeInput.value = v;
+  }
+
+  if (inviteCodeInput) {
+    inviteCodeInput.addEventListener('input', formatInviteCodeInput);
+    inviteCodeInput.addEventListener('blur', formatInviteCodeInput);
+  }
+
+  function appendTeamSystemMessage(body, isError) {
+    const el = document.createElement('div');
+    el.className = 'msg team-msg ' + (isError ? 'system-err' : 'system');
+    const name = document.createElement('div');
+    name.className = 'msg-sender';
+    name.textContent = isError ? 'Error' : 'System';
+    const text = document.createElement('div');
+    text.className = 'msg-body';
+    text.textContent = isError ? String(body).replace(/^Error:\s*/, '') : body;
+    el.appendChild(name);
+    el.appendChild(text);
+    teamChatLog.appendChild(el);
+    teamChatLog.scrollTop = teamChatLog.scrollHeight;
+    return el;
+  }
 
   let session = null;
   let aiHistory = [];
@@ -357,11 +398,11 @@
   }
 
   function handleKicked(message) {
-    alert(message || 'You have been removed from this team.');
     teardownChat();
     localStorage.removeItem(SESSION_KEY);
     session = null;
     showAuth();
+    showAuthMessage(message || 'You have been removed from this team.', 'error');
   }
 
   function showChat() {
@@ -407,10 +448,11 @@
     const code = document.getElementById('invite-code').value.trim();
 
     if (!firstName || !lastName || !code) {
-      alert('Please enter your name and invite code.');
+      showAuthMessage('Please enter your first name, last name, and invite code.', 'error');
       return;
     }
 
+    showAuthMessage('');
     const btn = document.getElementById('btn-join');
     btn.disabled = true;
     btn.textContent = 'Connecting…';
@@ -451,9 +493,10 @@
         expiresAt: data.expiresAt,
       };
       saveSession(session);
+      showAuthMessage('');
       showChat();
     } catch (e) {
-      alert(e.message || 'Could not join team');
+      showAuthMessage(e.message || 'Could not join team', 'error');
     } finally {
       btn.disabled = false;
       btn.textContent = 'Join team';
@@ -512,7 +555,7 @@
       }
     } catch (e) {
       removeTeamThinking();
-      appendTeamMessage({ sender_name: 'System', body: 'Error: ' + e.message }, false);
+      appendTeamSystemMessage(e.message || 'Failed to send message', true);
     } finally {
       teamSending = false;
       document.getElementById('btn-team-send').disabled = false;
@@ -559,7 +602,7 @@
     } catch (e) {
       removeTypingIndicator();
       if (!(e && e.name === 'AbortError')) {
-        appendAiMessage('err', 'Error: ' + e.message);
+        appendAiMessage('err', e.message || 'Something went wrong');
       }
     } finally {
       aiSending = false;
