@@ -17,3 +17,4 @@ function copyMatch(pattern, destName) {
 
 copyMatch(/^worlo-teams-setup.*\.exe$/i, 'worlo-teams-setup.exe');
 copyMatch(/^worlo-teams-portable.*\.exe$/i, 'worlo-teams-portable.exe');
+copyMatch(/^worlo-teams-mac.*\.zip$/i, 'worlo-teams-mac.zip');

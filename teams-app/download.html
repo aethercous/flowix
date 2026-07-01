@@ -63,9 +63,9 @@
         <span>Download <em>worlo-teams-portable.exe</em> and double-click it — worlo Teams opens instantly. No unzip, no install.</span>
         <span class="fx-btn fx-btn-primary">Download for Windows</span>
       </a>
-      <a class="teams-dl-card" id="dl-mac" href="/downloads/worlo-teams-mac.zip" download data-local="/downloads/worlo-teams-mac.zip">
+      <a class="teams-dl-card" id="dl-mac" href="https://github.com/aethercous/flowix/releases/latest/download/worlo-teams-mac.zip" download data-fallback="/downloads/worlo-teams-mac.zip">
         <strong>macOS</strong>
-        <span>Download, unzip, then double-click <em>Worlo Teams.app</em>. First time only: right-click the app → <em>Open</em> if macOS asks.</span>
+        <span>Download, unzip, then open <em>worlo Teams.app</em>. Native app with the <strong>worlo W icon in your Dock</strong>. First time: right-click → <em>Open</em> if macOS asks.</span>
         <span class="fx-btn fx-btn-primary">Download for Mac</span>
       </a>
     </div>
@@ -125,7 +125,7 @@
     if (platform === 'win') {
       showStatus('<strong>Download started.</strong> Open <em>worlo-teams-portable.exe</em> from your Downloads folder — worlo Teams will launch automatically. If that file is not there yet, use the Windows zip below.');
     } else if (platform === 'mac') {
-      showStatus('<strong>Download started.</strong> Unzip the file, then double-click <em>Worlo Teams.app</em>. First time only: right-click → Open if macOS blocks it.');
+      showStatus('<strong>Download started.</strong> Unzip the file, then open <em>worlo Teams.app</em>. You should see the <strong>worlo W icon in your Dock</strong> while the app is running.');
     }
   }
 

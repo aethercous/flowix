@@ -1,14 +1,24 @@
 #!/usr/bin/env bash
-# Build worlo Teams as a self-contained macOS .app inside downloads/worlo-teams-mac.zip.
-# After unzip, double-click "Worlo Teams.app" to launch — no separate launcher script.
+# Build worlo Teams for macOS as a native Electron .app (shows the W icon in the Dock).
+# Falls back to a lightweight shell .app if Electron build output is unavailable.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+OUT="$ROOT/downloads/worlo-teams-mac.zip"
+ELECTRON_ZIP="$ROOT/worlo-teams-desktop/dist/worlo-teams-mac.zip"
+
+if [ -f "$ELECTRON_ZIP" ]; then
+  cp "$ELECTRON_ZIP" "$OUT"
+  KB=$(( $(stat -f%z "$OUT" 2>/dev/null || stat -c%s "$OUT") / 1024 ))
+  echo "macOS (Electron): $OUT (${KB} KB)"
+  exit 0
+fi
+
+# Lightweight fallback — opens in the browser (Dock shows browser icon, not Worlo).
 STAGE="$ROOT/downloads/_stage-mac"
 APP="$STAGE/Worlo Teams.app"
 RES="$APP/Contents/Resources"
 MACOS="$APP/Contents/MacOS"
-OUT="$ROOT/downloads/worlo-teams-mac.zip"
 
 rm -rf "$STAGE"
 mkdir -p "$MACOS" "$RES/teams-app"
@@ -61,4 +71,4 @@ rm -f "$OUT"
 rm -rf "$STAGE"
 
 KB=$(( $(stat -f%z "$OUT" 2>/dev/null || stat -c%s "$OUT") / 1024 ))
-echo "macOS: $OUT (${KB} KB)"
+echo "macOS (fallback): $OUT (${KB} KB) — run npm run build:mac in worlo-teams-desktop for native Dock icon"

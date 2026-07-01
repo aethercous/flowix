@@ -10,7 +10,8 @@
     "pack": "electron-builder --dir",
     "build:win": "cross-env CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --win nsis portable && npm run postbuild:copy",
     "build:win:portable": "cross-env CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --win portable && npm run postbuild:copy",
-    "build:mac": "cross-env CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --mac dmg",
+    "build:mac": "cross-env CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --mac zip && npm run postbuild:copy",
+    "build:mac:zip": "cross-env CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --mac zip && npm run postbuild:copy",
     "postbuild:copy": "node scripts/copy-desktop-builds.js"
   },
   "build": {
@@ -45,6 +46,14 @@
       {
         "from": "../worlo-config.js",
         "to": "worlo-config.js"
+      },
+      {
+        "from": "build/icon.icns",
+        "to": "build/icon.icns"
+      },
+      {
+        "from": "build/icon.png",
+        "to": "build/icon.png"
       }
     ],
     "artifactName": "worlo-teams-setup.${ext}",
@@ -57,9 +66,10 @@
       "signAndEditExecutable": false
     },
     "mac": {
-      "target": ["dmg"],
+      "target": ["zip"],
       "icon": "build/icon.icns",
-      "category": "public.app-category.productivity"
+      "category": "public.app-category.productivity",
+      "artifactName": "worlo-teams-mac.${ext}"
     },
     "nsis": {
       "oneClick": false,

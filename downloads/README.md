@@ -7,7 +7,7 @@ These files are served at `/downloads/` on your deployed site.
 | `worlo-teams-portable.exe` | **Windows** — double-click to run (no unzip) |
 | `worlo-teams-setup.exe` | **Windows** — full installer (opens app when done) |
 | `worlo-teams-win.zip` | Windows portable — unzip, run `Worlo Teams.bat` |
-| `worlo-teams-mac.zip` | macOS — unzip, double-click `Worlo Teams.app` |
+| `worlo-teams-mac.zip` | macOS — native Electron app (worlo W icon in Dock). Published to GitHub Releases (~90 MB). Small browser fallback may be on Vercel. |
 
 ## Rebuild portable zips
 

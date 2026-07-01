@@ -40,7 +40,6 @@ jobs:
             downloads/worlo-teams-setup.exe
             downloads/worlo-teams-portable.exe
             downloads/worlo-teams-win.zip
-            downloads/worlo-teams-mac.zip
             worlo-teams-desktop/dist/*.exe
       - name: Publish installer to GitHub Releases
         if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
@@ -57,7 +56,6 @@ jobs:
             downloads/worlo-teams-setup.exe
             downloads/worlo-teams-portable.exe
             downloads/worlo-teams-win.zip
-            downloads/worlo-teams-mac.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -68,9 +66,19 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - name: Build portable Mac zip
-        run: pwsh -File scripts/build-teams-portable.ps1
+      - name: Install desktop dependencies
+        run: npm ci --prefix worlo-teams-desktop
+      - name: Build native macOS app (Dock icon)
+        run: npm run build:mac --prefix worlo-teams-desktop
       - uses: actions/upload-artifact@v4
         with:
           name: worlo-teams-mac
           path: downloads/worlo-teams-mac.zip
+      - name: Publish Mac zip to GitHub Releases
+        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: worlo-teams-latest
+          files: downloads/worlo-teams-mac.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
