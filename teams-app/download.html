@@ -65,13 +65,13 @@
       </a>
       <a class="teams-dl-card" id="dl-mac" href="/downloads/worlo-teams-mac.zip" download data-local="/downloads/worlo-teams-mac.zip">
         <strong>macOS</strong>
-        <span>Download, unzip, then open <em>Worlo Teams.app</em>. First time: right-click → <em>Open</em> if macOS asks.</span>
+        <span>Download and unzip. Double-click <em>Open worlo Teams.command</em> (or <em>worlo Teams.app</em> if included). First time: right-click → <em>Open</em> if macOS asks.</span>
         <span class="fx-btn fx-btn-primary">Download for Mac</span>
       </a>
     </div>
     <p style="font-size:13px;color:var(--fx-text-secondary);margin:-8px 0 16px;line-height:1.5">
-      Want the <strong>worlo W icon in your Dock</strong>?
-      <a href="https://github.com/aethercous/flowix/releases/latest/download/worlo-teams-mac.zip" id="dl-mac-native" download>Download the native Mac build from GitHub Releases</a> (~90 MB).
+      For the <strong>native app with the worlo W in your Dock</strong> (recommended — no bouncing icon),
+      <a href="https://github.com/aethercous/flowix/releases/latest/download/worlo-teams-mac.zip" id="dl-mac-native" download>download the Electron build from GitHub Releases</a>.
     </p>
 
     <a class="teams-dl-card" id="dl-win-setup" href="https://github.com/aethercous/flowix/releases/latest/download/worlo-teams-setup.exe" download style="margin-bottom:8px">
@@ -129,7 +129,7 @@
     if (platform === 'win') {
       showStatus('<strong>Download started.</strong> Open <em>worlo-teams-portable.exe</em> from your Downloads folder — worlo Teams will launch automatically. If that file is not there yet, use the Windows zip below.');
     } else if (platform === 'mac') {
-      showStatus('<strong>Download started.</strong> Unzip the file, then open <em>worlo Teams.app</em>. You should see the <strong>worlo W icon in your Dock</strong> while the app is running.');
+      showStatus('<strong>Download started.</strong> Unzip, then open <em>Open worlo Teams.command</em> or <em>worlo Teams.app</em>. For the native Dock icon (no bounce), use the <a href="https://github.com/aethercous/flowix/releases/latest/download/worlo-teams-mac.zip">GitHub Release build</a>.');
     }
   }
 

@@ -3,6 +3,13 @@ const path = require('path');
 const fs = require('fs');
 
 const isDev = !app.isPackaged;
+const HOSTED_URL = 'https://worlo.site/teams-app/index.html';
+
+// Prevent multiple copies fighting over the Dock (icon bouncing on repeat launch).
+const gotLock = app.requestSingleInstanceLock();
+if (!gotLock) {
+  app.quit();
+}
 
 function resolveDockIcon() {
   const candidates = isDev
@@ -27,6 +34,14 @@ function applyDockIcon() {
   if (icon && !icon.isEmpty()) app.dock.setIcon(icon);
 }
 
+function resolveStartUrl() {
+  if (process.env.WORLO_TEAMS_URL) return process.env.WORLO_TEAMS_URL;
+  if (isDev) return null;
+  // Hosted app is reliable; file:// breaks CSS paths and Chrome-style wrappers.
+  if (process.env.WORLO_TEAMS_OFFLINE === '1') return null;
+  return HOSTED_URL;
+}
+
 function createWindow() {
   const iconPath = isDev
     ? path.join(__dirname, 'build', 'icon.png')
@@ -40,6 +55,7 @@ function createWindow() {
     title: 'worlo Teams',
     icon: fs.existsSync(iconPath) ? iconPath : undefined,
     backgroundColor: '#f6f6f8',
+    show: false,
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,
@@ -47,8 +63,14 @@ function createWindow() {
     },
   });
 
-  if (process.env.WORLO_TEAMS_URL) {
-    win.loadURL(process.env.WORLO_TEAMS_URL);
+  win.once('ready-to-show', () => {
+    win.show();
+    win.focus();
+  });
+
+  const startUrl = resolveStartUrl();
+  if (startUrl) {
+    win.loadURL(startUrl);
   } else if (isDev) {
     win.loadFile(path.join(__dirname, '..', 'teams-app', 'index.html'));
   } else {
@@ -59,16 +81,37 @@ function createWindow() {
     shell.openExternal(url);
     return { action: 'deny' };
   });
+
+  return win;
 }
 
-app.whenReady().then(() => {
-  applyDockIcon();
-  createWindow();
-  app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) createWindow();
-  });
-});
+let mainWindow = null;
 
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') app.quit();
-});
+if (gotLock) {
+  app.on('second-instance', () => {
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) mainWindow.restore();
+      mainWindow.show();
+      mainWindow.focus();
+    } else {
+      mainWindow = createWindow();
+    }
+  });
+
+  app.whenReady().then(() => {
+    applyDockIcon();
+    mainWindow = createWindow();
+    app.on('activate', () => {
+      if (BrowserWindow.getAllWindows().length === 0) {
+        mainWindow = createWindow();
+      } else if (mainWindow) {
+        mainWindow.show();
+        mainWindow.focus();
+      }
+    });
+  });
+
+  app.on('window-all-closed', () => {
+    if (process.platform !== 'darwin') app.quit();
+  });
+}
