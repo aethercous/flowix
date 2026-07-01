@@ -70,14 +70,10 @@ jobs:
         run: npm ci --prefix worlo-teams-desktop
       - name: Build native macOS app (Dock icon)
         run: npm run build:mac --prefix worlo-teams-desktop
-      - name: Build lightweight Mac zip for site
-        run: bash scripts/build-teams-mac-app.sh --lightweight
       - uses: actions/upload-artifact@v4
         with:
           name: worlo-teams-mac
-          path: |
-            worlo-teams-desktop/dist/worlo-teams-mac.zip
-            downloads/worlo-teams-mac.zip
+          path: worlo-teams-desktop/dist/worlo-teams-mac.zip
       - name: Publish Mac zip to GitHub Releases
         if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
         uses: softprops/action-gh-release@v2

@@ -6,7 +6,8 @@
     { "source": "/teams", "destination": "/teams-app/index.html", "permanent": false },
     { "source": "/teams/", "destination": "/teams-app/index.html", "permanent": false },
     { "source": "/teams-app", "destination": "/teams-app/index.html", "permanent": false },
-    { "source": "/teams-app/", "destination": "/teams-app/index.html", "permanent": false }
+    { "source": "/teams-app/", "destination": "/teams-app/index.html", "permanent": false },
+    { "source": "/downloads/worlo-teams-mac.zip", "destination": "https://github.com/aethercous/flowix/releases/latest/download/worlo-teams-mac.zip", "permanent": false }
   ],
   "rewrites": [
     { "source": "/terms", "destination": "/terms-of-service.html" },

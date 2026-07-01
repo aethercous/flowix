@@ -68,6 +68,19 @@ function createWindow() {
     win.focus();
   });
 
+  const forceShow = () => {
+    if (!win.isDestroyed() && !win.isVisible()) {
+      win.show();
+      win.focus();
+    }
+  };
+  setTimeout(forceShow, 2500);
+
+  win.webContents.on('did-fail-load', (_event, code) => {
+    if (code === -3) return;
+    forceShow();
+  });
+
   const startUrl = resolveStartUrl();
   if (startUrl) {
     win.loadURL(startUrl);

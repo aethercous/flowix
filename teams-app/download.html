@@ -63,16 +63,15 @@
         <span>Download <em>worlo-teams-portable.exe</em> and double-click it — worlo Teams opens instantly. No unzip, no install.</span>
         <span class="fx-btn fx-btn-primary">Download for Windows</span>
       </a>
-      <a class="teams-dl-card featured" id="dl-mac" href="https://github.com/aethercous/flowix/releases/latest/download/worlo-teams-mac.zip" download data-fallback="/downloads/worlo-teams-mac.zip" data-local="/downloads/worlo-teams-mac.zip">
+      <a class="teams-dl-card featured" id="dl-mac" href="https://github.com/aethercous/flowix/releases/latest/download/worlo-teams-mac.zip" download>
         <span class="teams-dl-badge">Recommended</span>
         <strong>macOS</strong>
-        <span>Download, unzip, then <strong>double-click <em>worlo Teams</em></strong> (the app with the icon — not the folder arrow). First time: right-click → <em>Open</em> if macOS asks.</span>
+        <span>Download (~90 MB), unzip, then <strong>double-click <em>worlo Teams</em></strong> (the app icon — not the folder arrow). The <strong>worlo W</strong> stays in your Dock while it runs.</span>
         <span class="fx-btn fx-btn-primary">Download for Mac</span>
       </a>
     </div>
     <p style="font-size:13px;color:var(--fx-text-secondary);margin:-8px 0 16px;line-height:1.5">
-      After unzipping you should see <strong>worlo Teams</strong> with an app icon. Double-click that — do not open it like a normal folder.
-      Lightweight fallback (opens in browser): <a href="/downloads/worlo-teams-mac.zip" download>download from worlo.site</a>. For the native app with the W Dock icon, use the main Mac download above.
+      After unzipping, double-click <strong>worlo Teams</strong> with the app icon. If macOS blocks it the first time: right-click → <em>Open</em> → <em>Open</em>.
     </p>
 
     <a class="teams-dl-card" id="dl-win-setup" href="https://github.com/aethercous/flowix/releases/latest/download/worlo-teams-setup.exe" download style="margin-bottom:8px">
@@ -179,7 +178,6 @@
 
   if (!p || !p.isFile) {
     checkLocal(document.getElementById('dl-win-zip'));
-    checkWithFallback(document.getElementById('dl-mac'));
     checkWithFallback(document.getElementById('dl-win-portable'));
   }
 
