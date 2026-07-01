@@ -747,6 +747,13 @@ main {
 
 .fx-conn-card .card-footer { border-top: none; padding-top: 0; }
 .fx-conn-card .card-footer .btn { flex: none; width: 100%; }
+.fx-conn-coming-soon {
+  margin: -4px 0 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #9ca3af;
+  letter-spacing: 0.02em;
+}
 .fx-conn-status-connected { background: rgba(34, 197, 94, 0.12); color: #16a34a; }
 .team-code-badge--active { background: #eef4f1; color: #3d6b5a; }
 .team-code-badge--revoked { background: #fef2f2; color: #991b1b; }
@@ -1695,25 +1702,48 @@ main {
     });
   }
 
+  function isOAuthProviderConfigured(providerId) {
+    const pid = normalizeProviderId(providerId);
+    if (pid === 'google') return true;
+    const providers = state.oauthConfigStatus?.providers;
+    if (!providers) return true;
+    const row = providers[pid];
+    return row ? !!row.configured : false;
+  }
+
+  /** Live integrations users can connect today (not catalog / browser placeholders). */
+  function isConnectionAvailable(app) {
+    if (!app || app.status === 'coming_soon') return false;
+    if (app.status === 'browser') return false;
+    if (app.status === 'oauth') {
+      return isOAuthProviderConfigured(app.oauthProvider || app.id);
+    }
+    return false;
+  }
+
   function renderConnectionCard(app, byProvider, mode) {
     const oauthId = normalizeProviderId(app.oauthProvider || app.id);
     const isOAuth = app.status === 'oauth';
     const isBrowser = app.status === 'browser';
     const conn = isOAuth ? byProvider[oauthId] : null;
     const connected = !!conn;
+    const available = isConnectionAvailable(app);
+    const showComingSoon = !connected && !available;
 
     let badge = '<div class="card-badge">Coming soon</div>';
-    if (isOAuth) {
-      badge = connected
-        ? `<div class="card-badge fx-conn-status-connected">${escapeHtml(conn.account_label || 'Connected')}</div>`
-        : '<div class="card-badge">Not connected</div>';
-    } else if (isBrowser) {
+    if (connected) {
+      badge = `<div class="card-badge fx-conn-status-connected">${escapeHtml(conn.account_label || 'Connected')}</div>`;
+    } else if (available && isOAuth) {
+      badge = '<div class="card-badge">Not connected</div>';
+    } else if (available && isBrowser) {
       badge = '<div class="card-badge">Browser agent</div>';
     }
 
     let footerBtn = '<button type="button" class="btn btn-secondary" disabled>Coming soon</button>';
-    if (mode === 'catalog') {
-      /* browse-only cards */
+    if (showComingSoon) {
+      /* footer stays Coming soon */
+    } else if (mode === 'catalog') {
+      footerBtn = '<button type="button" class="btn btn-secondary" disabled>Coming soon</button>';
     } else if (isOAuth) {
       if (connected) {
         footerBtn = `<div style="display:flex;gap:8px;flex-wrap:wrap;width:100%">
@@ -1727,6 +1757,10 @@ main {
       footerBtn = `<button type="button" class="btn btn-secondary" data-browser-login-btn="${escapeHtml(oauthId)}">Open browser sign-in</button>`;
     }
 
+    const comingSoonLine = showComingSoon || mode === 'catalog'
+      ? '<p class="fx-conn-coming-soon">Coming soon</p>'
+      : '';
+
     return `
       <div class="card fx-conn-card${connected ? ' fx-conn-card--connected' : ''}" data-conn-id="${escapeHtml(app.id)}">
         <div class="card-header">
@@ -1739,6 +1773,7 @@ main {
           ${badge}
         </div>
         <div class="card-description">${escapeHtml(app.desc)}</div>
+        ${comingSoonLine}
         <div class="card-footer">${footerBtn}</div>
       </div>`;
   }
@@ -1939,6 +1974,7 @@ main {
   }
 
   async function refreshConnectionsPage() {
+    state.oauthConfigStatus = await WorloConnections.loadOAuthConfigStatus(sb);
     await loadUserConnections();
     await loadAgentConnectionsMap();
     const input = document.getElementById('conn-search-input');
