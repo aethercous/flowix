@@ -400,18 +400,22 @@ main {
 
 /* -- BUTTONS -- */
 .btn {
-  padding: 10px 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 0 18px;
   border: none;
   border-radius: 10px;
   font-size: 13px;
   font-weight: 500;
+  line-height: 1.2;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   flex: 0 0 auto;
   text-align: center;
   white-space: nowrap;
   box-sizing: border-box;
-  line-height: 1.25;
 }
 
 .btn-primary {
@@ -847,7 +851,18 @@ main {
 }
 
 .fx-conn-card .card-footer { border-top: none; padding-top: 0; }
-.fx-conn-card .card-footer .btn { flex: none; width: 100%; }
+.fx-conn-card .card-footer > .fx-conn-footer-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  width: 100%;
+  align-items: stretch;
+}
+.fx-conn-card .card-footer .btn {
+  flex: 1 1 calc(50% - 4px);
+  min-width: 100px;
+  width: auto;
+}
 .fx-conn-coming-soon {
   margin: -4px 0 12px;
   font-size: 13px;
@@ -1953,9 +1968,9 @@ main {
       footerBtn = '<button type="button" class="btn btn-secondary" disabled>Coming soon</button>';
     } else if (isOAuth) {
       if (connected) {
-        footerBtn = `<div style="display:flex;gap:8px;flex-wrap:wrap;width:100%">
-            <button type="button" class="btn btn-secondary" style="flex:1;min-width:120px" data-browser-login-btn="${escapeHtml(oauthId)}">Browser sign-in</button>
-            <button type="button" class="btn btn-secondary" style="flex:1;min-width:100px" data-oauth-btn="${escapeHtml(oauthId)}">Disconnect</button>
+        footerBtn = `<div class="fx-conn-footer-actions">
+            <button type="button" class="btn btn-secondary" data-browser-login-btn="${escapeHtml(oauthId)}">Browser sign-in</button>
+            <button type="button" class="btn btn-secondary" data-oauth-btn="${escapeHtml(oauthId)}">Disconnect</button>
           </div>`;
       } else {
         footerBtn = `<button type="button" class="btn btn-primary" data-oauth-btn="${escapeHtml(oauthId)}">Connect</button>`;
