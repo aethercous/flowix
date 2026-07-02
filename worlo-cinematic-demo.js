@@ -7,9 +7,22 @@
   </svg>`;
 
   const reduced = global.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let embedPaused = false;
 
   function wait(ms) {
-    return new Promise((r) => setTimeout(r, ms));
+    return new Promise((resolve) => {
+      const start = Date.now();
+      const tick = () => {
+        if (embedPaused) {
+          requestAnimationFrame(tick);
+          return;
+        }
+        const elapsed = Date.now() - start;
+        if (elapsed >= ms) resolve();
+        else setTimeout(tick, Math.min(48, ms - elapsed));
+      };
+      tick();
+    });
   }
 
   function getScene() {
@@ -498,6 +511,9 @@
     }
     window.addEventListener('message', (event) => {
       if (event.data && event.data.type === 'fx-embed-resize') scheduleFit();
+      if (event.data && event.data.type === 'fx-embed-visible') {
+        embedPaused = !event.data.visible;
+      }
     });
     if (document.fonts && document.fonts.ready) {
       document.fonts.ready.then(scheduleFit);
@@ -528,14 +544,43 @@
       iframe.classList.add('is-loaded');
     }
 
+    function loadIframe(iframe) {
+      if (!iframe || iframe.src) return;
+      const src = iframe.dataset.src;
+      if (src) iframe.src = src;
+    }
+
     function notifyEmbedResize() {
       iframes.forEach((iframe) => {
+        if (!iframe.src) return;
         try {
           iframe.contentWindow?.postMessage({ type: 'fx-embed-resize' }, '*');
         } catch (_) {
           /* cross-origin guard */
         }
       });
+    }
+
+    if ('IntersectionObserver' in global) {
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          const iframe = entry.target;
+          if (entry.isIntersecting) {
+            loadIframe(iframe);
+            try {
+              iframe.contentWindow?.postMessage({ type: 'fx-embed-visible', visible: true }, '*');
+            } catch (_) { /* ignore */ }
+          } else {
+            try {
+              iframe.contentWindow?.postMessage({ type: 'fx-embed-visible', visible: false }, '*');
+            } catch (_) { /* ignore */ }
+          }
+        });
+      }, { rootMargin: '120px 0px', threshold: 0.08 });
+      iframes.forEach((iframe) => io.observe(iframe));
+      iframes.slice(0, 1).forEach(loadIframe);
+    } else {
+      iframes.forEach(loadIframe);
     }
 
     iframes.forEach((iframe) => {

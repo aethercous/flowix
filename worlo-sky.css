@@ -80,6 +80,22 @@ body.fx-sky-scrolling .fx-sky-star {
   animation-play-state: paused;
 }
 
+body.fx-landing.fx-sky-scrolling .fx-cloud {
+  animation-play-state: paused;
+}
+
+body.fx-landing.fx-sky-scrolling :is(
+  .fx-glass-unified,
+  .fx-glass-panel,
+  .fx-sticky-head,
+  .fx-docs-preview-inner,
+  .fx-teams-showcase-panel,
+  .fx-section-teams .fx-feature-card
+) {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
 /* Landing: content above sky */
 body.fx-landing.fx-sky-journey {
   min-height: 100vh;

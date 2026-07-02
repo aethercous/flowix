@@ -1,4 +1,4 @@
-/* Embeddable dashboard demos — matches dashboard UI, framed for cursor targets */
+/* Embeddable dashboard demos — matches live dashboard (solid panels on sky) */
 
 html:has(body.fx-embed-demo) {
   height: 100%;
@@ -20,7 +20,6 @@ body.fx-embed-demo {
   position: relative;
 }
 
-/* Same daytime sky + clouds as dashboard / landing */
 body.fx-embed-demo .fx-sky-scene {
   position: fixed;
   inset: 0;
@@ -34,48 +33,78 @@ body.fx-embed-demo #fx-embed-stage {
   z-index: 1;
 }
 
-/* Glass dashboard UI on top of sky */
+/* Match production dashboard — solid white panels */
 body.fx-embed-demo header,
 body.fx-embed-demo .form-card,
 body.fx-embed-demo .card,
 body.fx-embed-demo .fx-chat-sidebar,
 body.fx-embed-demo .fx-chat-main {
-  background: rgba(255, 255, 255, 0.55) !important;
-  backdrop-filter: blur(18px) saturate(160%);
-  -webkit-backdrop-filter: blur(18px) saturate(160%);
-  border-color: rgba(255, 255, 255, 0.65) !important;
-  box-shadow: 0 8px 32px rgba(45, 90, 135, 0.08);
+  background: #ffffff !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
 }
 
 body.fx-embed-demo .fx-chat-messages {
-  background: rgba(250, 251, 252, 0.72) !important;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: #fafbfc !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
 
 body.fx-embed-demo .page-title,
 body.fx-embed-demo .form-title,
-body.fx-embed-demo .card-title {
-  color: var(--fx-text, #12121a);
+body.fx-embed-demo .card-title,
+body.fx-embed-demo .page-subtitle,
+body.fx-embed-demo .fx-page-desc,
+body.fx-embed-demo .form-label,
+body.fx-embed-demo .card-description {
+  color: #0d0d0d;
 }
 
-/* Override dashboard solid panels — show glass + visible clouds */
-body.fx-embed-demo.fx-app-page .form-card,
-body.fx-embed-demo.fx-app-page .card,
-body.fx-embed-demo.fx-app-page header {
-  background: rgba(255, 255, 255, 0.55) !important;
-  backdrop-filter: blur(18px) saturate(160%) !important;
-  -webkit-backdrop-filter: blur(18px) saturate(160%) !important;
-}
-
-body.fx-embed-demo.fx-app-page .fx-cloud {
-  opacity: 0.92;
+body.fx-embed-demo .fx-page-desc,
+body.fx-embed-demo .form-hint,
+body.fx-embed-demo .card-description {
+  color: #6b7280;
 }
 
 body.fx-embed-demo.fx-app-page main {
   position: relative;
   z-index: 10;
   background: transparent !important;
+}
+
+body.fx-embed-demo.fx-app-page .fx-cloud {
+  opacity: 0.35;
+}
+
+body.fx-embed-demo .card {
+  min-width: 0;
+  overflow: hidden;
+}
+
+body.fx-embed-demo .fx-conn-card .card-header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+body.fx-embed-demo .fx-conn-card .card-title {
+  width: 100%;
+  min-width: 0;
+  word-break: break-word;
+  line-height: 1.35;
+}
+
+body.fx-embed-demo .fx-conn-card .card-badge {
+  align-self: flex-start;
+  flex-shrink: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 body.fx-embed-demo.fx-sky .btn-primary,

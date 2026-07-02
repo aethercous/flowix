@@ -25,8 +25,15 @@
     <a href="terms-of-service.html">Terms</a>
   </div>
   <div class="fx-nav-actions">
-    <a href="/?signin=1" class="fx-btn fx-btn-ghost fx-btn-sm">Sign in</a>
-    <a href="dashboard.html" class="fx-btn fx-btn-primary fx-btn-sm">Dashboard</a>
+    <span data-auth-guest>
+      <a href="/?signin=1" class="fx-btn fx-btn-ghost fx-btn-sm">Sign in</a>
+      <a href="/?signup=1" class="fx-btn fx-btn-primary fx-btn-sm">Sign up</a>
+    </span>
+    <span data-auth-user style="display:none" hidden>
+      <span id="fx-nav-user-email" style="font-size:12px;color:var(--fx-text-secondary);margin-right:8px;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
+      <a href="dashboard.html" class="fx-btn fx-btn-primary fx-btn-sm">Dashboard</a>
+      <button type="button" class="fx-btn fx-btn-ghost fx-btn-sm" data-auth="signout">Sign out</button>
+    </span>
   </div>
 </nav>
 
@@ -182,7 +189,16 @@ def ask_agent(message: str) -> str:
   </div>
 </main>
 
+<div id="toast-container"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="worlo-config.js"></script>
+<script src="worlo-auth.js"></script>
 <script src="worlo-sky.js"></script>
-<script>document.body.classList.add('ready'); WorloSky.init();</script>
+<script>
+  document.body.classList.add('ready');
+  WorloAuth.init({ stayOnLanding: true });
+  WorloSky.init();
+</script>
 </body>
 </html>

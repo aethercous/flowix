@@ -378,7 +378,7 @@
   function updateLandingScroll() {
     if (!usesLandingScroll()) return;
     const now = performance.now();
-    if (now - lastScrollApply < 32) return;
+    if (now - lastScrollApply < 48) return;
     lastScrollApply = now;
     setTarget(landingScrollProgress(), true);
   }

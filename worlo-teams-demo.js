@@ -10,9 +10,22 @@
   const CURSOR_PAD = 18;
   const CURSOR_SIZE = 24;
   const DEMO_CODE = 'WORLO-DEMO-TEAM-CODE';
+  let teamsDemoPaused = false;
 
   function wait(ms) {
-    return new Promise((r) => setTimeout(r, ms));
+    return new Promise((resolve) => {
+      const start = Date.now();
+      const tick = () => {
+        if (teamsDemoPaused) {
+          requestAnimationFrame(tick);
+          return;
+        }
+        const elapsed = Date.now() - start;
+        if (elapsed >= ms) resolve();
+        else setTimeout(tick, Math.min(48, ms - elapsed));
+      };
+      tick();
+    });
   }
 
   function clampCursorPos(clientX, clientY, bounds) {
@@ -239,6 +252,14 @@
   function init() {
     const inline = document.getElementById('teams-inline-demo');
     if (inline) {
+      if ('IntersectionObserver' in global) {
+        const io = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            teamsDemoPaused = !entry.isIntersecting;
+          });
+        }, { rootMargin: '80px 0px', threshold: 0.05 });
+        io.observe(inline.closest('.fx-teams-showcase') || inline);
+      }
       startRoot(inline);
       return;
     }

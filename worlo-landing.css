@@ -1829,8 +1829,21 @@ body.fx-landing.fx-sky .fx-feature-card :is(h3, p) {
   color: #ffffff !important;
 }
 
+/* Light glass panels — dark text (never white on white) */
 body.fx-landing.fx-sky .fx-glass-unified :is(h2, h3, p, .fx-eyebrow, .fx-section-desc),
-body.fx-landing.fx-sky .fx-glass-panel :is(h2, p, .fx-cta-sub) {
+body.fx-landing.fx-sky .fx-glass-panel :is(h2, p, .fx-cta-sub),
+body.fx-landing.fx-sky .fx-docs-preview-inner :is(h2, h3, p),
+body.fx-landing.fx-sky .fx-docs-preview-card :is(h3, p) {
+  color: #12121a !important;
+}
+
+body.fx-landing.fx-sky .fx-docs-preview-sub,
+body.fx-landing.fx-sky .fx-glass-unified .fx-section-desc,
+body.fx-landing.fx-sky .fx-glass-panel .fx-cta-sub {
+  color: #5c5c6a !important;
+}
+
+body.fx-landing.fx-sky .fx-landing-plain .fx-feature-card :is(h3, p) {
   color: #ffffff !important;
 }
 
@@ -1922,7 +1935,17 @@ body.fx-landing.fx-sky .fx-teams-showcase-copy .fx-btn-ghost {
   background: rgba(255, 255, 255, 0.55) !important;
 }
 
+body.fx-landing.fx-sky .fx-glass-unified .fx-feature-card :is(h3, p),
+body.fx-landing.fx-sky .fx-glass-unified .fx-teams-mock-label {
+  color: #12121a !important;
+}
+
+body.fx-landing.fx-sky .fx-glass-unified .fx-section-desc,
+body.fx-landing.fx-sky .fx-glass-unified .fx-feature-card p {
+  color: #5c5c6a !important;
+}
+
 body.fx-landing.fx-sky .fx-teams-inline-demo #view-chat .teams-compose textarea {
-  color: #ffffff !important;
-  caret-color: #ffffff !important;
+  color: #12121a !important;
+  caret-color: #12121a !important;
 }

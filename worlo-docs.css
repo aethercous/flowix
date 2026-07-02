@@ -241,6 +241,26 @@ body.fx-sky.fx-docs-page .fx-nav-links a:hover {
   color: var(--fx-text, #12121a);
 }
 
+body.fx-sky.fx-docs-page .fx-logo {
+  color: #12121a;
+}
+
+body.fx-sky.fx-docs-page .fx-nav {
+  background: rgba(255, 255, 255, 0.88) !important;
+  backdrop-filter: blur(12px) saturate(140%) !important;
+  -webkit-backdrop-filter: blur(12px) saturate(140%) !important;
+}
+
+body.fx-sky.fx-docs-page .fx-btn-ghost {
+  color: #12121a !important;
+  border-color: rgba(18, 18, 26, 0.14) !important;
+  background: rgba(255, 255, 255, 0.6) !important;
+}
+
+body.fx-sky.fx-docs-page #fx-nav-user-email {
+  color: #5c5c6a !important;
+}
+
 @media (max-width: 640px) {
   .fx-docs-panel {
     padding: 24px 18px 32px;
