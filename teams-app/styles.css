@@ -110,6 +110,10 @@ body.fx-tines.teams-app {
   border: 1px solid var(--teams-line-strong);
   background: #fff;
   color: var(--fx-text);
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .teams-auth-message.hidden {
@@ -563,6 +567,8 @@ body.fx-tines.teams-app {
   font-size: 15px;
   line-height: 1.5;
   white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 /* typing / thinking indicator */

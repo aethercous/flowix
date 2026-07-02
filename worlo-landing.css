@@ -1258,10 +1258,14 @@ body.fx-app-page .fx-sky-scene {
 body.fx-app-page .top-nav,
 body.fx-app-page header,
 body.fx-app-page .dash-layout,
-body.fx-app-page main,
-body.fx-app-page #toast-container {
+body.fx-app-page main {
   position: relative;
   z-index: 10;
+}
+
+body.fx-app-page #toast-container {
+  position: fixed !important;
+  z-index: 10000 !important;
 }
 
 body.fx-app-page .dash-layout {
@@ -1628,23 +1632,36 @@ body.fx-landing.fx-sky .fx-modal .fx-btn-google-label {
 
 #toast-container {
   position: fixed;
-  bottom: 28px;
-  right: 28px;
+  bottom: max(16px, env(safe-area-inset-bottom, 0px));
+  right: max(16px, env(safe-area-inset-right, 0px));
+  left: auto;
   z-index: 2100;
   display: flex;
   flex-direction: column;
   gap: 10px;
+  pointer-events: none;
+  width: min(420px, calc(100vw - 32px));
+  max-width: calc(100vw - max(32px, env(safe-area-inset-left, 0px) + env(safe-area-inset-right, 0px)));
+  box-sizing: border-box;
 }
 
 #toast-container .toast {
+  pointer-events: auto;
+  max-width: 100%;
+  width: 100%;
+  box-sizing: border-box;
   padding: 12px 18px;
   border-radius: 10px;
   font-size: 13px;
   font-weight: 500;
+  line-height: 1.45;
   color: #fff;
   background: var(--fx-accent, #12121a);
   box-shadow: 0 12px 32px rgba(18, 18, 26, 0.2);
   animation: fx-toast-in 0.35s cubic-bezier(0.34, 1.2, 0.64, 1);
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  white-space: pre-wrap;
 }
 
 #toast-container .toast.success {

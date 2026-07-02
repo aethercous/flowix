@@ -1291,9 +1291,16 @@ body.fx-tines .toast {
   border-radius: var(--fx-radius);
   font-size: 14px;
   font-weight: 500;
+  line-height: 1.45;
   box-shadow: var(--fx-shadow-lg);
   background: var(--fx-accent);
   color: #fff;
+  max-width: 100%;
+  width: 100%;
+  box-sizing: border-box;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  white-space: pre-wrap;
 }
 
 body.fx-tines .toast.success {
@@ -1313,5 +1320,65 @@ body.fx-tines .toast.error {
 @media (max-width: 768px) {
   .fx-steps {
     grid-template-columns: 1fr;
+  }
+}
+
+/* Toasts & inline errors — stay inside viewport */
+#toast-container {
+  position: fixed;
+  bottom: max(16px, env(safe-area-inset-bottom, 0px));
+  right: max(16px, env(safe-area-inset-right, 0px));
+  left: auto;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: none;
+  width: min(420px, calc(100vw - 32px));
+  max-width: calc(100vw - max(32px, env(safe-area-inset-left, 0px) + env(safe-area-inset-right, 0px)));
+  box-sizing: border-box;
+}
+
+#toast-container .toast,
+.toast {
+  pointer-events: auto;
+  max-width: 100%;
+  width: 100%;
+  box-sizing: border-box;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+
+.team-code-copy-status,
+.api-key-copy-status,
+[class*="-copy-status"] {
+  display: block;
+  flex: 1 1 100%;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.api-security-banner,
+.api-key-modal-warn,
+.teams-auth-message,
+.msg.err,
+.msg.system-err,
+.msg.system {
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+@media (max-width: 520px) {
+  #toast-container {
+    left: max(16px, env(safe-area-inset-left, 0px));
+    right: max(16px, env(safe-area-inset-right, 0px));
+    width: auto;
+    max-width: none;
   }
 }

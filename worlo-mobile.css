@@ -45,8 +45,11 @@ body.fx-tines :is(input, textarea, select),
   }
 
   #toast-container {
+    left: max(16px, env(safe-area-inset-left));
     right: max(16px, env(safe-area-inset-right));
     bottom: max(16px, env(safe-area-inset-bottom));
+    width: auto;
+    max-width: none;
   }
 }
 
