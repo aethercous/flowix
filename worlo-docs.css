@@ -229,6 +229,18 @@
   align-items: center;
 }
 
+.fx-docs-footer-links a {
+  color: #156cc2;
+}
+
+body.fx-sky.fx-docs-page .fx-nav-links a {
+  color: var(--fx-text-secondary, #5c5c6a);
+}
+
+body.fx-sky.fx-docs-page .fx-nav-links a:hover {
+  color: var(--fx-text, #12121a);
+}
+
 @media (max-width: 640px) {
   .fx-docs-panel {
     padding: 24px 18px 32px;

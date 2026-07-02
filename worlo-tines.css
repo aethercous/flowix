@@ -864,7 +864,9 @@ body.fx-tines:not(.fx-landing).ready {
   opacity: 1;
 }
 
-body.fx-tines.fx-landing {
+body.fx-tines.fx-landing,
+body.fx-tines.fx-legal-page,
+body.fx-tines.fx-docs-page {
   opacity: 1;
 }
 
