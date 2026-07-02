@@ -57,6 +57,7 @@
       <input class="form-input" type="text" id="invite-code" placeholder="WORLO-XXXX-XXXX-XXXX" autocomplete="one-time-code"/>
     </div>
     <button type="button" class="btn btn-primary" id="btn-join" style="width:100%;margin-top:8px">Join team</button>
+    <button type="button" class="btn btn-secondary" id="btn-auth-cancel" style="width:100%;margin-top:8px;display:none">Back to teams</button>
     <p id="auth-message" class="teams-auth-message hidden" role="alert" aria-live="polite"></p>
     <p class="teams-auth-foot">Need a code? Ask your admin in the <a href="/dashboard.html#teams" id="link-dashboard">worlo dashboard</a>.</p>
   </div>
@@ -66,17 +67,23 @@
   <header class="teams-header">
     <div class="teams-header-left">
       <span class="teams-logo-sm">worlo Teams</span>
+      <select id="team-switcher-mobile" class="teams-switcher-mobile" aria-label="Switch team" hidden></select>
       <span class="teams-user-chip" id="user-label">Team member</span>
     </div>
     <nav class="teams-tabs" role="tablist">
       <button type="button" class="teams-tab active" data-tab="team" role="tab" aria-selected="true">Team chat</button>
       <button type="button" class="teams-tab" data-tab="ai" role="tab" aria-selected="false">AI assistant</button>
     </nav>
-    <button type="button" class="btn-signout" id="btn-leave">Leave</button>
+    <button type="button" class="teams-join-another-mobile" id="btn-join-another-mobile" hidden>+ Team</button>
+    <button type="button" class="btn-signout" id="btn-leave" title="Leave the current team">Leave team</button>
   </header>
 
   <div class="teams-main">
     <aside class="teams-sidebar" id="team-sidebar">
+      <div class="teams-sidebar-title">Your teams</div>
+      <div class="teams-switcher-list" id="team-switcher-list" role="listbox" aria-label="Switch team"></div>
+      <button type="button" class="teams-join-another" id="btn-join-another">+ Join another team</button>
+      <div class="teams-sidebar-divider" aria-hidden="true"></div>
       <div class="teams-sidebar-title">Team members</div>
       <ul class="teams-member-list" id="member-list"></ul>
     </aside>

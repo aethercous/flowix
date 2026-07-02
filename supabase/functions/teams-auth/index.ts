@@ -294,45 +294,44 @@ serve(async (req: Request) => {
         if (!existingMember.is_active) {
           return jsonResponse({ error: "You have been removed from this team" }, 403);
         }
-        if (existingMember.access_code_id !== accessCodeData.id) {
-          return jsonResponse({ error: "Invite code does not match your session" }, 403);
+        if (existingMember.access_code_id === accessCodeData.id) {
+          await supabase
+            .from("team_members")
+            .update({
+              first_name: firstName,
+              last_name: lastName,
+              nickname: nickname?.trim() || null,
+              last_seen_at: new Date().toISOString(),
+            })
+            .eq("id", existingMember.id);
+
+          const sessionExpiresAt = new Date();
+          sessionExpiresAt.setHours(sessionExpiresAt.getHours() + 24);
+
+          return jsonResponse({
+            success: true,
+            userId: agentTokenData.user_id,
+            firstName,
+            lastName,
+            nickname: nickname?.trim() || existingMember.nickname || null,
+            displayName: displayName(firstName, lastName, nickname || existingMember.nickname),
+            email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}@teams.worlo.local`,
+            agentId: agentTokenData.agent_id,
+            agentName:
+              agentRow?.name ||
+              agentTokenData.agent_config?.agentName ||
+              "Your Agent",
+            model: agentTokenData.agent_config?.model || agentTokenData.llm_provider,
+            llmProvider: agentTokenData.llm_provider,
+            accessToken: existingMember.id,
+            agentKey: agentTokenData.api_key,
+            memberId: existingMember.id,
+            memberToken: existingMember.member_token,
+            accessCodeId: accessCodeData.id,
+            expiresAt: sessionExpiresAt.toISOString(),
+          });
         }
-
-        await supabase
-          .from("team_members")
-          .update({
-            first_name: firstName,
-            last_name: lastName,
-            nickname: nickname?.trim() || null,
-            last_seen_at: new Date().toISOString(),
-          })
-          .eq("id", existingMember.id);
-
-        const sessionExpiresAt = new Date();
-        sessionExpiresAt.setHours(sessionExpiresAt.getHours() + 24);
-
-        return jsonResponse({
-          success: true,
-          userId: agentTokenData.user_id,
-          firstName,
-          lastName,
-          nickname: nickname?.trim() || existingMember.nickname || null,
-          displayName: displayName(firstName, lastName, nickname || existingMember.nickname),
-          email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}@teams.worlo.local`,
-          agentId: agentTokenData.agent_id,
-          agentName:
-            agentRow?.name ||
-            agentTokenData.agent_config?.agentName ||
-            "Your Agent",
-          model: agentTokenData.agent_config?.model || agentTokenData.llm_provider,
-          llmProvider: agentTokenData.llm_provider,
-          accessToken: existingMember.id,
-          agentKey: agentTokenData.api_key,
-          memberId: existingMember.id,
-          memberToken: existingMember.member_token,
-          accessCodeId: accessCodeData.id,
-          expiresAt: sessionExpiresAt.toISOString(),
-        });
+        // Token belongs to another team — fall through and create a new membership here.
       }
     }
 

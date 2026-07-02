@@ -264,6 +264,93 @@ body.fx-tines.teams-app {
   padding: 0 8px;
 }
 
+.teams-switcher-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 10px;
+}
+
+.teams-switch-btn {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 9px 10px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--fx-text);
+  cursor: pointer;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.teams-switch-btn:hover {
+  background: rgba(15, 35, 65, 0.06);
+}
+
+.teams-switch-btn.active {
+  background: rgba(18, 18, 26, 0.08);
+  border-color: rgba(18, 18, 26, 0.12);
+}
+
+.teams-join-another {
+  display: block;
+  width: 100%;
+  margin-bottom: 4px;
+  padding: 8px 10px;
+  border: 1px dashed rgba(15, 35, 65, 0.2);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.35);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--fx-sky, #2d5a87);
+  cursor: pointer;
+}
+
+.teams-join-another:hover {
+  background: rgba(255, 255, 255, 0.55);
+}
+
+.teams-switcher-mobile {
+  display: none;
+  max-width: min(42vw, 160px);
+  padding: 6px 8px;
+  border: 1px solid var(--teams-line-strong);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.85);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--fx-text);
+}
+
+.teams-join-another-mobile {
+  display: none;
+  padding: 6px 10px;
+  border: 1px solid var(--teams-line-strong);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.85);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--fx-sky, #2d5a87);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.teams-sidebar-divider {
+  height: 1px;
+  background: var(--teams-line);
+  margin: 14px 0 16px;
+}
+
 .teams-member-list {
   list-style: none;
   margin: 0;
@@ -639,6 +726,8 @@ body.fx-tines.teams-app {
     border-right: none;
   }
   .teams-sidebar { display: none; }
+  .teams-switcher-mobile:not([hidden]) { display: block; }
+  .teams-join-another-mobile:not([hidden]) { display: inline-flex; }
   .teams-header { padding: 0 14px; gap: 10px; }
   .teams-user-chip { display: none; }
   .msg { max-width: 88%; }

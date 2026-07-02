@@ -61,7 +61,15 @@
     return el;
   }
 
+  const authCancelBtn = document.getElementById('btn-auth-cancel');
+  const teamSwitcherList = document.getElementById('team-switcher-list');
+  const teamSwitcherMobile = document.getElementById('team-switcher-mobile');
+  const joinAnotherMobile = document.getElementById('btn-join-another-mobile');
+  const authTitle = document.querySelector('.teams-auth-card .teams-logo');
+
   let session = null;
+  let store = null;
+  let joiningAnother = false;
   let aiHistory = [];
   let aiSending = false;
   let teamSending = false;
@@ -92,23 +100,159 @@
     return ((s.firstName || '') + ' ' + (s.lastName || '')).trim();
   }
 
-  function loadSession() {
+  function teamSessionFromAuth(data) {
+    return {
+      firstName: data.firstName,
+      lastName: data.lastName,
+      nickname: data.nickname || null,
+      displayName: data.displayName,
+      agentName: data.agentName,
+      agentKey: data.agentKey,
+      agentId: data.agentId,
+      memberId: data.memberId,
+      memberToken: data.memberToken,
+      accessCodeId: data.accessCodeId,
+      expiresAt: data.expiresAt,
+      aiHistory: [],
+    };
+  }
+
+  function migrateLegacySession(raw) {
+    if (raw && raw.version === 2 && raw.teams) return raw;
+    if (raw && raw.memberToken && raw.accessCodeId) {
+      const team = Object.assign({}, raw);
+      delete team.version;
+      if (!team.aiHistory) team.aiHistory = [];
+      return {
+        version: 2,
+        activeTeamId: raw.accessCodeId,
+        teams: { [raw.accessCodeId]: team },
+      };
+    }
+    return null;
+  }
+
+  function pruneExpiredTeams(s) {
+    if (!s || !s.teams) return s;
+    const now = new Date();
+    Object.keys(s.teams).forEach(function (id) {
+      const t = s.teams[id];
+      if (t.expiresAt && new Date(t.expiresAt) < now) delete s.teams[id];
+    });
+    if (s.activeTeamId && !s.teams[s.activeTeamId]) {
+      const ids = Object.keys(s.teams);
+      s.activeTeamId = ids.length ? ids[0] : null;
+    }
+    return s;
+  }
+
+  function loadStore() {
     try {
       const raw = localStorage.getItem(SESSION_KEY);
       if (!raw) return null;
-      const s = JSON.parse(raw);
-      if (s.expiresAt && new Date(s.expiresAt) < new Date()) {
+      const parsed = migrateLegacySession(JSON.parse(raw));
+      if (!parsed || !parsed.teams || !Object.keys(parsed.teams).length) {
         localStorage.removeItem(SESSION_KEY);
         return null;
       }
-      return s;
+      return pruneExpiredTeams(parsed);
     } catch {
       return null;
     }
   }
 
-  function saveSession(s) {
+  function saveStore(s) {
+    if (!s || !s.teams || !Object.keys(s.teams).length) {
+      localStorage.removeItem(SESSION_KEY);
+      return;
+    }
+    s.version = 2;
     localStorage.setItem(SESSION_KEY, JSON.stringify(s));
+  }
+
+  function getActiveSession(s) {
+    if (!s?.activeTeamId || !s.teams[s.activeTeamId]) return null;
+    return s.teams[s.activeTeamId];
+  }
+
+  function persistActiveTeamState() {
+    if (!session?.accessCodeId || !store?.teams) return;
+    store.teams[session.accessCodeId] = Object.assign({}, session, {
+      aiHistory: aiHistory.slice(-40),
+    });
+    saveStore(store);
+  }
+
+  function renderTeamSwitcher() {
+    if (!store) return;
+    const ids = Object.keys(store.teams);
+    if (teamSwitcherList) {
+      teamSwitcherList.innerHTML = '';
+      teamSwitcherList.style.display = ids.length ? 'flex' : 'none';
+      ids.forEach(function (id) {
+        const team = store.teams[id];
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'teams-switch-btn' + (id === store.activeTeamId ? ' active' : '');
+        btn.textContent = team.agentName || 'Team';
+        btn.title = team.agentName || 'Switch team';
+        btn.setAttribute('role', 'option');
+        btn.setAttribute('aria-selected', id === store.activeTeamId ? 'true' : 'false');
+        btn.addEventListener('click', function () { switchTeam(id); });
+        teamSwitcherList.appendChild(btn);
+      });
+    }
+    if (teamSwitcherMobile) {
+      teamSwitcherMobile.innerHTML = '';
+      teamSwitcherMobile.hidden = ids.length < 2;
+      ids.forEach(function (id) {
+        const team = store.teams[id];
+        const opt = document.createElement('option');
+        opt.value = id;
+        opt.textContent = team.agentName || 'Team';
+        if (id === store.activeTeamId) opt.selected = true;
+        teamSwitcherMobile.appendChild(opt);
+      });
+    }
+    if (joinAnotherMobile) joinAnotherMobile.hidden = false;
+  }
+
+  function switchTeam(accessCodeId) {
+    if (!store?.teams?.[accessCodeId] || session?.accessCodeId === accessCodeId) return;
+    persistActiveTeamState();
+    teardownChat();
+    store.activeTeamId = accessCodeId;
+    session = store.teams[accessCodeId];
+    saveStore(store);
+    showChat();
+  }
+
+  function removeTeamFromStore(accessCodeId) {
+    if (!store?.teams?.[accessCodeId]) return;
+    delete store.teams[accessCodeId];
+    const ids = Object.keys(store.teams);
+    store.activeTeamId = ids.length ? ids[0] : null;
+    if (!ids.length) {
+      store = null;
+      session = null;
+      saveStore(null);
+      return;
+    }
+    saveStore(store);
+    session = store.teams[store.activeTeamId];
+  }
+
+  function loadSession() {
+    store = loadStore();
+    return getActiveSession(store);
+  }
+
+  function saveSession(team) {
+    if (!team?.accessCodeId) return;
+    if (!store) store = { version: 2, activeTeamId: null, teams: {} };
+    store.teams[team.accessCodeId] = team;
+    store.activeTeamId = team.accessCodeId;
+    saveStore(store);
   }
 
   function setActiveTab(tab) {
@@ -398,24 +542,42 @@
   }
 
   function handleKicked(message) {
+    const removedId = session?.accessCodeId;
     teardownChat();
-    localStorage.removeItem(SESSION_KEY);
+    if (removedId) removeTeamFromStore(removedId);
+    if (store && store.activeTeamId && store.teams[store.activeTeamId]) {
+      session = store.teams[store.activeTeamId];
+      showAuthMessage(message || 'You have been removed from that team.', 'error');
+      showChat();
+      return;
+    }
     session = null;
-    showAuth();
+    store = null;
+    showAuth(false);
     showAuthMessage(message || 'You have been removed from this team.', 'error');
   }
 
   function showChat() {
     viewAuth.classList.add('hidden');
     viewChat.classList.remove('hidden');
+    joiningAnother = false;
+    if (authCancelBtn) authCancelBtn.style.display = 'none';
     userLabel.textContent = displayName(session);
     agentLabel.textContent = session.agentName || 'Your AI assistant';
+    renderTeamSwitcher();
+    aiHistory = (session.aiHistory || []).slice();
     paintMembers();
     setActiveTab('team');
     loadTeamHistory();
     subscribeRealtime();
     startTimers();
-    if (!aiChatLog.children.length) {
+    aiChatLog.innerHTML = '';
+    if (aiHistory.length) {
+      aiHistory.forEach(function (turn) {
+        if (turn.role === 'user') appendAiMessage('user', turn.content);
+        else if (turn.role === 'assistant') appendAiMessage('bot', turn.content);
+      });
+    } else {
       appendAiMessage(
         'bot',
         "You're connected to " + session.agentName +
@@ -429,16 +591,43 @@
     unsubscribeRealtime();
     teamChatLog.innerHTML = '';
     aiChatLog.innerHTML = '';
-    aiHistory = [];
     lastRoster = [];
     seenSenders.clear();
+    renderedMsgIds.clear();
+    lastMsgTs = null;
     if (memberList) memberList.innerHTML = '';
   }
 
-  function showAuth() {
+  function showAuth(isJoinAnother) {
+    joiningAnother = !!isJoinAnother;
+    persistActiveTeamState();
     teardownChat();
     viewChat.classList.add('hidden');
     viewAuth.classList.remove('hidden');
+    if (authCancelBtn) {
+      authCancelBtn.style.display = joiningAnother ? 'block' : 'none';
+    }
+    if (authTitle) {
+      authTitle.textContent = joiningAnother ? 'Join another team' : 'worlo Teams';
+    }
+    const lead = document.querySelector('.teams-auth-lead');
+    if (lead) {
+      if (joiningAnother) {
+        lead.textContent = 'Enter a new invite code to join another team. You can switch between teams anytime from the sidebar.';
+      } else {
+        lead.innerHTML = 'Enter your invite code from the worlo dashboard. Use in browser or <a href="/teams-app/download.html" id="link-download">download the Windows app</a>.';
+      }
+    }
+    if (joiningAnother && session) {
+      const fn = document.getElementById('first-name');
+      const ln = document.getElementById('last-name');
+      const nn = document.getElementById('nickname');
+      if (fn && !fn.value.trim()) fn.value = session.firstName || '';
+      if (ln && !ln.value.trim()) ln.value = session.lastName || '';
+      if (nn && !nn.value.trim() && session.nickname) nn.value = session.nickname;
+    }
+    if (inviteCodeInput) inviteCodeInput.value = '';
+    showAuthMessage('');
   }
 
   async function joinWorkspace() {
@@ -457,10 +646,8 @@
     btn.disabled = true;
     btn.textContent = 'Connecting…';
 
-    const existing = loadSession();
     const body = { code, firstName, lastName };
     if (nickname) body.nickname = nickname;
-    if (existing?.memberToken) body.memberToken = existing.memberToken;
 
     try {
       const res = await fetch(SUPABASE_URL + '/functions/v1/teams-auth', {
@@ -479,20 +666,14 @@
         throw new Error(data?.error || 'Invalid invite code');
       }
 
-      session = {
-        firstName: data.firstName,
-        lastName: data.lastName,
-        nickname: data.nickname || null,
-        displayName: data.displayName,
-        agentName: data.agentName,
-        agentKey: data.agentKey,
-        agentId: data.agentId,
-        memberId: data.memberId,
-        memberToken: data.memberToken,
-        accessCodeId: data.accessCodeId,
-        expiresAt: data.expiresAt,
-      };
-      saveSession(session);
+      const team = teamSessionFromAuth(data);
+      if (store?.teams?.[team.accessCodeId]?.aiHistory?.length) {
+        team.aiHistory = store.teams[team.accessCodeId].aiHistory;
+      }
+      session = team;
+      saveSession(team);
+      store = loadStore();
+      document.getElementById('invite-code').value = '';
       showAuthMessage('');
       showChat();
     } catch (e) {
@@ -572,6 +753,8 @@
     autoGrow(aiChatInput);
     appendAiMessage('user', text);
     aiHistory.push({ role: 'user', content: text });
+    session.aiHistory = aiHistory.slice(-40);
+    persistActiveTeamState();
 
     aiSending = true;
     abortController = new AbortController();
@@ -598,6 +781,8 @@
 
       const reply = data.reply || 'No response.';
       aiHistory.push({ role: 'assistant', content: reply });
+      session.aiHistory = aiHistory.slice(-40);
+      persistActiveTeamState();
       await revealBotMessage(reply);
     } catch (e) {
       removeTypingIndicator();
@@ -618,12 +803,38 @@
   }
 
   document.getElementById('btn-join').addEventListener('click', joinWorkspace);
+  document.getElementById('btn-join-another')?.addEventListener('click', function () {
+    showAuth(true);
+  });
+  document.getElementById('btn-join-another-mobile')?.addEventListener('click', function () {
+    showAuth(true);
+  });
+  teamSwitcherMobile?.addEventListener('change', function () {
+    if (teamSwitcherMobile.value) switchTeam(teamSwitcherMobile.value);
+  });
+  document.getElementById('btn-auth-cancel')?.addEventListener('click', function () {
+    if (store?.activeTeamId && store.teams[store.activeTeamId]) {
+      session = store.teams[store.activeTeamId];
+      showChat();
+    }
+  });
   document.getElementById('btn-team-send').addEventListener('click', sendTeamMessage);
   document.getElementById('btn-ai-send').addEventListener('click', onAiSendClick);
   document.getElementById('btn-leave').addEventListener('click', function () {
-    localStorage.removeItem(SESSION_KEY);
+    if (!session?.accessCodeId) return;
+    const name = session.agentName || 'this team';
+    if (!window.confirm('Leave ' + name + '? You can rejoin later with your invite code.')) return;
+    persistActiveTeamState();
+    const leftId = session.accessCodeId;
+    teardownChat();
+    removeTeamFromStore(leftId);
+    if (store && store.activeTeamId) {
+      session = store.teams[store.activeTeamId];
+      showChat();
+      return;
+    }
     session = null;
-    showAuth();
+    showAuth(false);
   });
 
   document.getElementById('btn-team-ai').addEventListener('click', function () {
@@ -663,6 +874,6 @@
   if (session?.agentKey && session?.memberToken) {
     showChat();
   } else {
-    showAuth();
+    showAuth(false);
   }
 })();
