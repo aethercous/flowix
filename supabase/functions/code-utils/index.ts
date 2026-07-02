@@ -3,7 +3,7 @@
 
 export function generateRandomCode(format: 'human' | 'machine' = 'human'): string {
   if (format === 'human') {
-    // Generate human-friendly code: APP-XXXX-XXXX-XXXX
+    // Generate human-friendly code: WORLO-XXXX-XXXX-XXXX-XXXX
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     const segments = [];
     for (let i = 0; i < 4; i++) {

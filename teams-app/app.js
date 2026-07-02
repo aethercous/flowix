@@ -36,7 +36,7 @@
   function formatInviteCodeInput() {
     if (!inviteCodeInput) return;
     let v = inviteCodeInput.value.toUpperCase().replace(/\s+/g, '');
-    if (v.startsWith('FLOWIX')) v = 'WORLO' + v.slice(6);
+    v = v.replace(/^FLOWIX-/i, 'WORLO-');
     inviteCodeInput.value = v;
   }
 

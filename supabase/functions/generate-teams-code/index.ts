@@ -7,26 +7,7 @@ import { corsPreflightResponse, jsonResponse } from "../_shared/cors.ts";
  * `teams-auth` can validate (it only queries `access_codes`, not `team_access_codes`).
  */
 
-function generateRandomCode(): string {
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-  const segments = [];
-  for (let i = 0; i < 4; i++) {
-    let segment = "";
-    for (let j = 0; j < 4; j++) {
-      segment += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    segments.push(segment);
-  }
-  return "WORLO-" + segments.join("-");
-}
-
-async function hashCode(code: string): Promise<string> {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(code);
-  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
-}
+import { generateRandomCode, hashCode } from "../code-utils/index.ts";
 
 interface GenerateCodeRequest {
   agent_token_id?: string;
@@ -165,7 +146,7 @@ serve(async (req: Request) => {
       }, 403);
     }
 
-    const rawCode = generateRandomCode();
+    const rawCode = generateRandomCode('human');
     const hashedCode = await hashCode(rawCode);
 
     const metadata: Record<string, unknown> = {};

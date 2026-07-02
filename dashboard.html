@@ -2783,17 +2783,23 @@ main {
 
   window.kickTeamMember = kickTeamMember;
 
+  function normalizeTeamCodeForDisplay(code) {
+    if (!code || typeof code !== 'string') return code;
+    return code.trim().toUpperCase().replace(/^FLOWIX-/i, 'WORLO-');
+  }
+
   function maskTeamCode() {
     return 'WORLO-••••-••••-••••-••••';
   }
 
   function showTeamCodeModal(code, agentName) {
-    lastGeneratedTeamCode = code;
+    const displayCode = normalizeTeamCodeForDisplay(code);
+    lastGeneratedTeamCode = displayCode;
     const modal = document.getElementById('team-code-modal');
     const valueEl = document.getElementById('team-code-modal-value');
     const agentEl = document.getElementById('team-code-modal-agent');
     const statusEl = document.getElementById('team-code-copy-status');
-    if (valueEl) valueEl.textContent = code;
+    if (valueEl) valueEl.textContent = displayCode;
     if (agentEl) agentEl.textContent = agentName ? `Agent: ${agentName}` : '';
     if (statusEl) statusEl.textContent = '';
     if (modal) modal.classList.add('is-open');
@@ -2874,7 +2880,7 @@ main {
         return;
       }
 
-      lastGeneratedTeamCode = data.code;
+      lastGeneratedTeamCode = normalizeTeamCodeForDisplay(data.code);
       showTeamCodeModal(data.code, agent?.name);
       await loadTeamCodesFromDb();
       saveState();

@@ -2,27 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { corsPreflightResponse, jsonResponse } from "../_shared/cors.ts";
 
-function generateRandomCode(): string {
-  // Generate human-friendly code: WORLO-XXXX-XXXX-XXXX
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-  const segments = [];
-  for (let i = 0; i < 4; i++) {
-    let segment = "";
-    for (let j = 0; j < 4; j++) {
-      segment += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    segments.push(segment);
-  }
-  return "WORLO-" + segments.join("-");
-}
-
-async function hashCode(code: string): Promise<string> {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(code);
-  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
-}
+import { generateRandomCode, hashCode } from "../code-utils/index.ts";
 
 interface GenerateCodeRequest {
   agent_token_id?: string;
@@ -134,7 +114,7 @@ serve(async (req: Request) => {
     }
 
     // Generate a new access code
-    const rawCode = generateRandomCode();
+    const rawCode = generateRandomCode('human');
     const hashedCode = await hashCode(rawCode);
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + expires_in_days);
