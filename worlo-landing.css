@@ -1949,3 +1949,58 @@ body.fx-landing.fx-sky .fx-teams-inline-demo #view-chat .teams-compose textarea 
   color: #12121a !important;
   caret-color: #12121a !important;
 }
+
+/* Bottom of page: light sky + white panels need dark text (not white-on-white) */
+body.fx-landing.fx-sky .fx-teams-showcase-title {
+  color: #12121a !important;
+}
+
+body.fx-landing.fx-sky .fx-readable-panel,
+body.fx-landing.fx-sky .fx-readable-panel :is(
+  h1, h2, h3, h4, h5, h6,
+  p, li, span, label, strong, em, small, ol, ul, a:not(.fx-btn-primary)
+) {
+  color: #12121a !important;
+}
+
+body.fx-landing.fx-sky .fx-readable-panel :is(.fx-docs-preview-sub, .fx-section-desc, .fx-eyebrow) {
+  color: #5c5c6a !important;
+}
+
+body.fx-landing.fx-sky .fx-readable-panel .fx-btn-primary,
+body.fx-landing.fx-sky .fx-readable-panel .fx-btn-primary * {
+  color: #ffffff !important;
+}
+
+body.fx-landing.fx-sky .fx-readable-panel .fx-btn-ghost {
+  color: #12121a !important;
+  border-color: rgba(0, 0, 0, 0.12) !important;
+  background: rgba(255, 255, 255, 0.72) !important;
+}
+
+body.fx-landing.fx-sky .fx-cta-band.fx-landing-plain :is(h2, h3, p, .fx-cta-sub) {
+  color: #12121a !important;
+}
+
+body.fx-landing.fx-sky .fx-cta-band.fx-landing-plain .fx-btn-ghost {
+  color: #12121a !important;
+  border-color: rgba(0, 0, 0, 0.12) !important;
+  background: rgba(255, 255, 255, 0.72) !important;
+}
+
+body.fx-landing.fx-sky .fx-footer :is(.fx-logo, a, .fx-footer-copy) {
+  color: #1a1a24 !important;
+}
+
+body.fx-landing.fx-sky .fx-teams-showcase-copy,
+body.fx-landing.fx-sky .fx-teams-showcase-copy :is(h2, h3, p, li, span, strong, a) {
+  color: #12121a !important;
+}
+
+body.fx-landing.fx-sky .fx-teams-showcase-copy :is(.fx-section-desc, .fx-teams-showcase-steps, .fx-eyebrow, .fx-teams-showcase-foot) {
+  color: #5c5c6a !important;
+}
+
+body.fx-landing.fx-sky .fx-teams-showcase-copy .fx-teams-showcase-steps strong {
+  color: #12121a !important;
+}

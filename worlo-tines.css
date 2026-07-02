@@ -927,9 +927,17 @@ body.fx-tines .form-title {
 
 body.fx-tines .card-header {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   align-items: flex-start;
+  gap: 8px;
   margin-bottom: 12px;
+}
+
+body.fx-tines .card-title {
+  width: 100%;
+  min-width: 0;
+  word-break: break-word;
+  line-height: 1.35;
 }
 
 body.fx-tines .card-badge {
@@ -940,6 +948,29 @@ body.fx-tines .card-badge {
   background: var(--fx-bg-muted);
   color: var(--fx-text-secondary);
   border-radius: 999px;
+  flex-shrink: 0;
+  align-self: flex-start;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+body.fx-tines .card {
+  min-width: 0;
+  overflow: hidden;
+}
+
+body.fx-tines .card-preview {
+  font-size: 12px;
+  color: var(--fx-text-secondary, #6b7280);
+  line-height: 1.5;
+  margin-bottom: 16px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-break: break-word;
 }
 
 body.fx-tines .card-description {
@@ -950,9 +981,16 @@ body.fx-tines .card-description {
 
 body.fx-tines .card-footer {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   padding-top: 16px;
   border-top: 1px solid var(--fx-border);
+}
+
+body.fx-tines .card-footer .btn {
+  flex: 1 1 calc(50% - 4px);
+  min-width: 88px;
+  max-width: 100%;
 }
 
 body.fx-tines .page-header {

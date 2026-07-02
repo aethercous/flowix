@@ -2,10 +2,11 @@
  * Shared Worlo auth — Supabase sign in/up modals and redirects.
  */
 (function (global) {
-  const SUPABASE_URL = 'https://utofnywijqsozjqmkhcn.supabase.co';
-  const SUPABASE_KEY = 'sb_publishable_NFpInIt2anAJxn2slHZIuQ_BsEw4g1n';
-  const DASHBOARD = 'dashboard.html';
-  const LANDING = '/';
+  const cfg = global.WORLO_CONFIG || {};
+  const SUPABASE_URL = cfg.SUPABASE_URL || 'https://utofnywijqsozjqmkhcn.supabase.co';
+  const SUPABASE_KEY = cfg.SUPABASE_KEY || cfg.SUPABASE_ANON_KEY || 'sb_publishable_NFpInIt2anAJxn2slHZIuQ_BsEw4g1n';
+  const DASHBOARD = cfg.DASHBOARD_PATH || 'dashboard.html';
+  const LANDING = cfg.LANDING_PATH || '/';
 
   let sb = null;
   let redirectAfterAuth = DASHBOARD;
@@ -15,7 +16,6 @@
     if (!sb && global.supabase) {
       sb = global.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
         auth: {
-          flowType: 'pkce',
           detectSessionInUrl: true,
           persistSession: true,
           autoRefreshToken: true
@@ -366,17 +366,38 @@
   function refreshAuthUi(session) {
     var signedIn = !!(session && session.user);
     document.querySelectorAll('[data-auth-guest]').forEach(function (el) {
-      el.style.display = signedIn ? 'none' : '';
+      el.style.display = signedIn ? 'none' : 'inline-flex';
       el.hidden = signedIn;
     });
     document.querySelectorAll('[data-auth-user]').forEach(function (el) {
-      el.style.display = signedIn ? '' : 'none';
+      el.style.display = signedIn ? 'inline-flex' : 'none';
       el.hidden = !signedIn;
     });
     var emailEl = document.getElementById('fx-nav-user-email');
     if (emailEl && signedIn) {
       emailEl.textContent = session.user.email || 'Signed in';
     }
+  }
+
+  async function bootstrapAuthUi(client, attempts) {
+    if (!client) return null;
+    attempts = attempts || 8;
+    for (var i = 0; i < attempts; i++) {
+      try {
+        var res = await client.auth.getSession();
+        if (res.data && res.data.session) {
+          refreshAuthUi(res.data.session);
+          return res.data.session;
+        }
+      } catch (_e) {
+        /* retry */
+      }
+      if (i < attempts - 1) {
+        await new Promise(function (resolve) { setTimeout(resolve, 80); });
+      }
+    }
+    refreshAuthUi(null);
+    return null;
   }
 
   function bindSignOut() {
@@ -517,14 +538,6 @@
 
     var client = getClient();
     if (client) {
-      handleOAuthReturn().then(function () {
-        return client.auth.getSession();
-      }).then(function (res) {
-        refreshAuthUi(res.data && res.data.session);
-        if (options.redirectIfAuthed && res.data && res.data.session) {
-          navigate(redirectAfterAuth);
-        }
-      });
       client.auth.onAuthStateChange(function (event, session) {
         refreshAuthUi(session);
         if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session) {
@@ -534,6 +547,18 @@
           }
         }
       });
+
+      handleOAuthReturn()
+        .catch(function () { return false; })
+        .then(function () { return bootstrapAuthUi(client, 8); })
+        .then(function (session) {
+          if (options.redirectIfAuthed && session) {
+            navigate(redirectAfterAuth);
+          }
+        })
+        .catch(function () {
+          refreshAuthUi(null);
+        });
     }
   }
 
@@ -554,6 +579,7 @@
     hideModals: hideModals,
     requireAuth: requireAuth,
     refreshAuthUi: refreshAuthUi,
+    bootstrapAuthUi: bootstrapAuthUi,
     handleSignOut: handleSignOut,
     handleGoogleAuth: handleGoogleAuth,
     getClient: getClient,
