@@ -1894,21 +1894,10 @@ body.fx-landing.fx-sky .fx-landing-plain .fx-hero-ctas {
   justify-content: center;
 }
 
-body.fx-landing.fx-sky .fx-teams-showcase-copy .fx-display-title {
-  color: #12121a !important;
-}
-
-body.fx-landing.fx-sky .fx-teams-showcase-copy .fx-section-desc,
-body.fx-landing.fx-sky .fx-teams-showcase-copy .fx-teams-showcase-steps {
-  color: #5c5c6a !important;
-}
-
-body.fx-landing.fx-sky .fx-teams-showcase-copy .fx-eyebrow {
-  color: #6b7280 !important;
-}
-
-body.fx-landing.fx-sky .fx-teams-showcase-copy .fx-teams-showcase-steps strong {
-  color: #12121a !important;
+body.fx-landing.fx-sky .fx-teams-showcase-copy .fx-btn-ghost {
+  color: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.55) !important;
+  background: rgba(255, 255, 255, 0.12) !important;
 }
 
 body.fx-landing.fx-sky .fx-teams-showcase-panel {
@@ -1929,12 +1918,6 @@ body.fx-landing.fx-sky .fx-teams-inline-demo .form-input {
   caret-color: #12121a;
 }
 
-body.fx-landing.fx-sky .fx-teams-showcase-copy .fx-btn-ghost {
-  color: #12121a !important;
-  border-color: rgba(0, 0, 0, 0.12) !important;
-  background: rgba(255, 255, 255, 0.55) !important;
-}
-
 body.fx-landing.fx-sky .fx-glass-unified .fx-feature-card :is(h3, p),
 body.fx-landing.fx-sky .fx-glass-unified .fx-teams-mock-label {
   color: #12121a !important;
@@ -1950,11 +1933,7 @@ body.fx-landing.fx-sky .fx-teams-inline-demo #view-chat .teams-compose textarea 
   caret-color: #12121a !important;
 }
 
-/* Bottom of page: light sky + white panels need dark text (not white-on-white) */
-body.fx-landing.fx-sky .fx-teams-showcase-title {
-  color: #12121a !important;
-}
-
+/* White panels — always dark text */
 body.fx-landing.fx-sky .fx-readable-panel,
 body.fx-landing.fx-sky .fx-readable-panel :is(
   h1, h2, h3, h4, h5, h6,
@@ -1978,29 +1957,20 @@ body.fx-landing.fx-sky .fx-readable-panel .fx-btn-ghost {
   background: rgba(255, 255, 255, 0.72) !important;
 }
 
-body.fx-landing.fx-sky .fx-cta-band.fx-landing-plain :is(h2, h3, p, .fx-cta-sub) {
-  color: #12121a !important;
+/* Sections on sky (no panel) — white text on dark/light sky */
+body.fx-landing.fx-sky .fx-cta-band.fx-landing-plain :is(h2, h3, p, .fx-cta-sub, .fx-eyebrow),
+body.fx-landing.fx-sky .fx-footer :is(.fx-logo, a, .fx-footer-copy, span),
+body.fx-landing.fx-sky .fx-teams-showcase-title,
+body.fx-landing.fx-sky .fx-teams-showcase-copy :is(
+  h2, h3, p, li, span, strong, .fx-display-title, .fx-section-desc,
+  .fx-eyebrow, .fx-teams-showcase-steps, .fx-teams-showcase-foot, a
+) {
+  color: #ffffff !important;
 }
 
-body.fx-landing.fx-sky .fx-cta-band.fx-landing-plain .fx-btn-ghost {
-  color: #12121a !important;
-  border-color: rgba(0, 0, 0, 0.12) !important;
-  background: rgba(255, 255, 255, 0.72) !important;
-}
-
-body.fx-landing.fx-sky .fx-footer :is(.fx-logo, a, .fx-footer-copy) {
-  color: #1a1a24 !important;
-}
-
-body.fx-landing.fx-sky .fx-teams-showcase-copy,
-body.fx-landing.fx-sky .fx-teams-showcase-copy :is(h2, h3, p, li, span, strong, a) {
-  color: #12121a !important;
-}
-
-body.fx-landing.fx-sky .fx-teams-showcase-copy :is(.fx-section-desc, .fx-teams-showcase-steps, .fx-eyebrow, .fx-teams-showcase-foot) {
-  color: #5c5c6a !important;
-}
-
-body.fx-landing.fx-sky .fx-teams-showcase-copy .fx-teams-showcase-steps strong {
-  color: #12121a !important;
+body.fx-landing.fx-sky .fx-cta-band.fx-landing-plain .fx-btn-ghost,
+body.fx-landing.fx-sky .fx-teams-showcase-copy .fx-btn-ghost {
+  color: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.55) !important;
+  background: rgba(255, 255, 255, 0.12) !important;
 }
