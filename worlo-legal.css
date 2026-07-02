@@ -127,30 +127,54 @@
   font-size: 14px;
 }
 
+body.fx-sky.fx-legal-page .fx-legal-main {
+  background: rgba(255, 255, 255, 0.97);
+  border: 1px solid rgba(18, 18, 26, 0.08);
+  border-radius: 16px;
+  box-shadow: 0 8px 40px rgba(18, 18, 26, 0.08);
+  backdrop-filter: blur(16px);
+}
+
 body.fx-sky.fx-legal-page .fx-legal-main :is(h1, h2, h3, .fx-legal-meta) {
-  color: #fff;
+  color: var(--fx-text, #12121a);
 }
 
 body.fx-sky.fx-legal-page .fx-legal-section :is(p, li) {
-  color: rgba(255, 255, 255, 0.88);
+  color: var(--fx-text-secondary, #5c5c6a);
 }
 
 body.fx-sky.fx-legal-page .fx-legal-section strong {
-  color: #fff;
+  color: var(--fx-text, #12121a);
 }
 
 body.fx-sky.fx-legal-page .fx-legal-toc {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(45, 90, 135, 0.06);
+  border-color: rgba(18, 18, 26, 0.1);
+}
+
+body.fx-sky.fx-legal-page .fx-legal-toc h2 {
+  color: var(--fx-text-secondary, #5c5c6a);
 }
 
 body.fx-sky.fx-legal-page .fx-legal-toc a {
-  color: #b8d4f0;
+  color: #156cc2;
 }
 
 body.fx-sky.fx-legal-page .fx-legal-callout {
-  background: rgba(255, 255, 255, 0.1);
-  border-left-color: rgba(255, 255, 255, 0.5);
+  background: rgba(45, 90, 135, 0.08);
+  border-left-color: var(--fx-sky, #2d5a87);
+}
+
+body.fx-sky.fx-legal-page .fx-legal-callout p {
+  color: var(--fx-text-secondary, #5c5c6a);
+}
+
+body.fx-sky.fx-legal-page .fx-legal-main a {
+  color: #156cc2;
+}
+
+body.fx-sky.fx-legal-page .fx-legal-footer-links a {
+  color: #156cc2;
 }
 
 @media (max-width: 640px) {

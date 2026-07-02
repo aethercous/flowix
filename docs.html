@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>worlo — Documentation &amp; Guides</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="worlo-tines.css"/>
+<link rel="stylesheet" href="worlo-landing.css"/>
+<link rel="stylesheet" href="worlo-sky.css"/>
+<link rel="stylesheet" href="worlo-docs.css"/>
+</head>
+<body class="fx-tines fx-sky fx-docs-page">
+
+<div class="fx-sky-scene" aria-hidden="true" data-layers-ready="1">
+  <div class="fx-sky-gradient"></div>
+  <div class="fx-sky-stars" aria-hidden="true"></div>
+</div>
+
+<nav class="fx-nav">
+  <a href="/" class="fx-logo">worlo</a>
+  <div class="fx-nav-links">
+    <a href="dashboard.html">Dashboard</a>
+    <a href="terms-of-service.html">Terms</a>
+  </div>
+  <div class="fx-nav-actions">
+    <a href="/?signin=1" class="fx-btn fx-btn-ghost fx-btn-sm">Sign in</a>
+    <a href="dashboard.html" class="fx-btn fx-btn-primary fx-btn-sm">Dashboard</a>
+  </div>
+</nav>
+
+<main class="fx-docs-main">
+  <div class="fx-docs-panel">
+    <h1>Documentation &amp; Guides</h1>
+    <p class="fx-docs-lead">Learn how to connect services, use API keys safely, write effective agent prompts, and wire worlo into your projects.</p>
+
+    <nav class="fx-docs-toc" aria-label="Guide contents">
+      <h2>Contents</h2>
+      <ol>
+        <li><a href="#safety">Security &amp; safety first</a></li>
+        <li><a href="#connections">Connecting services</a></li>
+        <li><a href="#api-keys">Using API keys</a></li>
+        <li><a href="#backend-prompts">Writing good backend prompts</a></li>
+        <li><a href="#projects">Connecting worlo API keys to projects</a></li>
+        <li><a href="#teams-codes">worlo Teams invite codes</a></li>
+      </ol>
+    </nav>
+
+    <section class="fx-docs-section" id="safety">
+      <h2>1. Security &amp; safety first</h2>
+      <div class="fx-docs-callout">
+        <p><strong>Never share API keys or worlo Teams invite codes in public places</strong> — including Discord servers, Slack channels, GitHub issues, screenshots, screen recordings, or client-side code. Anyone with your key or code can use your agent and any connected services it can access.</p>
+      </div>
+      <p>Agents on worlo can read email, send messages, browse websites, and act on connected apps depending on how you configure them. Treat every agent like a privileged account:</p>
+      <ul>
+        <li><strong>Share carefully.</strong> Only give API keys and invite codes to people you trust inside your organization.</li>
+        <li><strong>Use environment variables.</strong> Store keys in server-side secrets (Vercel, Railway, AWS Secrets Manager, etc.) — never hard-code them in frontend JavaScript.</li>
+        <li><strong>Revoke immediately</strong> if a key or code is exposed. Revoke from the dashboard under API Keys or worlo Teams.</li>
+        <li><strong>Limit permissions.</strong> Turn off send/edit permissions unless the agent truly needs them. Restrict allowed websites when possible.</li>
+        <li><strong>Review connected apps.</strong> Disconnect OAuth integrations you no longer use.</li>
+      </ul>
+    </section>
+
+    <section class="fx-docs-section" id="connections">
+      <h2>2. Connecting services</h2>
+      <p>worlo agents can use OAuth-linked apps (Slack, Google Calendar, Gmail, GitHub, Notion, Discord, Microsoft Teams, and more) when you connect them in the dashboard.</p>
+      <h3>Step-by-step</h3>
+      <ol>
+        <li>Sign in to the <a href="dashboard.html">dashboard</a> and open <strong>Connections</strong>.</li>
+        <li>Find the service you want and click <strong>Connect</strong>.</li>
+        <li>Complete the OAuth sign-in in the popup or browser window.</li>
+        <li>Open your agent, click <strong>Edit</strong>, and enable the connections that agent should use.</li>
+        <li>Save the agent so its token picks up the linked apps.</li>
+      </ol>
+      <div class="fx-docs-callout fx-docs-callout--info">
+        <p>Connections are per-account. Each agent chooses which linked apps it may use — an agent without Gmail connected cannot read your email even if your account has Gmail linked elsewhere.</p>
+      </div>
+    </section>
+
+    <section class="fx-docs-section" id="api-keys">
+      <h2>3. Using API keys</h2>
+      <p>Each agent can have one API key (<code>nra_</code> prefix). The key turns that agent into an HTTP endpoint with its prompt, model, permissions, and linked connections.</p>
+      <h3>Creating a key</h3>
+      <ol>
+        <li>Save your agent with the settings and connections you want.</li>
+        <li>Open <strong>API Keys</strong> in the dashboard (or click <strong>API Key</strong> on an agent card).</li>
+        <li>Select the agent and click <strong>Generate API Key</strong>.</li>
+        <li><strong>Copy the key immediately</strong> from the popup — you will not be able to view it again after closing the dialog.</li>
+      </ol>
+      <div class="fx-docs-callout">
+        <p>If you lose a key, revoke it and generate a new one. The old key stops working instantly.</p>
+      </div>
+      <h3>Calling your agent</h3>
+      <pre>curl -X POST 'https://YOUR_PROJECT.supabase.co/functions/v1/agent-invoke' \
+  -H 'Content-Type: application/json' \
+  -H 'X-Agent-Key: nra_your_key_here' \
+  -d '{"message":"Hello from my app"}'</pre>
+      <p>Send a JSON body with <code>message</code> (required) and optional <code>history</code> for multi-turn conversations.</p>
+    </section>
+
+    <section class="fx-docs-section" id="backend-prompts">
+      <h2>4. Writing good backend prompts</h2>
+      <p>When you use OpenAI with a custom API key, worlo can wrap your instructions in the <strong>worlo backend prompt</strong> — a platform layer that teaches the agent how to use connected apps, browser tools, and permission boundaries safely.</p>
+      <h3>Best practices</h3>
+      <ul>
+        <li><strong>Be specific about the role.</strong> “You are our customer support agent for Acme Corp” works better than “You are helpful.”</li>
+        <li><strong>Define boundaries.</strong> Say what the agent should and should not do (e.g. “Never send emails without explicit user confirmation”).</li>
+        <li><strong>List allowed websites</strong> when unrestricted browsing is off — the agent will only browse those URLs.</li>
+        <li><strong>Keep instructions concise.</strong> Long prompts cost more tokens and can dilute focus.</li>
+        <li><strong>Leave worlo backend prompt enabled</strong> unless you have a reason to send raw instructions only — it adds safe defaults for tool use and connected apps.</li>
+      </ul>
+      <h3>Example agent instruction</h3>
+      <pre>You are the ops assistant for our support team.
+- Answer questions using Slack history and Google Calendar when relevant.
+- Draft replies but do not send messages unless the user says "send it".
+- Be concise and cite sources when pulling from connected apps.</pre>
+    </section>
+
+    <section class="fx-docs-section" id="projects">
+      <h2>5. Connecting worlo API keys to projects</h2>
+      <p>Use worlo as a backend agent from your own app, script, or automation — always from server-side code.</p>
+      <h3>Node.js example</h3>
+      <pre>const WORLO_AGENT_KEY = process.env.WORLO_AGENT_KEY;
+
+async function askAgent(message) {
+  const res = await fetch(
+    'https://YOUR_PROJECT.supabase.co/functions/v1/agent-invoke',
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Agent-Key': WORLO_AGENT_KEY,
+      },
+      body: JSON.stringify({ message }),
+    }
+  );
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Agent request failed');
+  return data.reply;
+}</pre>
+      <h3>Python example</h3>
+      <pre>import os, requests
+
+WORLO_AGENT_KEY = os.environ["WORLO_AGENT_KEY"]
+URL = "https://YOUR_PROJECT.supabase.co/functions/v1/agent-invoke"
+
+def ask_agent(message: str) -> str:
+    r = requests.post(
+        URL,
+        headers={"Content-Type": "application/json", "X-Agent-Key": WORLO_AGENT_KEY},
+        json={"message": message},
+        timeout=120,
+    )
+    r.raise_for_status()
+    return r.json()["reply"]</pre>
+      <div class="fx-docs-callout">
+        <p>Replace <code>YOUR_PROJECT</code> with your Supabase project URL from the dashboard API docs section. Never expose the key in browser code, mobile apps, or public repos.</p>
+      </div>
+    </section>
+
+    <section class="fx-docs-section" id="teams-codes">
+      <h2>6. worlo Teams invite codes</h2>
+      <p>worlo Teams is a separate desktop and browser app for chatting with your agents. Generate invite codes from the dashboard to let teammates join.</p>
+      <ol>
+        <li>Open <strong>worlo Teams</strong> in the dashboard.</li>
+        <li>Enable Teams access for the agent you want to share.</li>
+        <li>Generate an invite code and copy it immediately.</li>
+        <li>Share the code privately with teammates — not in public channels.</li>
+      </ol>
+      <div class="fx-docs-callout">
+        <p>Invite codes grant access to the linked agent. Revoke codes you no longer need and disable Teams on agents when sharing should stop.</p>
+      </div>
+    </section>
+
+    <div class="fx-docs-footer-links">
+      <a href="dashboard.html">Open dashboard</a>
+      <a href="/">Home</a>
+      <a href="terms-of-service.html">Terms of Service</a>
+      <a href="privacy-policy.html">Privacy Policy</a>
+    </div>
+  </div>
+</main>
+
+<script src="worlo-sky.js"></script>
+<script>WorloSky.init();</script>
+</body>
+</html>

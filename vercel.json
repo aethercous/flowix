@@ -12,6 +12,7 @@
   "rewrites": [
     { "source": "/terms", "destination": "/terms-of-service.html" },
     { "source": "/privacy", "destination": "/privacy-policy.html" },
+    { "source": "/docs", "destination": "/docs.html" },
     { "source": "/dashboard", "destination": "/dashboard.html" },
     { "source": "/connections", "destination": "/connections.html" },
     { "source": "/teams/download", "destination": "/teams-app/download.html" }

@@ -1449,13 +1449,15 @@ body.fx-sky .btn-primary:hover {
 
 .fx-modal-actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 10px;
   margin-top: 20px;
 }
 
 .fx-modal-actions .fx-btn,
 .fx-modal-actions .btn {
-  flex: 1;
+  flex: 1 1 auto;
+  min-width: 120px;
 }
 
 .fx-modal-toggle {
